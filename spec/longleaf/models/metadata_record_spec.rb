@@ -140,9 +140,8 @@ describe Longleaf::MetadataRecord do
     it 'includes empty service' do
       created_service = subject.add_service('new_service')
       
-      expect(created_service).to_not be_nil
-      expect(created_service).to be_empty
-      expect(subject.service('new_service')).to be_empty
+      expect(created_service.properties).to be_empty
+      expect(subject.service('new_service').properties).to be_empty
     end
   
     it 'adds service with properties' do
@@ -150,8 +149,8 @@ describe Longleaf::MetadataRecord do
       created_service = subject.add_service('new_service_2', service_prop)
       
       expect(created_service).to_not be_nil
-      expect(created_service).to include(service_prop)
-      expect(subject.service('new_service_2')).to include(service_prop)
+      expect(created_service.properties).to include(service_prop)
+      expect(subject.service('new_service_2').properties).to include(service_prop)
     end
     
     it 'rejects non-hash service properties' do

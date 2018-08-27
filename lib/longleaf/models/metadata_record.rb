@@ -1,6 +1,7 @@
 require_relative 'md_fields'
 require_relative 'service_record'
 
+# Metadata record for a single file
 module Longleaf
   class MetadataRecord
     attr_reader :deregistered, :registered
@@ -8,6 +9,8 @@ module Longleaf
     attr_reader :checksums
     attr_reader :properties
     
+    # @param properties [Hash] initial data properties for this record
+    # @param services [Hash] initial service property tree
     def initialize(properties = nil, services = nil)
       @properties = properties == nil ? Hash.new : Hash.new.merge(properties)
       # Retrieve special properties and remove them from general pool of properties
@@ -23,20 +26,26 @@ module Longleaf
       end
     end
     
+    # @return [Boolean] true if the record is deregistered
     def deregistered?
       @deregistered != nil
     end
     
+    # Adds a service to this record
+    #
+    # @param service [String] identifier for the service being added
+    # @param service_properties [Hash] properties for populating the new service
     def add_service(service, service_properties = Hash.new)
-      raise ArgumentError.new("Service properties must be a hash") if service_properties.class != Hash
-      
-      @services[service] = service_properties
+      @services[service] = ServiceRecord.new(service_properties)
     end
     
+    # @param name [String] name identifier of the service to retrieve
+    # @return [ServiceRecord] the ServiceRecord for the service identified by name, or nil
     def service(name)
       @services[name]
     end
     
+    # @return [Array<String>] a list of name identifiers for services registered to this record
     def list_services
       @services.keys
     end
