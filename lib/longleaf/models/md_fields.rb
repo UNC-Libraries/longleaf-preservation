@@ -1,5 +1,8 @@
 module Longleaf
   class MDFields
+    DATA = :data
+    SERVICES = :services
+    
     REGISTERED_TIMESTAMP = :registered
     DEREGISTERED_TIMESTAMP = :deregistered
 
