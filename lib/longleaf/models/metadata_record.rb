@@ -6,7 +6,6 @@ module Longleaf
     attr_reader :deregistered, :registered
     
     attr_reader :checksums
-    attr_reader :services
     attr_reader :properties
     
     def initialize(properties = nil, services = nil)
@@ -29,6 +28,8 @@ module Longleaf
     end
     
     def add_service(service, service_properties = Hash.new)
+      raise ArgumentError.new("Service properties must be a hash") if service_properties.class != Hash
+      
       @services[service] = service_properties
     end
     
