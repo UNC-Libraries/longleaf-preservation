@@ -46,12 +46,15 @@ module Longleaf
       services = Hash.new
       metadata.list_services.each do |name|
         service = metadata.service(name)
+        service[MDF::STALE_REPLICAS] = service.stale_replicas if service.stale_replicas != nil
+        service[MDF::SERVICE_TIMESTAMP] = service.timestamp if service.timestamp != nil
+        service[MDF::RUN_NEEDED] = service.run_needed if service.run_needed != nil
         services[name] = service.properties
       end
       
       props[MDF::SERVICES] = services
       
-      return props
+      props
     end
   end
 end

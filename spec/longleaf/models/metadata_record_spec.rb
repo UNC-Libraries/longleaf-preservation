@@ -3,6 +3,7 @@ require 'longleaf/models/metadata_record'
 require 'longleaf/models/md_fields'
 
 describe Longleaf::MetadataRecord do
+  MDF = Longleaf::MDFields
   
   let(:record_no_props) {
     Longleaf::MetadataRecord.new
@@ -10,22 +11,22 @@ describe Longleaf::MetadataRecord do
   
   let(:record_with_props) {
     Longleaf::MetadataRecord.new({
-      Longleaf::MDFields::REGISTERED_TIMESTAMP => '2018-01-01T00:00:00.000Z',
-      Longleaf::MDFields::FILE_SIZE => 1500,
+      MDF::REGISTERED_TIMESTAMP => '2018-01-01T00:00:00.000Z',
+      MDF::FILE_SIZE => 1500,
       'extra_property' => 'value',
-      Longleaf::MDFields::CHECKSUMS => { 'SHA1' => '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83' }
+      MDF::CHECKSUMS => { 'SHA1' => '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83' }
     })
   }
   
   let(:record_with_services) {
     Longleaf::MetadataRecord.new({
-      Longleaf::MDFields::REGISTERED_TIMESTAMP => '2018-01-01T00:00:00.000Z'
+      MDF::REGISTERED_TIMESTAMP => '2018-01-01T00:00:00.000Z'
     }, { 
       'service_1' => {
-        Longleaf::MDFields::SERVICE_TIMESTAMP => '2018-01-01T01:00:00.000Z'
+        MDF::SERVICE_TIMESTAMP => '2018-01-01T01:00:00.000Z'
       },
       'service_2' => {
-        Longleaf::MDFields::SERVICE_TIMESTAMP => '2018-01-01T02:00:00.000Z',
+        MDF::SERVICE_TIMESTAMP => '2018-01-01T02:00:00.000Z',
         'service_prop' => 'value'
       },  
     })
@@ -39,7 +40,7 @@ describe Longleaf::MetadataRecord do
     context 'with properties' do
       subject { record_with_props.properties }
       
-      it { is_expected.to include(Longleaf::MDFields::FILE_SIZE => 1500,
+      it { is_expected.to include(MDF::FILE_SIZE => 1500,
         'extra_property' => 'value') }
       it { expect(subject.length).to eq 2 }
     end
@@ -89,7 +90,7 @@ describe Longleaf::MetadataRecord do
     context 'with deregistered property' do
       subject {
         Longleaf::MetadataRecord.new({
-          Longleaf::MDFields::DEREGISTERED_TIMESTAMP => '2018-01-01T00:00:00.000Z'
+          MDF::DEREGISTERED_TIMESTAMP => '2018-01-01T00:00:00.000Z'
         })
       }
       
@@ -145,12 +146,11 @@ describe Longleaf::MetadataRecord do
     end
   
     it 'adds service with properties' do
-      service_prop = { Longleaf::MDFields::SERVICE_TIMESTAMP => '2018-01-01T01:00:00.000Z' }
-      created_service = subject.add_service('new_service_2', service_prop)
+      created_service = subject.add_service('new_service_2', { MDF::SERVICE_TIMESTAMP => '2018-01-01T01:00:00.000Z' })
       
       expect(created_service).to_not be_nil
-      expect(created_service.properties).to include(service_prop)
-      expect(subject.service('new_service_2').properties).to include(service_prop)
+      expect(created_service.timestamp).to eq ('2018-01-01T01:00:00.000Z')
+      expect(subject.service('new_service_2').timestamp).to eq ('2018-01-01T01:00:00.000Z')
     end
     
     it 'rejects non-hash service properties' do

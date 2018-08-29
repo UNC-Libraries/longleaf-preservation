@@ -3,15 +3,16 @@ require 'longleaf/models/service_record'
 require 'longleaf/models/md_fields'
 
 describe Longleaf::ServiceRecord do
+  MDF = Longleaf::MDFields
   
   let(:record_no_props) {
     Longleaf::ServiceRecord.new
   }
   
   let(:service_props) { {
-    Longleaf::MDFields::SERVICE_TIMESTAMP => '2018-01-01T01:00:00.000Z',
-    Longleaf::MDFields::STALE_REPLICAS => true,
-    Longleaf::MDFields::RUN_NEEDED => true,
+    MDF::SERVICE_TIMESTAMP => '2018-01-01T01:00:00.000Z',
+    MDF::STALE_REPLICAS => true,
+    MDF::RUN_NEEDED => true,
     'other_prop' => 'value'
   } }
   
@@ -25,11 +26,8 @@ describe Longleaf::ServiceRecord do
     context 'with properties' do
       subject { record_with_props.properties }
       
-      it { is_expected.to include(Longleaf::MDFields::SERVICE_TIMESTAMP => '2018-01-01T01:00:00.000Z',
-        Longleaf::MDFields::STALE_REPLICAS => true,
-        Longleaf::MDFields::RUN_NEEDED => true,
-        'other_prop' => 'value' ) }
-      it { expect(subject.length).to eq 4 }
+      it { is_expected.to include( 'other_prop' => 'value' ) }
+      it { expect(subject.length).to eq 1 }
     end
   end
   
@@ -95,9 +93,9 @@ describe Longleaf::ServiceRecord do
     context 'with properties' do
       subject { record_with_props }
       
-      it { expect(subject[Longleaf::MDFields::SERVICE_TIMESTAMP]).to eq '2018-01-01T01:00:00.000Z' }
-      it { expect(subject[Longleaf::MDFields::STALE_REPLICAS]).to be true }
-      it { expect(subject[Longleaf::MDFields::RUN_NEEDED]).to be true }
+      it { expect(subject[MDF::SERVICE_TIMESTAMP]).to be_nil }
+      it { expect(subject[MDF::STALE_REPLICAS]).to be_nil }
+      it { expect(subject[MDF::RUN_NEEDED]).to be_nil }
       it { expect(subject['other_prop']).to eq 'value' }
     end
   end

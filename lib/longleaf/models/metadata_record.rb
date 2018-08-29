@@ -12,7 +12,7 @@ module Longleaf
     # @param properties [Hash] initial data properties for this record
     # @param services [Hash] initial service property tree
     def initialize(properties = nil, services = nil)
-      @properties = properties == nil ? Hash.new : Hash.new.merge(properties)
+      @properties = properties.nil? ? Hash.new : Hash.new.merge(properties)
       # Retrieve special properties and remove them from general pool of properties
       @registered = @properties.delete(MDFields::REGISTERED_TIMESTAMP)
       @deregistered = @properties.delete(MDFields::DEREGISTERED_TIMESTAMP)
