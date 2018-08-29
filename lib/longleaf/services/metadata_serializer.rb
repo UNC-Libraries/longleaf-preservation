@@ -37,18 +37,18 @@ module Longleaf
       props = Hash.new
       
       data = Hash.new.merge(metadata.properties)
-      data[MDF::REGISTERED_TIMESTAMP] = metadata.registered if metadata.registered != nil
-      data[MDF::DEREGISTERED_TIMESTAMP] = metadata.deregistered if metadata.deregistered != nil
-      data[MDF::CHECKSUMS] = metadata.checksums unless metadata.checksums == nil || metadata.checksums.empty?
+      data[MDF::REGISTERED_TIMESTAMP] = metadata.registered unless metadata.registered.nil?
+      data[MDF::DEREGISTERED_TIMESTAMP] = metadata.deregistered unless metadata.deregistered.nil?
+      data[MDF::CHECKSUMS] = metadata.checksums unless metadata.checksums&.empty?
       
       props[MDF::DATA] = data
       
       services = Hash.new
       metadata.list_services.each do |name|
         service = metadata.service(name)
-        service[MDF::STALE_REPLICAS] = service.stale_replicas if service.stale_replicas != nil
-        service[MDF::SERVICE_TIMESTAMP] = service.timestamp if service.timestamp != nil
-        service[MDF::RUN_NEEDED] = service.run_needed if service.run_needed != nil
+        service[MDF::STALE_REPLICAS] = service.stale_replicas unless service.stale_replicas.nil?
+        service[MDF::SERVICE_TIMESTAMP] = service.timestamp unless service.timestamp.nil?
+        service[MDF::RUN_NEEDED] = service.run_needed unless service.run_needed.nil?
         services[name] = service.properties
       end
       

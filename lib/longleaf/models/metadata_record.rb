@@ -19,7 +19,7 @@ module Longleaf
       @checksums = @properties.delete(MDFields::CHECKSUMS) || Hash.new
       
       @services = Hash.new
-      unless services == nil
+      unless services.nil?
         services.each do |service, props|
           @services[service] = ServiceRecord.new(props) if props.class == Hash
         end
@@ -28,7 +28,7 @@ module Longleaf
     
     # @return [Boolean] true if the record is deregistered
     def deregistered?
-      @deregistered != nil
+      !@deregistered.nil?
     end
     
     # Adds a service to this record
