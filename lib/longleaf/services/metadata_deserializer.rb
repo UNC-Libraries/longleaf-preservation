@@ -24,7 +24,37 @@ module Longleaf
         raise Longleaf::MetadataError.new("Invalid metadata file, did not contain data or services fields: #{file_path}")
       end
       
-      MetadataRecord.new(md[MDF::DATA], md[MDF::SERVICES])
+      data = Hash.new.merge(md[MDF::DATA])
+      # Extract reserved properties for submission as separate parameters
+      registered = data.delete(MDFields::REGISTERED_TIMESTAMP)
+      deregistered = data.delete(MDFields::DEREGISTERED_TIMESTAMP)
+      checksums = data.delete(MDFields::CHECKSUMS)
+      
+      services = md[MDF::SERVICES]
+      service_records = Hash.new
+      unless services.nil?
+        services.each do |name, props|
+          raise Longleaf::MetadataError.new("Value of service #{name} must be a hash") unless props.class == Hash
+          
+          service_props = Hash.new.merge(props)
+          
+          stale_replicas = service_props.delete(MDFields::STALE_REPLICAS)
+          timestamp = service_props.delete(MDFields::SERVICE_TIMESTAMP)
+          run_needed = service_props.delete(MDFields::RUN_NEEDED)
+          
+          service_records[name] = ServiceRecord.new(
+              properties: service_props,
+              stale_replicas: stale_replicas,
+              timestamp: timestamp,
+              run_needed: run_needed)
+        end
+      end
+      
+      MetadataRecord.new(properties: data,
+          services: service_records,
+          registered: registered,
+          deregistered: deregistered,
+          checksums: checksums)
     end
     
     def self.from_yaml(file_path)

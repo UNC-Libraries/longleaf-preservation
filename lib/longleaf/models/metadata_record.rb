@@ -5,25 +5,20 @@ require_relative 'service_record'
 module Longleaf
   class MetadataRecord
     attr_reader :deregistered, :registered
-    
     attr_reader :checksums
     attr_reader :properties
     
     # @param properties [Hash] initial data properties for this record
     # @param services [Hash] initial service property tree
-    def initialize(properties = nil, services = nil)
-      @properties = properties.nil? ? Hash.new : Hash.new.merge(properties)
-      # Retrieve special properties and remove them from general pool of properties
-      @registered = @properties.delete(MDFields::REGISTERED_TIMESTAMP)
-      @deregistered = @properties.delete(MDFields::DEREGISTERED_TIMESTAMP)
-      @checksums = @properties.delete(MDFields::CHECKSUMS) || Hash.new
-      
-      @services = Hash.new
-      unless services.nil?
-        services.each do |service, props|
-          @services[service] = ServiceRecord.new(props) if props.class == Hash
-        end
-      end
+    # @param deregistered [String] deregistered timestamp
+    # @param registered [String] registered timestamp
+    # @param checksums [Hash] hash of checksum values
+    def initialize(properties: Hash.new, services: Hash.new, deregistered: nil, registered: nil, checksums: Hash.new)
+      @properties = properties
+      @registered = registered
+      @deregistered = deregistered
+      @checksums = checksums
+      @services = services
     end
     
     # @return [Boolean] true if the record is deregistered
@@ -34,9 +29,10 @@ module Longleaf
     # Adds a service to this record
     #
     # @param name [String] identifier for the service being added
-    # @param service_properties [Hash] properties for populating the new service
-    def add_service(name, service_properties = Hash.new)
-      @services[name] = ServiceRecord.new(service_properties)
+    # @param service_properties [ServiceRecord] properties for populating the new service
+    def add_service(name, service = Longleaf::ServiceRecord.new)
+      raise ArgumentError.new("Value must be a ServiceRecord object when adding a service") unless service.class == Longleaf::ServiceRecord
+      @services[name] = service
     end
     
     # @param name [String] name identifier of the service to retrieve
