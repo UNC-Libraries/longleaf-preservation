@@ -33,10 +33,10 @@ module Longleaf
     
     # Adds a service to this record
     #
-    # @param service [String] identifier for the service being added
+    # @param name [String] identifier for the service being added
     # @param service_properties [Hash] properties for populating the new service
-    def add_service(service, service_properties = Hash.new)
-      @services[service] = ServiceRecord.new(service_properties)
+    def add_service(name, service_properties = Hash.new)
+      @services[name] = ServiceRecord.new(service_properties)
     end
     
     # @param name [String] name identifier of the service to retrieve

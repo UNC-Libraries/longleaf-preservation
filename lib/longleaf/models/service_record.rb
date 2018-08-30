@@ -14,7 +14,7 @@ module Longleaf
       @run_needed = @properties.delete(MDFields::RUN_NEEDED)
     end
     
-    # @return the value a service property identified by key
+    # @return the value of a service property identified by key
     def [](key)
       @properties[key]
     end
