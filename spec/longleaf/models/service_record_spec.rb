@@ -3,7 +3,7 @@ require 'longleaf/models/service_record'
 require 'longleaf/models/md_fields'
 
 describe Longleaf::ServiceRecord do
-  MDF = Longleaf::MDFields
+  MDF ||= Longleaf::MDFields
   
   describe '.properties' do
     context 'with no properties' do

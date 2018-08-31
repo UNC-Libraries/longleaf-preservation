@@ -6,7 +6,7 @@ require 'yaml'
 require 'tempfile'
 
 describe Longleaf::MetadataSerializer do
-  MDF = Longleaf::MDFields
+  MDF ||= Longleaf::MDFields
   
   describe '.write' do
     let(:dest_file) { Tempfile.new('md_file') }

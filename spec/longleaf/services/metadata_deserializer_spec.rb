@@ -7,7 +7,7 @@ require 'yaml'
 require 'tempfile'
 
 describe Longleaf::MetadataDeserializer do
-  MDF = Longleaf::MDFields
+  MDF ||= Longleaf::MDFields
   
   describe '.deserialize' do
     context 'from empty record' do
