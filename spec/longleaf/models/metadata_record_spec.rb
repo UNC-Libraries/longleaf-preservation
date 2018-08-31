@@ -143,5 +143,10 @@ describe Longleaf::MetadataRecord do
     it 'rejects non-hash service properties' do
       expect { record.add_service('bad_service', 'value') }.to raise_error(ArgumentError)
     end
+    
+    it 'rejects duplicate service' do
+      record.add_service('new_service')
+      expect { record.add_service('new_service') }.to raise_error(IndexError)
+    end
   end
 end

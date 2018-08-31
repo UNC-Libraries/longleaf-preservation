@@ -32,6 +32,8 @@ module Longleaf
     # @param service_properties [ServiceRecord] properties for populating the new service
     def add_service(name, service = Longleaf::ServiceRecord.new)
       raise ArgumentError.new("Value must be a ServiceRecord object when adding a service") unless service.class == Longleaf::ServiceRecord
+      raise IndexError.new("Service with name '#{name}' already exists") if @services.key?(name)
+      
       @services[name] = service
     end
     
