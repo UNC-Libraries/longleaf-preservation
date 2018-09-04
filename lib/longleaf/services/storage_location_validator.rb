@@ -2,7 +2,7 @@ require 'pathname'
 require 'set'
 require_relative '../models/storage_location'
 require_relative '../models/app_fields'
-require_relative '../models/configuration_error'
+require_relative '../errors'
 
 # Validates application configuration of storage locations
 module Longleaf

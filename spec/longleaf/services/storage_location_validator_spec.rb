@@ -1,6 +1,6 @@
 require 'spec_helper'
 require 'longleaf/services/storage_location_validator'
-require 'longleaf/models/configuration_error'
+require 'longleaf/errors'
 require 'longleaf/specs/config_builder'
 
 describe Longleaf::StorageLocationValidator do
