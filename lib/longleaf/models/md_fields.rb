@@ -1,18 +1,18 @@
 module Longleaf
   class MDFields
-    DATA = :data
-    SERVICES = :services
+    DATA = 'data'
+    SERVICES = 'services'
     
-    REGISTERED_TIMESTAMP = :registered
-    DEREGISTERED_TIMESTAMP = :deregistered
+    REGISTERED_TIMESTAMP = 'registered'
+    DEREGISTERED_TIMESTAMP = 'deregistered'
 
-    LAST_MODIFIED = :'last-modified'
-    FILE_SIZE = :size
+    LAST_MODIFIED = 'last-modified'
+    FILE_SIZE = 'size'
 
-    CHECKSUMS = :checksums
+    CHECKSUMS = 'checksums'
 
-    STALE_REPLICAS = :'stale-replicas'
-    SERVICE_TIMESTAMP = :timestamp
-    RUN_NEEDED = :'run-needed'
+    STALE_REPLICAS = 'stale-replicas'
+    SERVICE_TIMESTAMP = 'timestamp'
+    RUN_NEEDED = 'run-needed'
   end
 end
