@@ -1,3 +1,6 @@
+require 'longleaf/models/service_record'
+require 'longleaf/models/metadata_record'
+
 FactoryBot.define do
   factory(:service_record, class: Longleaf::ServiceRecord) do
     properties { {} }
