@@ -31,35 +31,35 @@ describe Longleaf::StorageLocationValidator do
     end
     
     context 'with location missing path' do
-      let(:config) { ConfigBuilder.new.with_locations.with_location('loc1', path: nil).get }
+      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', path: nil).get }
 
       it { expect { Validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /must specify a 'path'/) }
     end
     
     context 'with location missing metadata path' do
-      let(:config) { ConfigBuilder.new.with_locations.with_location('loc1', md_path: nil).get }
+      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', md_path: nil).get }
 
       it { expect { Validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /must specify a 'metadata_path'/) }
     end
     
     context 'with location with non-absolute path' do
-      let(:config) { ConfigBuilder.new.with_locations.with_location('loc1', path: 'path/').get }
+      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', path: 'path/').get }
 
       it { expect { Validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /an absolute path for proprety 'path'/) }
     end
     
     context 'with location with path modifiers' do
-      let(:config) { ConfigBuilder.new.with_locations.with_location('loc1', path: '/file/../path/').get }
+      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', path: '/file/../path/').get }
 
       it { expect { Validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /an absolute path for proprety 'path'/) }
     end
     
     context 'with location with non-absolute metadata_path' do
-      let(:config) { ConfigBuilder.new.with_locations.with_location('loc1', md_path: 'md_path/').get }
+      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', md_path: 'md_path/').get }
 
       it { expect { Validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /an absolute path for proprety 'metadata_path'/) }
@@ -75,7 +75,7 @@ describe Longleaf::StorageLocationValidator do
     
     context 'with location path contained by metadata_path' do
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location('loc1', path: '/file/path/', md_path: '/file/path/').get }
+          .with_location(name: 'loc1', path: '/file/path/', md_path: '/file/path/').get }
 
       it { expect { Validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /overlaps with another configured path/) }
@@ -83,8 +83,8 @@ describe Longleaf::StorageLocationValidator do
     
     context 'with location path contained by another location path' do
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location('loc1', path: '/path/loc1/', md_path: '/md/loc1/')
-          .with_location('loc2', path: '/path/loc1/loc2', md_path: '/md/loc2/').get }
+          .with_location(name: 'loc1', path: '/path/loc1/', md_path: '/md/loc1/')
+          .with_location(name: 'loc2', path: '/path/loc1/loc2', md_path: '/md/loc2/').get }
 
       it { expect { Validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /overlaps with another configured path/) }
@@ -92,8 +92,8 @@ describe Longleaf::StorageLocationValidator do
     
     context 'with location path contained by another location path without trailing slash' do
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location('loc1', path: '/path/loc1', md_path: '/md/loc1/')
-          .with_location('loc2', path: '/path/loc1/loc2', md_path: '/md/loc2/').get }
+          .with_location(name: 'loc1', path: '/path/loc1', md_path: '/md/loc1/')
+          .with_location(name: 'loc2', path: '/path/loc1/loc2', md_path: '/md/loc2/').get }
 
       it { expect { Validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /overlaps with another configured path/) }
@@ -102,8 +102,8 @@ describe Longleaf::StorageLocationValidator do
     # Ensuring problem is caught in either direction
     context 'with location path containing by another location path' do
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location('loc1', path: '/path/loc2/loc1', md_path: '/md/loc1/')
-          .with_location('loc2', path: '/path/loc2/', md_path: '/md/loc2/').get }
+          .with_location(name: 'loc1', path: '/path/loc2/loc1', md_path: '/md/loc1/')
+          .with_location(name: 'loc2', path: '/path/loc2/', md_path: '/md/loc2/').get }
 
       it { expect { Validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /overlaps with another configured path/) }
@@ -111,8 +111,8 @@ describe Longleaf::StorageLocationValidator do
     
     context 'with location path contained by another location metadata_path' do
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location('loc1', path: '/path/loc1/', md_path: '/md/loc1/')
-          .with_location('loc2', path: '/md/loc1/loc2', md_path: '/md/loc2/').get }
+          .with_location(name: 'loc1', path: '/path/loc1/', md_path: '/md/loc1/')
+          .with_location(name: 'loc2', path: '/md/loc1/loc2', md_path: '/md/loc2/').get }
 
       it { expect { Validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /overlaps with another configured path/) }
@@ -120,15 +120,15 @@ describe Longleaf::StorageLocationValidator do
     
     context 'with valid location' do
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location('loc1').get }
+          .with_location(name: 'loc1').get }
 
       it { expect { Validator::validate_config(config) }.to_not raise_error }
     end
     
     context 'with multiple valid locations' do
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location('loc1', path: '/path/loc1/', md_path: '/md/loc1/')
-          .with_location('loc2', path: '/path/loc2/', md_path: '/md/loc2/').get }
+          .with_location(name: 'loc1', path: '/path/loc1/', md_path: '/md/loc1/')
+          .with_location(name: 'loc2', path: '/path/loc2/', md_path: '/md/loc2/').get }
 
       it { expect { Validator::validate_config(config) }.to_not raise_error }
     end

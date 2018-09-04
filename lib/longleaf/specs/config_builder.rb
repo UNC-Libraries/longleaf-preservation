@@ -24,7 +24,7 @@ module Longleaf
     # @param path [String] value for the 'path' field
     # @param md_path [String] value for the 'metadata_path' field
     # @return this builder
-    def with_location(name, path: '/file/path/', md_path: '/metadata/path/')
+    def with_location(name:, path: '/file/path/', md_path: '/metadata/path/')
       location = {}
       @config[AF::LOCATIONS][name] = location
       location[AF::LOCATION_PATH] = path unless path.nil?
