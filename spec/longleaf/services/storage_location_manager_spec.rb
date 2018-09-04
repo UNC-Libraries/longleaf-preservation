@@ -3,7 +3,7 @@ require 'longleaf/services/storage_location_manager'
 require 'longleaf/specs/config_builder'
 
 describe Longleaf::StorageLocationManager do
-  ConfigBuilder = Longleaf::ConfigBuilder
+  ConfigBuilder ||= Longleaf::ConfigBuilder
   
   describe '.initialize' do
     context 'with empty config' do

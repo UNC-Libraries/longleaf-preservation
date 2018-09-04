@@ -6,7 +6,7 @@ require 'longleaf/specs/config_builder'
 describe Longleaf::StorageLocationValidator do
   Validator = Longleaf::StorageLocationValidator
   AF = Longleaf::AppFields
-  ConfigBuilder = Longleaf::ConfigBuilder
+  ConfigBuilder ||= Longleaf::ConfigBuilder
   
   describe '#validate_config' do
     
