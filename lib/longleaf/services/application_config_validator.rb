@@ -7,7 +7,7 @@ module Longleaf
     
     # Validates the application configuration provided
     def self.validate(config)
-      validate_storage_locations(confing)
+      validate_storage_locations(config)
     end
     
     # Validates storage location configuration, verify it is syntactically correct,

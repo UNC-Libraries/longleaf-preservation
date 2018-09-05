@@ -33,7 +33,7 @@ module Longleaf
       raise ConfigurationError.new(fail_message) unless assertion_passed
     end
     
-    def self.assert_path_property_valid(loc_name, path_prop, properties, existing_paths)
+    def self.assert_path_property_valid(name, path_prop, properties, existing_paths)
       path = properties[path_prop]
       assert("Storage location #{name} must be a hash, but a #{properties.class} was provided", properties.class == Hash)
       assert("Storage location #{name} must specify a '#{path_prop}' property", !path.nil? && !path.empty?)
@@ -44,7 +44,7 @@ module Longleaf
       # Verify that the (metadata_)path property's value is not inside of another storage location or vice versa
       existing_paths.each do |existing|
         if existing.start_with?(path) || path.start_with?(existing)
-          msg = "Location '#{loc_name}' defines property #{path_prop} with value '#{path}'" \
+          msg = "Location '#{name}' defines property #{path_prop} with value '#{path}'" \
                 " which overlaps with another configured path '#{existing}'." \
                 " Storage locations must not define #{AF::LOCATION_PATH} or #{AF::METADATA_PATH}" \
                 " properties which are contained by another location property"

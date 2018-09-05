@@ -1,4 +1,5 @@
 require_relative '../models/app_fields'
+require 'yaml'
 
 module Longleaf
   # Test helper for constructing application configuration hashes
@@ -35,6 +36,13 @@ module Longleaf
     # @return the constructed configuration
     def get
       @config
+    end
+    
+    def write_to_yaml_file
+      Tempfile.open('config') do |f|
+        f.write(@config.to_yaml)
+        return f.path
+      end
     end
   end
 end

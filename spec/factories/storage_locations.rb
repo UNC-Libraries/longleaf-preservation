@@ -1,4 +1,5 @@
 require 'longleaf/models/storage_location'
+require 'longleaf/services/storage_location_manager'
 
 FactoryBot.define do
   factory(:storage_location, class: Longleaf::StorageLocation) do
