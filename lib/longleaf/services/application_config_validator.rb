@@ -10,7 +10,7 @@ module Longleaf
       validate_storage_locations(config)
     end
     
-    # Validates storage location configuration, verify it is syntactically correct,
+    # Validates storage location configuration, verifying it is syntactically correct,
     # can be deserialized, and the defined locations are available to longleaf.
     #
     # @param config [Hash] application configuration

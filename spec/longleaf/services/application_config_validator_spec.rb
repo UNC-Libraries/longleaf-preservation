@@ -24,8 +24,7 @@ describe Longleaf::ApplicationConfigValidator do
           .with_location(name: 'loc1', path: path_dir, md_path: md_dir).get }
       
       after(:each) do
-        FileUtils.rmdir(path_dir)
-        FileUtils.rmdir(md_dir)
+        FileUtils.rmdir([path_dir, md_dir])
       end
 
       it { expect { AppValidator::validate_storage_locations(config) }.to raise_error(Longleaf::StorageLocationUnavailableError) }

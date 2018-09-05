@@ -1,8 +1,8 @@
 require_relative '../models/app_fields'
 require 'yaml'
 
+# Test helper for constructing application configuration hashes
 module Longleaf
-  # Test helper for constructing application configuration hashes
   class ConfigBuilder
     AF = Longleaf::AppFields
     
@@ -38,6 +38,8 @@ module Longleaf
       @config
     end
     
+    # Writes the configuration from this builder into a temporary file
+    # @return the file path of the config file
     def write_to_yaml_file
       Tempfile.open('config') do |f|
         f.write(@config.to_yaml)

@@ -12,7 +12,7 @@ module Longleaf
       puts "Register files"
     end
     
-    desc "validate_config", "Validate an application configuration file"
+    desc "validate_config [CONFIG_PATH]", "Validate an application configuration file"
     def validate_config(config_path)
       begin
         config = YAML.load_file(config_path)

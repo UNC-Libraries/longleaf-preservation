@@ -26,7 +26,7 @@ module Longleaf
     # @return [Longleaf::StorageLocation] location containing the given path
     #    or nil if the path is not contained by a registered location.
     def get_location_by_path(path)
-      raise ArgumentError.new("Path parameter is required") if path&.empty?
+      raise ArgumentError.new("Path parameter is required") if path.nil? || path.empty?
       @locations.each do |name, location|
         return location if path.start_with?(location.path) 
       end

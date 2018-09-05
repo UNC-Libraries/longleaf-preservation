@@ -37,6 +37,10 @@ describe Longleaf::StorageLocation do
       it { expect { location.get_metadata_path_for }.to raise_error(ArgumentError) }
     end
     
+    context 'nil file_path' do
+      it { expect { location.get_metadata_path_for(nil) }.to raise_error(ArgumentError) }
+    end
+    
     context 'empty file_path' do
       it { expect { location.get_metadata_path_for('') }.to raise_error(ArgumentError) }
     end
@@ -102,8 +106,7 @@ describe Longleaf::StorageLocation do
       let(:location) { build(:storage_location, path: path_dir, metadata_path: md_dir) }
       
       after(:each) do
-        FileUtils.rmdir(path_dir)
-        FileUtils.rmdir(md_dir)
+        FileUtils.rmdir([path_dir, md_dir])
       end
       
       it { expect { location.check_available }.to_not raise_error }

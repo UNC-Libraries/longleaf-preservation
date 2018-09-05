@@ -22,7 +22,9 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+#### Validate configuration files
+Application configuration files can be validated prior to usage with the following command:
+`longleaf validate_config <config.yml>`
 
 ## Development
 

@@ -12,7 +12,6 @@ describe Longleaf::StorageLocationManager do
     
     context 'with invalid location' do
       let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', path: nil).get }
-      let(:manager) { build(:storage_location_manager, config: config) }
       
       it { expect { build(:storage_location_manager, config: config) }.to raise_error(ArgumentError) }
     end
@@ -85,6 +84,10 @@ describe Longleaf::StorageLocationManager do
       
       it 'raises error when no path provided' do
         expect { manager.get_location_by_path }.to raise_error(ArgumentError)
+      end
+      
+      it 'raises error when nil path provided' do
+        expect { manager.get_location_by_path(nil) }.to raise_error(ArgumentError)
       end
       
       it 'returns nil for file not in a registered storage location' do

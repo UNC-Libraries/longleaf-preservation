@@ -9,7 +9,9 @@ module Longleaf
   class StorageLocationValidator
     AF = Longleaf::AppFields
     
-    # Validates configuration to ensure that it is syntactically correct and does not violate schema and uniqueness requirements
+    # Validates configuration to ensure that it is syntactically correct and does not violate 
+    # schema and uniqueness requirements.
+    # @param config [Hash] hash containing the application configuration
     def self.validate_config(config)
       assert("Configuration must be a hash, but a #{config.class} was provided", config.class == Hash)
       assert("Configuration must contain a root '#{AF::LOCATIONS}' key", config.key?(AF::LOCATIONS))
