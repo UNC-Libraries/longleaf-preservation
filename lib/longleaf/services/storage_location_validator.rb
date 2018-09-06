@@ -2,10 +2,11 @@ require 'pathname'
 require_relative '../models/storage_location'
 require_relative '../models/app_fields'
 require_relative '../errors'
+require_relative 'configuration_validator'
 
 # Validates application configuration of storage locations
 module Longleaf
-  class StorageLocationValidator
+  class StorageLocationValidator < ConfigurationValidator
     AF = Longleaf::AppFields
     
     # Validates configuration to ensure that it is syntactically correct and does not violate 
@@ -28,10 +29,6 @@ module Longleaf
     end
     
     private
-    def self.assert(fail_message, assertion_passed)
-      raise ConfigurationError.new(fail_message) unless assertion_passed
-    end
-    
     def self.assert_path_property_valid(name, path_prop, properties, existing_paths)
       path = properties[path_prop]
       assert("Storage location #{name} must specify a '#{path_prop}' property", !path.nil? && !path.empty?)
