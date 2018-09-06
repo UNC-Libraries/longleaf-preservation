@@ -1,5 +1,4 @@
 require 'pathname'
-require 'set'
 require_relative '../models/storage_location'
 require_relative '../models/app_fields'
 require_relative '../errors'
@@ -18,12 +17,10 @@ module Longleaf
       locations = config[AF::LOCATIONS]
       assert("'#{AF::LOCATIONS}' must be a hash of locations", locations.class == Hash)
       
-      existing_locations = Set.new
       existing_paths = Array.new
       locations.each do |name, properties|
-        assert("Storage location '#{name}' must be a hash of properties", properties.class == Hash)
-        assert("Storage location name '#{name}' must not be defined more than once", !existing_locations.include?(name))
-        existing_locations.add(name)
+        assert("Name of storage location must be a string, but was of type #{name.class}", name.instance_of?(String))
+        assert("Storage location '#{name}' must be a hash, but a #{properties.class} was provided", properties.is_a?(Hash))
         
         assert_path_property_valid(name, AF::LOCATION_PATH, properties, existing_paths)
         assert_path_property_valid(name, AF::METADATA_PATH, properties, existing_paths)
@@ -37,7 +34,6 @@ module Longleaf
     
     def self.assert_path_property_valid(name, path_prop, properties, existing_paths)
       path = properties[path_prop]
-      assert("Storage location #{name} must be a hash, but a #{properties.class} was provided", properties.class == Hash)
       assert("Storage location #{name} must specify a '#{path_prop}' property", !path.nil? && !path.empty?)
       assert("Storage location #{name} must specify an absolute path for proprety '#{path_prop}'",
           Pathname.new(path).absolute? && !path.include?('/..'))

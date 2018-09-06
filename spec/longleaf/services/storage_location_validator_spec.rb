@@ -123,6 +123,14 @@ describe Longleaf::StorageLocationValidator do
           /overlaps with another configured path/) }
     end
     
+    context 'location with invalid name' do
+      let(:config) { ConfigBuilder.new.with_locations
+          .with_location(name: { 'random' => 'stuff' } ).get }
+
+      it { expect { Validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
+          /Name of storage location must be a string/) }
+    end
+    
     context 'with valid location' do
       let(:config) { ConfigBuilder.new.with_locations
           .with_location(name: 'loc1').get }
