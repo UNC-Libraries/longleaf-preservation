@@ -1,10 +1,12 @@
 require_relative '../models/app_fields'
+require_relative '../models/service_fields'
 require 'yaml'
 
 # Test helper for constructing application configuration hashes
 module Longleaf
   class ConfigBuilder
     AF = Longleaf::AppFields
+    SF = Longleaf::ServiceFields
     
     attr_accessor :config
   
@@ -30,6 +32,29 @@ module Longleaf
       @config[AF::LOCATIONS][name] = location
       location[AF::LOCATION_PATH] = path unless path.nil?
       location[AF::METADATA_PATH] = md_path unless md_path.nil?
+      self
+    end
+    
+    # Add a root 'services' field to the config
+    # @param services [Hash] value for the services field. Default is {}
+    # @return this builder
+    def with_services(services = Hash.new)
+      @config[AF::SERVICES] = services
+      self
+    end
+    
+    # Add a 'service' to the config
+    # @param name [String] name of the service
+    # @param work_script [String] value for the 'work_script' field
+    # @param frequency [String] value for the 'frequency' field
+    # @param delay [String] value for the 'delay' field
+    # @return this builder
+    def with_service(name:, work_script: 'some_pres_service.rb', frequency: nil, delay: nil)
+      service = {}
+      @config[AF::SERVICES][name] = service
+      service[SF::WORK_SCRIPT] = work_script
+      service[SF::FREQUENCY] = frequency unless frequency.nil?
+      service[SF::DELAY] = delay unless delay.nil?
       self
     end
     
