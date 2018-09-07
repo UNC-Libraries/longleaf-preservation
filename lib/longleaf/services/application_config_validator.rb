@@ -20,7 +20,7 @@ module Longleaf
       location_manager = Longleaf::StorageLocationManager.new(config: config)
       
       location_manager.locations.each do |name, location|
-        location.check_available
+        location. validator
       end
     end
   end

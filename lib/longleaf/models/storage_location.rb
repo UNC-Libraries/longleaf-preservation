@@ -25,7 +25,7 @@ module Longleaf
     
     # Checks that the path and metadata path defined in this location are available
     # @raise [StorageLocationUnavailableError] if the storage location is not available
-    def check_available
+    def  validator
       raise StorageLocationUnavailableError.new("Path does not exist or is not a directory: #{@path}")\
           unless Dir.exist?(@path)
       raise StorageLocationUnavailableError.new("Metadata path does not exist or is not a directory: #{@metadata_path}")\
