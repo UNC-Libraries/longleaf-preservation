@@ -48,13 +48,15 @@ module Longleaf
     # @param work_script [String] value for the 'work_script' field
     # @param frequency [String] value for the 'frequency' field
     # @param delay [String] value for the 'delay' field
+    # @param properties [Hash] hash of additional properties to include in the service
     # @return this builder
-    def with_service(name:, work_script: 'some_pres_service.rb', frequency: nil, delay: nil)
+    def with_service(name:, work_script: 'some_pres_service.rb', frequency: nil, delay: nil, properties: nil)
       service = {}
-      @config[AF::SERVICES][name] = service
       service[SF::WORK_SCRIPT] = work_script
       service[SF::FREQUENCY] = frequency unless frequency.nil?
       service[SF::DELAY] = delay unless delay.nil?
+      service = service.merge(properties) unless properties.nil?
+      @config[AF::SERVICES][name] = service
       self
     end
     

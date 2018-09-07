@@ -8,7 +8,7 @@ module Longleaf
     
     attr_reader :locations
     
-    def initialize(config:)
+    def initialize(config)
       raise ArgumentError.new("Configuration must be provided") if config&.empty?
 
       @locations = Hash.new

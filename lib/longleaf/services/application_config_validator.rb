@@ -17,7 +17,7 @@ module Longleaf
     def self.validate_storage_locations(config)
       Longleaf::StorageLocationValidator::validate_config(config)
       
-      location_manager = Longleaf::StorageLocationManager.new(config: config)
+      location_manager = Longleaf::StorageLocationManager.new(config)
       
       location_manager.locations.each do |name, location|
         location. validator

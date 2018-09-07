@@ -13,6 +13,6 @@ FactoryBot.define do
   factory(:storage_location_manager, class: Longleaf::StorageLocationManager) do
     config { {} }
 
-    initialize_with { new(attributes) }
+    initialize_with { new(config) }
   end
 end
