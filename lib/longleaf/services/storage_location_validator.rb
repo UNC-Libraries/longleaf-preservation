@@ -7,7 +7,7 @@ require_relative 'configuration_validator'
 # Validates application configuration of storage locations
 module Longleaf
   class StorageLocationValidator < ConfigurationValidator
-    AF = Longleaf::AppFields
+    AF ||= Longleaf::AppFields
     
     # Validates configuration to ensure that it is syntactically correct and does not violate 
     # schema and uniqueness requirements.

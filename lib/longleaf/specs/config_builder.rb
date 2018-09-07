@@ -5,8 +5,8 @@ require 'yaml'
 # Test helper for constructing application configuration hashes
 module Longleaf
   class ConfigBuilder
-    AF = Longleaf::AppFields
-    SF = Longleaf::ServiceFields
+    AF ||= Longleaf::AppFields
+    SF ||= Longleaf::ServiceFields
     
     attr_accessor :config
   

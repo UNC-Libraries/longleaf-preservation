@@ -4,7 +4,7 @@ require 'longleaf/errors'
 require 'longleaf/specs/config_builder'
 
 describe Longleaf::StorageLocationValidator do
-  AF = Longleaf::AppFields
+  AF ||= Longleaf::AppFields
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
   let(:validator) { Longleaf::StorageLocationValidator }
