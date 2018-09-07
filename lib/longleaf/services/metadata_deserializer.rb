@@ -1,7 +1,7 @@
 require 'yaml'
 require_relative '../models/metadata_record'
 require_relative '../models/md_fields'
-require_relative '../models/metadata_error'
+require_relative '../errors'
 
 # Service which deserializes metadata files into MetadataRecord objects
 module Longleaf

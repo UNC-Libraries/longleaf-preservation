@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'longleaf/services/metadata_deserializer'
 require 'longleaf/models/metadata_record'
-require 'longleaf/models/metadata_error'
+require 'longleaf/errors'
 require 'longleaf/models/md_fields'
 require 'yaml'
 require 'tempfile'
