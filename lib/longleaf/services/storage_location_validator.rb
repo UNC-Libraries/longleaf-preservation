@@ -7,7 +7,7 @@ require_relative 'configuration_validator'
 # Validates application configuration of storage locations
 module Longleaf
   class StorageLocationValidator < ConfigurationValidator
-    AF = Longleaf::AppFields
+    AF ||= Longleaf::AppFields
     
     # Validates configuration to ensure that it is syntactically correct and does not violate 
     # schema and uniqueness requirements.
@@ -31,8 +31,8 @@ module Longleaf
     private
     def self.assert_path_property_valid(name, path_prop, properties, existing_paths)
       path = properties[path_prop]
-      assert("Storage location #{name} must specify a '#{path_prop}' property", !path.nil? && !path.empty?)
-      assert("Storage location #{name} must specify an absolute path for proprety '#{path_prop}'",
+      assert("Storage location '#{name}' must specify a '#{path_prop}' property", !path.nil? && !path.empty?)
+      assert("Storage location '#{name}' must specify an absolute path for proprety '#{path_prop}'",
           Pathname.new(path).absolute? && !path.include?('/..'))
       # Ensure paths have trailing slash to avoid matching on partial directory names
       path += '/' unless path.end_with?('/')

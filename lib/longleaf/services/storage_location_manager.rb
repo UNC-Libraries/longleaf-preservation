@@ -4,11 +4,11 @@ require_relative '../models/storage_location'
 # Manager which loads and provides access to Longleaf::StorageLocation objects
 module Longleaf
   class StorageLocationManager
-    AF = Longleaf::AppFields
+    AF ||= Longleaf::AppFields
     
     attr_reader :locations
     
-    def initialize(config:)
+    def initialize(config)
       raise ArgumentError.new("Configuration must be provided") if config&.empty?
 
       @locations = Hash.new
