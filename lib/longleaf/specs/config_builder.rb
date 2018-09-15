@@ -60,6 +60,27 @@ module Longleaf
       self
     end
     
+    # Adds a 'service_mappings' section to the config
+    # @param mappings [Object] the mappings config
+    # @return this builder
+    def with_mappings(mappings = Hash.new)
+      @config[AF::SERVICE_MAPPINGS] = mappings
+      self
+    end
+    
+    # Add a mapping from one or more services to one or more location
+    # @param loc_names [Object] one or more location names. Can be a string or array.
+    # @param service_names [Object] one or more service names. Can be a string or array.
+    def map_services(loc_names, service_names)
+      @config[AF::SERVICE_MAPPINGS] = Array.new unless @config.key?(AF::SERVICE_MAPPINGS)
+      
+      mapping = Hash.new
+      mapping[AF::LOCATIONS] = loc_names unless loc_names.nil?
+      mapping[AF::SERVICES] = service_names unless service_names.nil?
+      @config[AF::SERVICE_MAPPINGS].push(mapping)
+      self
+    end
+    
     # @return the constructed configuration
     def get
       @config
