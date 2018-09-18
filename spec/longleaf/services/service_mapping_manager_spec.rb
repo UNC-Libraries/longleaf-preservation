@@ -1,24 +1,24 @@
 require 'spec_helper'
-require 'longleaf/services/service_mappings_manager'
+require 'longleaf/services/service_mapping_manager'
 require 'longleaf/specs/config_builder'
 
-describe Longleaf::ServiceMappingsManager do
+describe Longleaf::ServiceMappingManager do
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
   describe '.initialize' do
     it 'fails with nil config' do
-      expect { build(:service_mappings_manager, config: nil) }.to raise_error(ArgumentError)
+      expect { build(:service_mapping_manager, config: nil) }.to raise_error(ArgumentError)
     end
     
     it 'fails with no service mappings' do
-      expect { build(:service_mappings_manager, config: {}) }.to raise_error(ArgumentError)
+      expect { build(:service_mapping_manager, config: {}) }.to raise_error(ArgumentError)
     end
   end
   
   describe '.list_services' do
     context 'with no mappings' do
       let(:config) { ConfigBuilder.new.with_mappings.get }
-      let(:manager) { build(:service_mappings_manager, config: config) }
+      let(:manager) { build(:service_mapping_manager, config: config) }
       
       it 'returns nothing' do
         expect(manager.list_services('loc1')).to be_empty
@@ -33,7 +33,7 @@ describe Longleaf::ServiceMappingsManager do
           .map_services('loc4', 'serv3')
           .map_services('loc5', ['serv4', 'serv5'])
           .get }
-      let(:manager) { build(:service_mappings_manager, config: config) }
+      let(:manager) { build(:service_mapping_manager, config: config) }
       
       it 'returns serv1 for loc1' do
         expect(manager.list_services('loc1')).to contain_exactly('serv1')

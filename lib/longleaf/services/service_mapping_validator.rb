@@ -6,7 +6,7 @@ require_relative 'configuration_validator'
 
 # Validates application configuration of service to location mappings
 module Longleaf
-  class ServiceMappingsValidator < ConfigurationValidator
+  class ServiceMappingValidator < ConfigurationValidator
     AF ||= Longleaf::AppFields
     
     # Validates service mapping configuration to ensure that it is syntactically and referentially correct.

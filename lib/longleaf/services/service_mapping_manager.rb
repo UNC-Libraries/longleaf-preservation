@@ -3,7 +3,7 @@ require_relative '../models/service_definition'
 
 # Manager which loads and provides access to location to service mappings
 module Longleaf
-  class ServiceMappingsManager
+  class ServiceMappingManager
     AF ||= Longleaf::AppFields
     
     def initialize(config)

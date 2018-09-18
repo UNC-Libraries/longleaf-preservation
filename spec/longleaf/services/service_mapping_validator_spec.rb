@@ -1,13 +1,13 @@
 require 'spec_helper'
-require 'longleaf/services/service_mappings_validator'
+require 'longleaf/services/service_mapping_validator'
 require 'longleaf/errors'
 require 'longleaf/specs/config_builder'
 
-describe Longleaf::ServiceMappingsValidator do
+describe Longleaf::ServiceMappingValidator do
   AF ||= Longleaf::AppFields
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
-  let(:validator) { Longleaf::ServiceMappingsValidator }
+  let(:validator) { Longleaf::ServiceMappingValidator }
   
   describe '#validate_config' do
     
