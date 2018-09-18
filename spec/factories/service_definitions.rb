@@ -14,4 +14,10 @@ FactoryBot.define do
 
     initialize_with { new(config) }
   end
+  
+  factory(:service_mappings_manager, class: Longleaf::ServiceMappingsManager) do
+    config { {} }
+
+    initialize_with { new(config) }
+  end
 end
