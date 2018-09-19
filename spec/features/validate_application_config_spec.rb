@@ -32,6 +32,7 @@ describe 'validate_config', :type => :aruba do
         .with_locations
         .with_location(name: 'loc1', path: nil, md_path: md_dir)
         .with_services
+        .with_mappings({})
         .write_to_yaml_file }
     
     before do
@@ -53,6 +54,7 @@ describe 'validate_config', :type => :aruba do
         .with_locations
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_services
+        .with_mappings({})
         .write_to_yaml_file }
     
     before do
@@ -75,6 +77,7 @@ describe 'validate_config', :type => :aruba do
         .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
         .with_location(name: 'loc2', path: path_dir1, md_path: md_dir2)
         .with_services
+        .with_mappings({})
         .write_to_yaml_file }
     
     before do
@@ -97,6 +100,7 @@ describe 'validate_config', :type => :aruba do
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_services
         .with_service(name: 'serv1', work_script: nil)
+        .with_mappings({})
         .write_to_yaml_file }
     
     before do
@@ -116,10 +120,33 @@ describe 'validate_config', :type => :aruba do
         .with_locations
         .with_services
         .with_service(name: 'serv1', work_script: 'preserve.rb')
+        .with_mappings({})
         .write_to_yaml_file }
     
     before do
       run_simple("longleaf validate_config #{config_path}")
+    end
+    
+    it { expect(last_command_started).to have_output(/Success, application configuration passed validation/) }
+  end
+  
+  context 'valid service mapping' do
+    let(:path_dir) { Dir.mktmpdir('path') }
+    let(:md_dir) { Dir.mktmpdir('metadata') }
+    let(:config_path) { ConfigBuilder.new
+        .with_locations
+        .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+        .with_services
+        .with_service(name: 'serv1', work_script: 'preserve.rb')
+        .map_services('loc1', 'serv1')
+        .write_to_yaml_file }
+    
+    before do
+      run_simple("longleaf validate_config #{config_path}")
+    end
+    
+    after do
+      FileUtils.rmdir([md_dir, path_dir])
     end
     
     it { expect(last_command_started).to have_output(/Success, application configuration passed validation/) }
