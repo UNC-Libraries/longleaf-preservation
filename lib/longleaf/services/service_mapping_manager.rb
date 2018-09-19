@@ -22,17 +22,18 @@ module Longleaf
         services = [services] if services.is_a?(String)
         
         locations.each do |loc_name|
-          @loc_to_services[loc_name] = Set.new unless @loc_to_services.key?(loc_name)
+          @loc_to_services[loc_name] = Array.new unless @loc_to_services.key?(loc_name)
           
           service_set = @loc_to_services[loc_name]
           if services.is_a?(String)
             service_set.push(services)
           else
-            service_set.merge(services)
+            service_set.concat(services)
           end
         end
       end
       
+      @loc_to_services.each { |loc, services| services.uniq! }
       @loc_to_services.freeze
     end
     
