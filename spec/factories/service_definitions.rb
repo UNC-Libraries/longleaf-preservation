@@ -28,8 +28,8 @@ FactoryBot.define do
       config { {} }
     end
     
-    definitions_manager { build(:service_definition_manager, config: config) }
-    mappings_manager { build(:service_mapping_manager, config: config) }
+    definition_manager { build(:service_definition_manager, config: config) }
+    mapping_manager { build(:service_mapping_manager, config: config) }
 
     initialize_with { new(attributes) }
   end

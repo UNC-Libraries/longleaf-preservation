@@ -12,7 +12,7 @@ describe Longleaf::ServiceManager do
     end
     
     it 'fails with nil parameters' do
-      expect { build(:service_mapping_manager, definitions_manager: nil, mappings_manager: nil) }.to raise_error(ArgumentError)
+      expect { build(:service_mapping_manager, definition_manager: nil, mapping_manager: nil) }.to raise_error(ArgumentError)
     end
   end
   
