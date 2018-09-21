@@ -3,6 +3,8 @@ module Longleaf
   
   class ConfigurationError < LongleafError; end
   
+  class InvalidStoragePathError < LongleafError; end
+  
   class MetadataError < LongleafError; end
   
   class StorageLocationUnavailableError < LongleafError; end

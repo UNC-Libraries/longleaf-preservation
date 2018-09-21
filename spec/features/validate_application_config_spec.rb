@@ -44,7 +44,8 @@ describe 'validate_config', :type => :aruba do
     end
     
     it { expect(last_command_started).to have_output(/Application configuration invalid/) }
-    it { expect(last_command_started).to have_output(/Storage location 'loc1' must specify a 'path' property/) }
+    it { expect(last_command_started).to have_output(
+        /Storage location 'loc1' specifies invalid 'path' property: Path must not be empty/) }
   end
   
   context 'unavailable storage location' do
