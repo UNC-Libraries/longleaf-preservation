@@ -9,7 +9,7 @@ describe 'validate_config', :type => :aruba do
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
   context 'no config path' do
-    before { run_simple('longleaf validate_config') }
+    before { run_simple('longleaf validate_config', fail_on_error: false) }
     
     it { expect(last_command_started).to have_output(/was called with no arguments/) }
   end
@@ -32,6 +32,7 @@ describe 'validate_config', :type => :aruba do
         .with_locations
         .with_location(name: 'loc1', path: nil, md_path: md_dir)
         .with_services
+        .with_mappings({})
         .write_to_yaml_file }
     
     before do
@@ -46,6 +47,28 @@ describe 'validate_config', :type => :aruba do
     it { expect(last_command_started).to have_output(/Storage location 'loc1' must specify a 'path' property/) }
   end
   
+  context 'unavailable storage location' do
+    let(:path_dir) { FileUtils.rmdir(Dir.mktmpdir('path'))[0] }
+    let(:md_dir) { Dir.mktmpdir('metadata') }
+    let(:config_path) { ConfigBuilder.new
+        .with_locations
+        .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+        .with_services
+        .with_mappings({})
+        .write_to_yaml_file }
+    
+    before do
+      run_simple("longleaf validate_config #{config_path}")
+    end
+    
+    after do
+      FileUtils.rmdir(md_dir)
+    end
+    
+    it { expect(last_command_started).to have_output(/Application configuration invalid/) }
+    it { expect(last_command_started).to have_output(/Path does not exist or is not a directory/) }
+  end
+  
   context 'valid storage location' do
     let(:path_dir) { Dir.mktmpdir('path') }
     let(:md_dir) { Dir.mktmpdir('metadata') }
@@ -53,6 +76,7 @@ describe 'validate_config', :type => :aruba do
         .with_locations
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_services
+        .with_mappings({})
         .write_to_yaml_file }
     
     before do
@@ -75,6 +99,7 @@ describe 'validate_config', :type => :aruba do
         .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
         .with_location(name: 'loc2', path: path_dir1, md_path: md_dir2)
         .with_services
+        .with_mappings({})
         .write_to_yaml_file }
     
     before do
@@ -97,6 +122,7 @@ describe 'validate_config', :type => :aruba do
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_services
         .with_service(name: 'serv1', work_script: nil)
+        .with_mappings({})
         .write_to_yaml_file }
     
     before do
@@ -116,10 +142,33 @@ describe 'validate_config', :type => :aruba do
         .with_locations
         .with_services
         .with_service(name: 'serv1', work_script: 'preserve.rb')
+        .with_mappings({})
         .write_to_yaml_file }
     
     before do
       run_simple("longleaf validate_config #{config_path}")
+    end
+    
+    it { expect(last_command_started).to have_output(/Success, application configuration passed validation/) }
+  end
+  
+  context 'valid service mapping' do
+    let(:path_dir) { Dir.mktmpdir('path') }
+    let(:md_dir) { Dir.mktmpdir('metadata') }
+    let(:config_path) { ConfigBuilder.new
+        .with_locations
+        .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+        .with_services
+        .with_service(name: 'serv1', work_script: 'preserve.rb')
+        .map_services('loc1', 'serv1')
+        .write_to_yaml_file }
+    
+    before do
+      run_simple("longleaf validate_config #{config_path}")
+    end
+    
+    after do
+      FileUtils.rmdir([md_dir, path_dir])
     end
     
     it { expect(last_command_started).to have_output(/Success, application configuration passed validation/) }

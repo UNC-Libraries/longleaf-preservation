@@ -59,7 +59,7 @@ describe Longleaf::StorageLocation do
     end
   end
   
-  describe '. validator' do
+  describe '.available?' do
     context 'with non-existent path' do
       # Ensuring that the directory does not exist
       let(:path_dir) { FileUtils.rmdir(Dir.mktmpdir('path'))[0] }
@@ -70,7 +70,7 @@ describe Longleaf::StorageLocation do
         FileUtils.rmdir(md_dir)
       end
       
-      it { expect { location. validator }.to raise_error(Longleaf::StorageLocationUnavailableError, /Path does not exist/) }
+      it { expect { location.available? }.to raise_error(Longleaf::StorageLocationUnavailableError, /Path does not exist/) }
     end
     
     context 'with non-directory path' do
@@ -83,7 +83,7 @@ describe Longleaf::StorageLocation do
         FileUtils.rmdir(md_dir)
       end
       
-      it { expect { location. validator }.to raise_error(Longleaf::StorageLocationUnavailableError,\
+      it { expect { location.available? }.to raise_error(Longleaf::StorageLocationUnavailableError,\
           /Path does not exist or is not a directory/) }
     end
     
@@ -96,7 +96,7 @@ describe Longleaf::StorageLocation do
         FileUtils.rmdir(path_dir)
       end
       
-      it { expect { location. validator }.to raise_error(Longleaf::StorageLocationUnavailableError,\
+      it { expect { location.available? }.to raise_error(Longleaf::StorageLocationUnavailableError,\
           /Metadata path does not exist/) }
     end
     
@@ -109,7 +109,7 @@ describe Longleaf::StorageLocation do
         FileUtils.rmdir([path_dir, md_dir])
       end
       
-      it { expect { location. validator }.to_not raise_error }
+      it { expect { location.available? }.to_not raise_error }
     end
   end
 end
