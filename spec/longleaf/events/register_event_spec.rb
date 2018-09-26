@@ -135,8 +135,8 @@ describe Longleaf::RegisterEvent do
       end
     end
     
-    def make_test_file(dir, file_name, content = 'content')
-      path = File.join(dir, 'test_file')
+    def make_test_file(dir, file_name = 'test_file', content = 'content')
+      path = File.join(dir, file_name)
       File.open(path, 'w') { |f| f.write(content) }
       path
     end
