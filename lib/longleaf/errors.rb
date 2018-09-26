@@ -8,4 +8,8 @@ module Longleaf
   class MetadataError < LongleafError; end
   
   class StorageLocationUnavailableError < LongleafError; end
+  
+  class EventError < LongleafError; end
+  
+  class RegistrationError < EventError; end
 end
