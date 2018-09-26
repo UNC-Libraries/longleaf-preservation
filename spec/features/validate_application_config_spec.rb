@@ -29,10 +29,9 @@ describe 'validate_config', :type => :aruba do
   context 'invalid storage location' do
     let(:md_dir) { Dir.mktmpdir('metadata') }
     let(:config_path) { ConfigBuilder.new
-        .with_locations
         .with_location(name: 'loc1', path: nil, md_path: md_dir)
         .with_services
-        .with_mappings({})
+        .with_mappings
         .write_to_yaml_file }
     
     before do
@@ -43,19 +42,20 @@ describe 'validate_config', :type => :aruba do
       FileUtils.rmdir(md_dir)
     end
     
-    it { expect(last_command_started).to have_output(/Application configuration invalid/) }
-    it { expect(last_command_started).to have_output(
-        /Storage location 'loc1' specifies invalid 'path' property: Path must not be empty/) }
+    it 'outputs invalid configuration error' do
+      expect(last_command_started).to have_output(/Application configuration invalid/)
+      expect(last_command_started).to have_output(
+              /Storage location 'loc1' specifies invalid 'path' property: Path must not be empty/)
+    end
   end
   
   context 'unavailable storage location' do
     let(:path_dir) { FileUtils.rmdir(Dir.mktmpdir('path'))[0] }
     let(:md_dir) { Dir.mktmpdir('metadata') }
     let(:config_path) { ConfigBuilder.new
-        .with_locations
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_services
-        .with_mappings({})
+        .with_mappings
         .write_to_yaml_file }
     
     before do
@@ -66,18 +66,19 @@ describe 'validate_config', :type => :aruba do
       FileUtils.rmdir(md_dir)
     end
     
-    it { expect(last_command_started).to have_output(/Application configuration invalid/) }
-    it { expect(last_command_started).to have_output(/Path does not exist or is not a directory/) }
+    it 'outputs path does not exist configuration error' do
+      expect(last_command_started).to have_output(/Application configuration invalid/)
+      expect(last_command_started).to have_output(/Path does not exist or is not a directory/)
+    end
   end
   
   context 'valid storage location' do
     let(:path_dir) { Dir.mktmpdir('path') }
     let(:md_dir) { Dir.mktmpdir('metadata') }
     let(:config_path) { ConfigBuilder.new
-        .with_locations
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_services
-        .with_mappings({})
+        .with_mappings
         .write_to_yaml_file }
     
     before do
@@ -96,11 +97,10 @@ describe 'validate_config', :type => :aruba do
     let(:md_dir1) { Dir.mktmpdir('metadata') }
     let(:md_dir2) { Dir.mktmpdir('metadata') }
     let(:config_path) { ConfigBuilder.new
-        .with_locations
         .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
         .with_location(name: 'loc2', path: path_dir1, md_path: md_dir2)
         .with_services
-        .with_mappings({})
+        .with_mappings
         .write_to_yaml_file }
     
     before do
@@ -111,19 +111,19 @@ describe 'validate_config', :type => :aruba do
       FileUtils.rmdir([md_dir1, path_dir1, md_dir2])
     end
     
-    it { expect(last_command_started).to have_output(/Application configuration invalid/) }
-    it { expect(last_command_started).to have_output(/which overlaps with another configured path/) }
+    it 'outputs overlapping storage paths error' do
+      expect(last_command_started).to have_output(/Application configuration invalid/)
+      expect(last_command_started).to have_output(/which overlaps with another configured path/)
+    end
   end
   
   context 'invalid service definition' do
     let(:path_dir) { Dir.mktmpdir('path') }
     let(:md_dir) { Dir.mktmpdir('metadata') }
     let(:config_path) { ConfigBuilder.new
-        .with_locations
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
-        .with_services
         .with_service(name: 'serv1', work_script: nil)
-        .with_mappings({})
+        .with_mappings
         .write_to_yaml_file }
     
     before do
@@ -134,16 +134,17 @@ describe 'validate_config', :type => :aruba do
       FileUtils.rmdir([md_dir, path_dir])
     end
     
-    it { expect(last_command_started).to have_output(/Application configuration invalid/) }
-    it { expect(last_command_started).to have_output(/Service definition 'serv1' must specify a 'work_script' property/) }
+    it 'outputs missing field error' do
+      expect(last_command_started).to have_output(/Application configuration invalid/)
+      expect(last_command_started).to have_output(/Service definition 'serv1' must specify a 'work_script' property/)
+    end
   end
   
   context 'valid service definition' do
     let(:config_path) { ConfigBuilder.new
         .with_locations
-        .with_services
         .with_service(name: 'serv1', work_script: 'preserve.rb')
-        .with_mappings({})
+        .with_mappings
         .write_to_yaml_file }
     
     before do
@@ -157,9 +158,7 @@ describe 'validate_config', :type => :aruba do
     let(:path_dir) { Dir.mktmpdir('path') }
     let(:md_dir) { Dir.mktmpdir('metadata') }
     let(:config_path) { ConfigBuilder.new
-        .with_locations
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
-        .with_services
         .with_service(name: 'serv1', work_script: 'preserve.rb')
         .map_services('loc1', 'serv1')
         .write_to_yaml_file }
