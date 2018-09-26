@@ -1,4 +1,4 @@
-# Record for an individual file, containing 
+# Record for an individual file and its associated information 
 module Longleaf
   class FileRecord
     
@@ -16,8 +16,10 @@ module Longleaf
       @storage_location = storage_location
     end
     
+    # @return [String] path for the metadata file for this file
     def metadata_path
-      @storage_location.get_metadata_path_for(path)
+      @metadata_path = @storage_location.get_metadata_path_for(path) if @metadata_path.nil?
+      @metadata_path
     end
   end
 end

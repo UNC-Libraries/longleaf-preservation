@@ -71,12 +71,14 @@ module Longleaf
       end
     end
     
+    # Copy a subset of properties from an existing metadata record to the new record
     def retain_existing_properties
       md_rec = @file_rec.metadata_record
       
-      # retains custom properties, stale-replicas flag
       old_md = MetadataDeserializer.deserialize(file_path: @file_rec.metadata_path)
+      # Copy custom properties
       old_md.properties.each { |name, value| md_rec.properties[name] = value }
+      # Copy stale-replicas flag per service
       old_md.list_services.each do |serv_name|
         serv_rec = old_md.service(serv_name)
         
