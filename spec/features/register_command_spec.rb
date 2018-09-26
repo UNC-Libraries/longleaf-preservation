@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'aruba/rspec'
 require 'longleaf/specs/config_builder'
+require 'longleaf/services/metadata_serializer'
 require 'tempfile'
 require 'yaml'
 require 'fileutils'
@@ -148,7 +149,7 @@ describe 'register', :type => :aruba do
   end
   
   def metadata_created(file_path, md_dir)
-    metadata_path = File.join(md_dir, File.basename(file_path))
+    metadata_path = File.join(md_dir, File.basename(file_path) + Longleaf::MetadataSerializer::metadata_suffix)
     File.exist?(metadata_path)
   end
 end

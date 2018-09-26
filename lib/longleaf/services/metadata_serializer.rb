@@ -58,5 +58,14 @@ module Longleaf
       
       props
     end
+    
+    def self.metadata_suffix(format: 'yaml')
+      case format
+      when 'yaml'
+        '-llmd.yaml'
+      else
+        raise ArgumentError.new('Invalid serialization format #{format} specified')
+      end
+    end
   end
 end
