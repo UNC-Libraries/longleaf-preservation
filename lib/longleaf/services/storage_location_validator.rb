@@ -39,7 +39,7 @@ module Longleaf
             "Storage location '#{name}' specifies invalid '#{path_prop}' property: #{err.message}")
       end
       assert("Storage location '#{name}' must specify a '#{path_prop}' property", !path.nil? && !path.empty?)
-      assert("Storage location '#{name}' must specify an absolute path for proprety '#{path_prop}'",
+      assert("Storage location '#{name}' must specify an absolute path for property '#{path_prop}'",
           Pathname.new(path).absolute? && !path.include?('/..'))
       # Ensure paths have trailing slash to avoid matching on partial directory names
       path += '/' unless path.end_with?('/')

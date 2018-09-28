@@ -53,7 +53,7 @@ module Longleaf
     def populate_file_properties
       md_rec = @file_rec.metadata_record
       
-      # Set file propeties
+      # Set file properties
       md_rec.last_modified = File.mtime(@file_rec.path).utc.iso8601
       md_rec.file_size = File.size(@file_rec.path)
     end
