@@ -40,6 +40,8 @@ module Longleaf
       data[MDF::REGISTERED_TIMESTAMP] = metadata.registered if metadata.registered
       data[MDF::DEREGISTERED_TIMESTAMP] = metadata.deregistered if metadata.deregistered
       data[MDF::CHECKSUMS] = metadata.checksums unless metadata.checksums&.empty?
+      data[MDF::FILE_SIZE] = metadata.file_size unless metadata.file_size.nil?
+      data[MDF::LAST_MODIFIED] = metadata.last_modified if metadata.last_modified
       
       props[MDF::DATA] = data
       
@@ -55,6 +57,15 @@ module Longleaf
       props[MDF::SERVICES] = services
       
       props
+    end
+    
+    def self.metadata_suffix(format: 'yaml')
+      case format
+      when 'yaml'
+        '-llmd.yaml'
+      else
+        raise ArgumentError.new('Invalid serialization format #{format} specified')
+      end
     end
   end
 end

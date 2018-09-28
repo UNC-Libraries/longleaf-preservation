@@ -30,7 +30,9 @@ describe Longleaf::MetadataSerializer do
       
       let(:record) { build(:metadata_record,
         registered: '2018-01-01T00:00:00.000Z',
-        properties: { MDF::FILE_SIZE => 1500 },
+        file_size: 1500,
+        last_modified: '2018-09-20T13:13:23Z',
+        properties: { 'other_prop' => 'value' },
         checksums: { 'SHA1' => '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83' },
         services: { :service_1 => service_1, :service_2 => service_2 } ) }
       
@@ -40,7 +42,9 @@ describe Longleaf::MetadataSerializer do
         
         expect(md.dig(MDF::DATA, MDF::REGISTERED_TIMESTAMP)).to eq '2018-01-01T00:00:00.000Z'
         expect(md.dig(MDF::DATA, MDF::FILE_SIZE)).to eq 1500
+        expect(md.dig(MDF::DATA, MDF::LAST_MODIFIED)).to eq '2018-09-20T13:13:23Z'
         expect(md.dig(MDF::DATA, MDF::CHECKSUMS, 'SHA1')).to eq '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
+        expect(md.dig(MDF::DATA, 'other_prop')).to eq 'value'
         
         expect(md.dig(MDF::SERVICES, :service_1, MDF::SERVICE_TIMESTAMP)).to eq '2018-01-01T01:00:00.000Z'
         expect(md.dig(MDF::SERVICES, :service_1, 'service_prop')).to eq 'value'

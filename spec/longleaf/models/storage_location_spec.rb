@@ -51,11 +51,13 @@ describe Longleaf::StorageLocation do
     end
     
     context 'valid path' do
-      it { expect(location.get_metadata_path_for('/file/path/sub/myfile.txt')).to eq '/metadata/path/sub/myfile.txt'}
+      it { expect(location.get_metadata_path_for('/file/path/sub/myfile.txt'))
+          .to eq '/metadata/path/sub/myfile.txt-llmd.yaml'}
     end
     
     context 'path containing repeated path' do
-      it { expect(location.get_metadata_path_for('/file/path/file/path/myfile.txt')).to eq '/metadata/path/file/path/myfile.txt'}
+      it { expect(location.get_metadata_path_for('/file/path/file/path/myfile.txt'))
+          .to eq '/metadata/path/file/path/myfile.txt-llmd.yaml'}
     end
   end
   

@@ -1,8 +1,9 @@
 require 'pathname'
-require_relative '../models/storage_location'
-require_relative '../models/app_fields'
-require_relative '../errors'
+require 'longleaf/models/storage_location'
+require 'longleaf/models/app_fields'
+require 'longleaf/errors'
 require_relative 'configuration_validator'
+require 'longleaf/services/storage_path_validator'
 
 # Validates application configuration of storage locations
 module Longleaf
@@ -31,6 +32,12 @@ module Longleaf
     private
     def self.assert_path_property_valid(name, path_prop, properties, existing_paths)
       path = properties[path_prop]
+      begin
+        StoragePathValidator::validate(path)
+      rescue InvalidStoragePathError => err
+        raise ConfigurationError.new(
+            "Storage location '#{name}' specifies invalid '#{path_prop}' property: #{err.message}")
+      end
       assert("Storage location '#{name}' must specify a '#{path_prop}' property", !path.nil? && !path.empty?)
       assert("Storage location '#{name}' must specify an absolute path for proprety '#{path_prop}'",
           Pathname.new(path).absolute? && !path.include?('/..'))

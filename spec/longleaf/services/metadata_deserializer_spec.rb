@@ -37,7 +37,9 @@ describe Longleaf::MetadataDeserializer do
           MDF::DATA => {
             MDF::REGISTERED_TIMESTAMP => '2018-01-01T00:00:00.000Z',
             MDF::FILE_SIZE => 1500,
-            MDF::CHECKSUMS => { 'SHA1' => '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83' }
+            MDF::CHECKSUMS => { 'SHA1' => '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83' },
+            MDF::LAST_MODIFIED => '2016-01-01T20:38:45Z',
+            'special' => 'value'
           },
           MDF::SERVICES => {
             'service_1' => {
@@ -58,7 +60,9 @@ describe Longleaf::MetadataDeserializer do
         
         expect(result.registered).to eq '2018-01-01T00:00:00.000Z'
         expect(result.checksums).to include('SHA1' => '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83')
-        expect(result.properties[MDF::FILE_SIZE]).to eq 1500
+        expect(result.file_size).to eq 1500
+        expect(result.last_modified).to eq '2016-01-01T20:38:45Z'
+        expect(result.properties['special']).to eq 'value'
         
         expect(result.service('service_1').timestamp).to eq '2018-01-01T01:00:00.000Z'
         expect(result.service('service_2').properties).to be_empty

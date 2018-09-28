@@ -1,3 +1,5 @@
+require 'longleaf/services/metadata_serializer'
+
 module Longleaf
   class StorageLocation
     attr_reader :name
@@ -20,7 +22,7 @@ module Longleaf
       raise ArgumentError.new("Provided file path is not contained by storage location #{@name}: #{file_path}") \
           unless file_path.start_with?(@path)
 
-      file_path.sub(/^#{@path}/, metadata_path)
+      file_path.sub(/^#{@path}/, metadata_path) + MetadataSerializer::metadata_suffix
     end
     
     # Checks that the path and metadata path defined in this location are available

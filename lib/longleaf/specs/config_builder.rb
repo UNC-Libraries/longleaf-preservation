@@ -28,6 +28,8 @@ module Longleaf
     # @param md_path [String] value for the 'metadata_path' field
     # @return this builder
     def with_location(name:, path: '/file/path/', md_path: '/metadata/path/')
+      @config[AF::LOCATIONS] = Hash.new unless @config.key?(AF::LOCATIONS)
+      
       location = {}
       @config[AF::LOCATIONS][name] = location
       location[AF::LOCATION_PATH] = path unless path.nil?
@@ -51,6 +53,8 @@ module Longleaf
     # @param properties [Hash] hash of additional properties to include in the service
     # @return this builder
     def with_service(name:, work_script: 'some_pres_service.rb', frequency: nil, delay: nil, properties: nil)
+      @config[AF::SERVICES] = Hash.new unless @config.key?(AF::SERVICES)
+      
       service = {}
       service[SF::WORK_SCRIPT] = work_script
       service[SF::FREQUENCY] = frequency unless frequency.nil?

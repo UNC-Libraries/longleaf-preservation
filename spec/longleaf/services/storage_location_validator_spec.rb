@@ -35,35 +35,35 @@ describe Longleaf::StorageLocationValidator do
       let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', path: nil).get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
-          /must specify a 'path'/) }
+          /'path' property: Path must not be empty/) }
     end
     
     context 'with location missing metadata path' do
       let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', md_path: nil).get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
-          /must specify a 'metadata_path'/) }
+          /'metadata_path' property: Path must not be empty/) }
     end
     
     context 'with location with non-absolute path' do
       let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', path: 'path/').get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
-          /an absolute path for proprety 'path'/) }
+          /'path' property: Path must be absolute/) }
     end
     
     context 'with location with path modifiers' do
       let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', path: '/file/../path/').get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
-          /an absolute path for proprety 'path'/) }
+          /'path' property: Path must not contain any relative modifiers/) }
     end
     
     context 'with location with non-absolute metadata_path' do
       let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', md_path: 'md_path/').get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
-          /an absolute path for proprety 'metadata_path'/) }
+          /'metadata_path' property: Path must be absolute/) }
     end
     
     context 'with location with non-hash location' do

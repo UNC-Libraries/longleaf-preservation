@@ -29,6 +29,8 @@ module Longleaf
       registered = data.delete(MDFields::REGISTERED_TIMESTAMP)
       deregistered = data.delete(MDFields::DEREGISTERED_TIMESTAMP)
       checksums = data.delete(MDFields::CHECKSUMS)
+      file_size = data.delete(MDFields::FILE_SIZE)
+      last_modified = data.delete(MDFields::LAST_MODIFIED)
       
       services = md[MDF::SERVICES]
       service_records = Hash.new
@@ -54,7 +56,9 @@ module Longleaf
           services: service_records,
           registered: registered,
           deregistered: deregistered,
-          checksums: checksums)
+          checksums: checksums,
+          file_size: file_size,
+          last_modified: last_modified)
     end
     
     def self.from_yaml(file_path)
