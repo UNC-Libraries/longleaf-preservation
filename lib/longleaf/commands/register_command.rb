@@ -11,7 +11,7 @@ module Longleaf
     end
 
     # Execute the register command on the given parameters
-    def execute(file_paths: nil, force: false)
+    def execute(file_paths: nil, force: false, checksums: nil)
       if file_paths.nil? || file_paths.empty?
         puts "Must provide one or more file paths to register"
         return
@@ -35,7 +35,8 @@ module Longleaf
           
             file_rec = FileRecord.new(f_path, storage_location)
             
-            register_event = RegisterEvent.new(file_rec: file_rec, force: force, app_manager: app_manager)
+            register_event = RegisterEvent.new(file_rec: file_rec, force: force, app_manager: app_manager,
+                checksums: checksums)
             register_event.perform
             
             puts "Registered: #{f_path}"

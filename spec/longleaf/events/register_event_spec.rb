@@ -105,6 +105,22 @@ describe Longleaf::RegisterEvent do
 
         expect { Time.iso8601(md_rec.registered) }.to_not raise_error
       end
+      
+      it 'persists metadata with checksums' do
+        event = Longleaf::RegisterEvent.new(file_rec: file_rec,
+            app_manager: app_config,
+            checksums: { 'md5' => 'digestvalue',
+              'sha1' => 'shadigest' } )
+        event.perform
+        
+        md_rec = load_metadata_record(file_path)
+
+        expect { Time.iso8601(md_rec.registered) }.to_not raise_error
+        expect(md_rec.list_services).to include('serv1')
+        
+        expect(md_rec.checksums).to include('md5' => 'digestvalue',
+            'sha1' => 'shadigest')
+      end
     end
     
     context 'file in location with no services' do
