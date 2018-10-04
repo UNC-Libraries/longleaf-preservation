@@ -10,7 +10,7 @@ module Longleaf
     # @param file_rec [FileRecord] file record
     # @param app_manager [ApplicationConfigManager] the application configuration
     # @param force [boolean] if true, then already registered files will be re-registered
-    def initialize(file_rec:, app_manager:, force: false)
+    def initialize(file_rec:, app_manager:, force: false, checksums: nil)
       raise ArgumentError.new('Must provide a file_rec parameter') if file_rec.nil?
       raise ArgumentError.new('Parameter file_rec must be a FileRecord') \
           unless file_rec.is_a?(FileRecord)
@@ -21,6 +21,7 @@ module Longleaf
       @app_manager = app_manager
       @file_rec = file_rec
       @force = force
+      @checksums = checksums
     end
     
     # Perform a registration event on the given file
@@ -42,6 +43,8 @@ module Longleaf
       end
       
       populate_file_properties
+      
+      md_rec.checksums.merge!(@checksums) unless @checksums.nil?
       
       populate_services
       

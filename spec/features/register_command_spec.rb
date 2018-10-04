@@ -140,6 +140,39 @@ describe 'register', :type => :aruba do
         expect(metadata_created(file_path2, md_dir)).to be true
       end
     end
+    
+    context 'invalid checksum format' do
+      before do
+        run_simple("longleaf register -c #{config_path} -f '#{file_path}' --checksums 'flat'")
+      end
+
+      it 'rejects checksum parameter' do
+        expect(last_command_started).to have_output(/Invalid checksums parameter format/)
+        expect(metadata_created(file_path, md_dir)).to be false
+      end
+    end
+    
+    context 'valid checksum format' do
+      before do
+        run_simple("longleaf register -c #{config_path} -f '#{file_path}' --checksums 'md5:digest'")
+      end
+
+      it 'registers the file' do
+        expect(last_command_started).to have_output(/Registered: #{file_path}/)
+        expect(metadata_created(file_path, md_dir)).to be true
+      end
+    end
+    
+    context 'multiple valid checksums' do
+      before do
+        run_simple("longleaf register -c #{config_path} -f '#{file_path}' --checksums 'md5:digest,sha1:anotherdigest'")
+      end
+
+      it 'registers the file' do
+        expect(last_command_started).to have_output(/Registered: #{file_path}/)
+        expect(metadata_created(file_path, md_dir)).to be true
+      end
+    end
   end
   
   def make_test_file(dir, file_name = 'test_file', content = 'content')
