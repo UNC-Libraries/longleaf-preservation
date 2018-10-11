@@ -73,7 +73,7 @@ module Longleaf
       # @param message [String] descriptive message to accompany this output
       # @param service [String] name of the service which executed.
       def success(eventOrMessage, file_name = nil, message = nil, service = nil)
-        outcome('success', eventOrMessage, file_name, message, service)
+        outcome('SUCCESS', eventOrMessage, file_name, message, service)
       end
     
       # Logs a failure message to STDOUT, as well as STDERR at info level.
@@ -85,7 +85,7 @@ module Longleaf
       # @param service [String] name of the service which executed.
       # @param error [Error] error which occurred
       def failure(eventOrMessage, file_name = nil, message = nil, service = nil, error: nil)
-        text = outcome_text('failure', eventOrMessage, file_name, message, service, error)
+        text = outcome_text('FAILURE', eventOrMessage, file_name, message, service, error)
         @stdout_log.warn(text)
       
         @stderr_log.info(text)
@@ -108,22 +108,21 @@ module Longleaf
         @stderr_log.info(text)
       end
     
+      # FAILURE verify[cdr_fixity_check] /path/to/file: Something terrible
       private
       def outcome_text(outcome, eventOrMessage, file_name = nil, message = nil, service = nil, error = nil)
-        message_only = file_name.nil? && message.nil?
-      
-        esc_message = message_only ? eventOrMessage : (message || error&.message)
-        esc_message = " '#{esc_message.gsub("'", %q(\\\'))}'" unless esc_message.nil?
+        message_only = file_name.nil? && message.nil? && error.nil?
+        
+        text = "#{outcome}"
       
         if message_only
-          text = "#{outcome}:#{esc_message}"
+          text << ": #{eventOrMessage}"
         else
-          if service.nil?
-            text = "#{outcome}: #{eventOrMessage} '#{file_name}'"
-          else
-            text = "#{outcome}: #{eventOrMessage} #{service} '#{file_name}'"
-          end
-          text = text + esc_message unless esc_message.nil?
+          text << " #{eventOrMessage}"
+          text << "[#{service}]" unless service.nil?
+          text << " #{file_name}" unless file_name.nil?
+          msg = message || error&.message
+          text << ": #{msg}" unless msg.nil?
         end
         text
       end

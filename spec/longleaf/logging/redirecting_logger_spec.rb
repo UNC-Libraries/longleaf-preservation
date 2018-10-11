@@ -72,26 +72,22 @@ describe Longleaf::Logging::RedirectingLogger do
       let(:logger) { build(:logger, :debug) }
       
       context 'with message' do
-        specify { expect { logger.success('good') }.to output(/success: 'good'/).to_stdout }
-        specify { expect { logger.success('good') }.to output(/INFO.*success: 'good'/).to_stderr }
+        specify { expect { logger.success('good') }.to output(/SUCCESS: good/).to_stdout }
+        specify { expect { logger.success('good') }.to output(/INFO.*SUCCESS: good/).to_stderr }
       end
       
       context 'with event and file' do
         specify { expect { logger.success('register', '/path/to/file') }.to output(
-            /success: register '\/path\/to\/file'/).to_stdout }
+            /SUCCESS register \/path\/to\/file/).to_stdout }
         specify { expect { logger.success('register', '/path/to/file') }.to output(
-            /INFO.*success: register '\/path\/to\/file'/).to_stderr }
+            /INFO.*SUCCESS register \/path\/to\/file/).to_stderr }
       end
       
       context 'with event, file, message and service' do
         specify { expect { logger.success('verify', '/path/to/file', 'good stuff', 'my_service') }.to output(
-            /success: verify my_service '\/path\/to\/file' 'good stuff'/).to_stdout }
+            /SUCCESS verify\[my_service\] \/path\/to\/file: good stuff/).to_stdout }
         specify { expect { logger.success('verify', '/path/to/file', 'good stuff', 'my_service') }.to output(
-            /INFO.*success: verify my_service '\/path\/to\/file' 'good stuff'/).to_stderr }
-      end
-      
-      context 'with message containing quote' do
-        specify { expect { logger.success("don't quote me") }.to output(/success: 'don\\\'t quote me'/).to_stdout }
+            /INFO.*SUCCESS verify\[my_service\] \/path\/to\/file: good stuff/).to_stderr }
       end
     end
     
@@ -101,7 +97,7 @@ describe Longleaf::Logging::RedirectingLogger do
       context 'with event and file' do
         specify { expect { logger.success('register', '/path/to/file') }.to_not output.to_stdout }
         specify { expect { logger.success('register', '/path/to/file') }.to output(
-            /INFO.*success: register '\/path\/to\/file'/).to_stderr }
+            /INFO.*SUCCESS register \/path\/to\/file/).to_stderr }
       end
     end
   end
@@ -111,15 +107,15 @@ describe Longleaf::Logging::RedirectingLogger do
       let(:logger) { build(:logger, :debug) }
       
       context 'with message' do
-        specify { expect { logger.failure('bad') }.to output(/failure: 'bad'/).to_stdout }
-        specify { expect { logger.failure('bad') }.to output(/INFO.*failure: 'bad'/).to_stderr }
+        specify { expect { logger.failure('bad') }.to output(/FAILURE: bad/).to_stdout }
+        specify { expect { logger.failure('bad') }.to output(/INFO.*FAILURE: bad/).to_stderr }
       end
       
       context 'with event, file, message and service' do
         specify { expect { logger.failure('verify', '/path/to/file', 'bad stuff', 'my_service') }.to output(
-            /failure: verify my_service '\/path\/to\/file' 'bad stuff'/).to_stdout }
+            /FAILURE verify\[my_service\] \/path\/to\/file: bad stuff/).to_stdout }
         specify { expect { logger.failure('verify', '/path/to/file', 'bad stuff', 'my_service') }.to output(
-            /INFO.*failure: verify my_service '\/path\/to\/file' 'bad stuff'/).to_stderr }
+            /INFO.*FAILURE verify\[my_service\] \/path\/to\/file: bad stuff/).to_stderr }
       end
       
       context 'with event, file and raised error' do
@@ -128,7 +124,7 @@ describe Longleaf::Logging::RedirectingLogger do
             raise StandardError.new('Something terrible')
           rescue StandardError => error
             expect { logger.failure('register', '/path/to/file', error: error) }.to output(
-                /failure: register '\/path\/to\/file' 'Something terrible'/).to_stdout
+                /FAILURE register \/path\/to\/file: Something terrible/).to_stdout
           end
         end
         specify do
@@ -136,7 +132,7 @@ describe Longleaf::Logging::RedirectingLogger do
             raise StandardError.new('Something terrible')
           rescue StandardError => error
             expect { logger.failure('register', '/path/to/file', error: error) }.to output(
-                /INFO.*failure: register '\/path\/to\/file'.*\nERROR.*Something terrible/).to_stderr
+                /INFO.*FAILURE register \/path\/to\/file.*\nERROR.*Something terrible/).to_stderr
           end
         end
       end
@@ -144,11 +140,11 @@ describe Longleaf::Logging::RedirectingLogger do
       context 'with error and message' do
         let(:error) { StandardError.new('Something terrible')}
         
-        specify { expect { logger.failure('register', '/path/to/file', '', error: error) }.to output(
-            /failure: register '\/path\/to\/file'/).to_stdout }
-        specify { expect { logger.failure('register', '/path/to/file', error: error) }.to output(
-            /INFO.*failure: register '\/path\/to\/file'/).to_stderr }
-        specify { expect { logger.failure('register', '/path/to/file', error: error) }.to output(
+        specify { expect { logger.failure('register', '/path/to/file', 'A message', error: error) }.to output(
+            /FAILURE register \/path\/to\/file: A message/).to_stdout }
+        specify { expect { logger.failure('register', '/path/to/file', 'A message', error: error) }.to output(
+            /INFO.*FAILURE register \/path\/to\/file: A message/).to_stderr }
+        specify { expect { logger.failure('register', '/path/to/file', 'A message', error: error) }.to output(
             /ERROR.*Something terrible/).to_stderr }
       end
     end
@@ -158,9 +154,9 @@ describe Longleaf::Logging::RedirectingLogger do
       
       context 'with event and file' do
         specify { expect { logger.failure('register', '/path/to/file') }.to output(
-            /failure: register '\/path\/to\/file'/).to_stdout }
+            /FAILURE register \/path\/to\/file/).to_stdout }
         specify { expect { logger.failure('register', '/path/to/file') }.to output(
-            /INFO.*failure: register '\/path\/to\/file'/).to_stderr }
+            /INFO.*FAILURE register \/path\/to\/file/).to_stderr }
       end
     end
   end
