@@ -89,7 +89,7 @@ describe 'validate_config', :type => :aruba do
       FileUtils.rmdir([md_dir, path_dir])
     end
     
-    it { expect(last_command_started).to have_output(/Success, application configuration passed validation/) }
+    it { expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/) }
   end
   
   context 'overlapping storage locations' do
@@ -151,7 +151,7 @@ describe 'validate_config', :type => :aruba do
       run_simple("longleaf validate_config #{config_path}")
     end
     
-    it { expect(last_command_started).to have_output(/Success, application configuration passed validation/) }
+    it { expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/) }
   end
   
   context 'valid service mapping' do
@@ -171,6 +171,6 @@ describe 'validate_config', :type => :aruba do
       FileUtils.rmdir([md_dir, path_dir])
     end
     
-    it { expect(last_command_started).to have_output(/Success, application configuration passed validation/) }
+    it { expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/) }
   end
 end

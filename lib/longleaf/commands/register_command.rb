@@ -1,3 +1,4 @@
+require 'longleaf/logging'
 require 'longleaf/services/application_config_deserializer'
 require 'longleaf/events/register_event'
 require 'longleaf/models/file_record'
@@ -5,6 +6,7 @@ require 'longleaf/models/file_record'
 # Command for registering files with longleaf
 module Longleaf
   class RegisterCommand
+    include Longleaf::Logging
     
     def initialize(config_path)
       @config_path = config_path
@@ -13,7 +15,7 @@ module Longleaf
     # Execute the register command on the given parameters
     def execute(file_paths: nil, force: false, checksums: nil)
       if file_paths.nil? || file_paths.empty?
-        puts "Must provide one or more file paths to register"
+        logger.failure("Must provide one or more file paths to register")
         return
       end
       
@@ -39,20 +41,17 @@ module Longleaf
                 checksums: checksums)
             register_event.perform
             
-            puts "Registered: #{f_path}"
+            logger.success('register', f_path)
           rescue RegistrationError => err
-            puts err.message
+            logger.failure('register', f_path, err.message)
           rescue InvalidStoragePathError => err
-            puts err.message
+            logger.failure('register', f_path, err.message)
           end
         end
       rescue ConfigurationError => err
-        puts "Failed to load application configuration due to the following issue:"
-        puts err.message
+        logger.failure("Failed to load application configuration due to the following issue:\n#{err.message}")
       rescue => err
-        puts "Failed to perform register event:"
-        puts err.message
-        puts err.backtrace
+        logger.failure('register', error: err)
       end
     end
   end

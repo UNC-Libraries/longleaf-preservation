@@ -95,7 +95,7 @@ describe 'register', :type => :aruba do
       end
 
       it 'registers the file' do
-        expect(last_command_started).to have_output(/Registered: #{file_path}/)
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
       end
     end
@@ -109,7 +109,7 @@ describe 'register', :type => :aruba do
         # File should be registered by first call
         expect(metadata_created(file_path, md_dir)).to be true
         # Only testing output from second command, so no registered message visible
-        expect(last_command_started).to_not have_output(/Registered: .*/)
+        expect(last_command_started).to_not have_output(/SUCCESS.*/)
         expect(last_command_started).to have_output(
             /Unable to register '#{file_path}', it is already registered/)
       end
@@ -121,7 +121,7 @@ describe 'register', :type => :aruba do
         run_simple("longleaf register -c #{config_path} -f '#{file_path}' --force")
       end
       it 'registers the file' do
-        expect(last_command_started).to have_output(/Registered: #{file_path}/)
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
       end
     end
@@ -134,9 +134,9 @@ describe 'register', :type => :aruba do
       end
 
       it 'registers both files' do
-        expect(last_command_started).to have_output(/Registered: #{file_path}/)
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
-        expect(last_command_started).to have_output(/Registered: #{file_path2}/)
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
         expect(metadata_created(file_path2, md_dir)).to be true
       end
     end
@@ -158,7 +158,7 @@ describe 'register', :type => :aruba do
       end
 
       it 'registers the file' do
-        expect(last_command_started).to have_output(/Registered: #{file_path}/)
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
       end
     end
@@ -169,7 +169,7 @@ describe 'register', :type => :aruba do
       end
 
       it 'registers the file' do
-        expect(last_command_started).to have_output(/Registered: #{file_path}/)
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
       end
     end
