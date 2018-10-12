@@ -1,15 +1,13 @@
-require 'longleaf/logging'
 require 'longleaf/services/application_config_deserializer'
+require 'longleaf/commands/abstract_command'
 
 module Longleaf
-  class ValidateConfigCommand
-    include Longleaf::Logging
-    
+  class ValidateConfigCommand < AbstractCommand
     def initialize(config_path)
       @config_path = config_path
     end
     
-    def perform
+    def execute
       begin
         app_config_manager = Longleaf::ApplicationConfigDeserializer.deserialize(@config_path)
         
@@ -18,12 +16,14 @@ module Longleaf
           location.available?
         end
         
-        logger.success("Application configuration passed validation: #{@config_path}")
+        record_success("Application configuration passed validation: #{@config_path}")
       rescue Longleaf::ConfigurationError, Longleaf::StorageLocationUnavailableError => err
-        logger.failure("Application configuration invalid due to the following issue:\n#{err.message}")
+        record_failure("Application configuration invalid due to the following issue:\n#{err.message}")
       rescue => err
-        logger.failure("Failed to validate application configuration", error: err)
+        record_failure("Failed to validate application configuration", error: err)
       end
+      
+      return_status
     end
   end
 end

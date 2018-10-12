@@ -161,7 +161,6 @@ describe Longleaf::RegisterEvent do
     def load_metadata_record(file_path)
       storage_loc = app_config.location_manager.get_location_by_path(file_path)
       metadata_path = storage_loc.get_metadata_path_for(file_path)
-      # puts "Record: #{File.read(metadata_path)}"
       Longleaf::MetadataDeserializer.deserialize(file_path: metadata_path)
     end
     

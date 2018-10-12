@@ -29,6 +29,7 @@ describe 'register', :type => :aruba do
     it 'outputs error loading configuration' do
       expect(last_command_started).to have_output(/Failed to load application configuration/)
       expect(last_command_started).to have_output(/file .* does not exist/)
+      expect(last_command_started).to have_exit_status(1)
     end
   end
   
@@ -40,13 +41,14 @@ describe 'register', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf register -c #{config_path} -f '/path/to/file'")
+      run_simple("longleaf register -c #{config_path} -f '/path/to/file'", fail_on_error: false)
     end
     
     it 'outputs invalid configuration error' do
       expect(last_command_started).to have_output(/Failed to load application configuration/)
       expect(last_command_started).to have_output(
               /Storage location 'loc1' specifies invalid 'path' property: Path must not be empty/)
+      expect(last_command_started).to have_exit_status(1)
     end
   end
   
@@ -60,21 +62,27 @@ describe 'register', :type => :aruba do
     
     context 'empty file path' do
       before do
-        run_simple("longleaf register -c #{config_path} -f ''")
+        run_simple("longleaf register -c #{config_path} -f ''", fail_on_error: false)
       end
 
-      it { expect(last_command_started).to have_output(/Must provide one or more file paths to register/) }
+      it 'rejects missing file path value' do
+        expect(last_command_started).to have_output(/Must provide one or more file paths to register/)
+        expect(last_command_started).to have_exit_status(1)
+      end
     end
     
     context 'file does not exist' do
       before do
         File.delete(file_path)
       
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'")
+        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
-      it { expect(last_command_started).to have_output(
-          /Unable to register .*, file does not exist or is unreachable/) }
+      it 'rejects file which does not exist' do
+        expect(last_command_started).to have_output(
+          /Unable to register .*, file does not exist or is unreachable/)
+        expect(last_command_started).to have_exit_status(1)
+      end
     end
     
     context 'file not in a registered storage location' do
@@ -82,28 +90,32 @@ describe 'register', :type => :aruba do
         test_file = Tempfile.new('not_in_loc')
         out_of_location = test_file.path
         
-        run_simple("longleaf register -c #{config_path} -f '#{out_of_location}'")
+        run_simple("longleaf register -c #{config_path} -f '#{out_of_location}'", fail_on_error: false)
       end
 
-      it { expect(last_command_started).to have_output(
-          /Unable to register .*, it does not belong to any registered storage locations/) }
+      it 'outputs failure to find storage location' do
+        expect(last_command_started).to have_output(
+          /Unable to register .*, it does not belong to any registered storage locations/)
+        expect(last_command_started).to have_exit_status(1)
+      end
     end
     
     context 'register file' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'")
+        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'registers the file' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
+        expect(last_command_started).to have_exit_status(0)
       end
     end
     
     context 'register file more than once' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'")
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'")
+        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
       it 'rejects registering file' do
         # File should be registered by first call
@@ -112,17 +124,19 @@ describe 'register', :type => :aruba do
         expect(last_command_started).to_not have_output(/SUCCESS.*/)
         expect(last_command_started).to have_output(
             /Unable to register '#{file_path}', it is already registered/)
+        expect(last_command_started).to have_exit_status(1)
       end
     end
     
     context 'register file more than once with force flag' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'")
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}' --force")
+        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_simple("longleaf register -c #{config_path} -f '#{file_path}' --force", fail_on_error: false)
       end
       it 'registers the file' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
+        expect(last_command_started).to have_exit_status(0)
       end
     end
     
@@ -138,17 +152,19 @@ describe 'register', :type => :aruba do
         expect(metadata_created(file_path, md_dir)).to be true
         expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
         expect(metadata_created(file_path2, md_dir)).to be true
+        expect(last_command_started).to have_exit_status(0)
       end
     end
     
     context 'invalid checksum format' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}' --checksums 'flat'")
+        run_simple("longleaf register -c #{config_path} -f '#{file_path}' --checksums 'flat'", fail_on_error: false)
       end
 
       it 'rejects checksum parameter' do
         expect(last_command_started).to have_output(/Invalid checksums parameter format/)
         expect(metadata_created(file_path, md_dir)).to be false
+        expect(last_command_started).to have_exit_status(1)
       end
     end
     
@@ -160,6 +176,7 @@ describe 'register', :type => :aruba do
       it 'registers the file' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
+        expect(last_command_started).to have_exit_status(0)
       end
     end
     
@@ -171,6 +188,7 @@ describe 'register', :type => :aruba do
       it 'registers the file' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
+        expect(last_command_started).to have_exit_status(0)
       end
     end
   end

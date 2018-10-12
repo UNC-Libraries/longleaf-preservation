@@ -50,12 +50,12 @@ module Longleaf
           checksums = Hash[*checksums.split(/\s*[:,]\s*/)]
         else
           logger.failure("Invalid checksums parameter format, see `longleaf help <command>` for more information")
-          return
+          exit 1
         end
       end
       
       command = Longleaf::RegisterCommand.new(config_path)
-      command.execute(file_paths: file_paths, force: options[:force], checksums: checksums)
+      exit command.execute(file_paths: file_paths, force: options[:force], checksums: checksums)
     end
     
     desc "validate_config [CONFIG_PATH]", "Validate an application configuration file"
@@ -63,7 +63,7 @@ module Longleaf
     def validate_config(config_path)
       setup_logger(options)
       
-      Longleaf::ValidateConfigCommand.new(config_path).perform
+      exit Longleaf::ValidateConfigCommand.new(config_path).execute
     end
     
     no_commands do
