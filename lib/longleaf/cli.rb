@@ -11,6 +11,7 @@ module Longleaf
     
     class_option(:config, :aliases => "-c",
         :default => ENV['LONGLEAF_CFG'],
+        :required => true,
         :desc => 'Absolute path to the application configuration used for this command. By default, the value of the environment variable LONGLEAF_CFG is used.')
     # Logging/output options
     class_option(:failure_only,
@@ -58,12 +59,12 @@ module Longleaf
       exit command.execute(file_paths: file_paths, force: options[:force], checksums: checksums)
     end
     
-    desc "validate_config [CONFIG_PATH]", "Validate an application configuration file"
+    desc "validate_config", "Validate an application configuration file, provided using --config."
     # Application configuration validation command
-    def validate_config(config_path)
+    def validate_config
       setup_logger(options)
       
-      exit Longleaf::ValidateConfigCommand.new(config_path).execute
+      exit Longleaf::ValidateConfigCommand.new(options[:config]).execute
     end
     
     no_commands do

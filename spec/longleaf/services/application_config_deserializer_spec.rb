@@ -31,7 +31,7 @@ describe Longleaf::ApplicationConfigDeserializer do
       }
       
       it { expect { AppDeserializer::load(config_path) }.to raise_error(Longleaf::ConfigurationError,
-          /Cannot load application configuration, file .* does not exist/) }
+          /Configuration file .* does not exist/) }
     end
     
     context 'minimal configuration' do

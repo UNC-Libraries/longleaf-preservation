@@ -11,7 +11,7 @@ describe 'validate_config', :type => :aruba do
   context 'no config path' do
     before { run_simple('longleaf validate_config', fail_on_error: false) }
     
-    it { expect(last_command_started).to have_output(/was called with no arguments/) }
+    it { expect(last_command_started).to have_output(/No value provided for required options '--config'/) }
   end
   
   context 'config path does not exist' do
@@ -20,7 +20,7 @@ describe 'validate_config', :type => :aruba do
       config_path = config_file.path
       config_file.delete
       
-      run_simple("longleaf validate_config #{config_path}", fail_on_error: false)
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     it do
@@ -38,7 +38,7 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}", fail_on_error: false)
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     after do
@@ -63,7 +63,7 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}", fail_on_error: false)
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     after do
@@ -87,7 +87,7 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}", fail_on_error: false)
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     after do
@@ -112,7 +112,7 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}", fail_on_error: false)
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     after do
@@ -136,7 +136,7 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}", fail_on_error: false)
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     after do
@@ -158,7 +158,7 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}", fail_on_error: false)
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     it { expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/) }
@@ -174,7 +174,7 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}", fail_on_error: false)
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     after do
