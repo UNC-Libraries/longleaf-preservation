@@ -4,6 +4,7 @@ require 'longleaf/models/metadata_record'
 require 'longleaf/models/md_fields'
 require 'yaml'
 require 'tempfile'
+require 'tmpdir'
 
 describe Longleaf::MetadataSerializer do
   MDF ||= Longleaf::MDFields
@@ -53,6 +54,27 @@ describe Longleaf::MetadataSerializer do
       end
     end
     
+    context 'with missing parents' do
+      let(:base_dest_path) { Dir.mktmpdir }
+      let(:nested_dest_path) { File.join(base_dest_path, 'path', 'to', 'md_file')}
+      
+      let(:record) { build(:metadata_record,
+        registered: '2018-01-01T00:00:00.000Z',
+        services: { :service_1 => build(:service_record) } ) }
+      
+      after do
+        FileUtils.remove_entry base_dest_path
+      end
+      
+      it 'creates missing parents and serializes as yaml' do
+        Longleaf::MetadataSerializer.write(metadata: record, file_path: nested_dest_path)
+        md = YAML.load_file(nested_dest_path)
+        
+        expect(md.dig(MDF::DATA, MDF::REGISTERED_TIMESTAMP)).to eq '2018-01-01T00:00:00.000Z'
+        expect(md.dig(MDF::SERVICES, :service_1)).to be_empty
+      end
+    end
+    
     context 'without file path' do
       let(:record) { build(:metadata_record) }
       
@@ -83,12 +105,11 @@ describe Longleaf::MetadataSerializer do
     context 'with invalid file path' do
       let(:record) { build(:metadata_record) }
       
-      invalid_file = nil
-      Dir.mktmpdir { |dir| invalid_file = File.join(dir, 'some_file') }
+      let(:invalid_file) { File.join(dest_file, 'some_file')}
       
       it 'rejects path' do
         expect { Longleaf::MetadataSerializer.write(metadata: record, file_path: invalid_file) } \
-            .to raise_error(Errno::ENOENT)
+            .to raise_error(SystemCallError)
       end
     end
   end
