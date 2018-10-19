@@ -11,7 +11,7 @@ describe 'validate_config', :type => :aruba do
   context 'no config path' do
     before { run_simple('longleaf validate_config', fail_on_error: false) }
     
-    it { expect(last_command_started).to have_output(/was called with no arguments/) }
+    it { expect(last_command_started).to have_output(/No value provided for required options '--config'/) }
   end
   
   context 'config path does not exist' do
@@ -20,10 +20,13 @@ describe 'validate_config', :type => :aruba do
       config_path = config_file.path
       config_file.delete
       
-      run_simple("longleaf validate_config #{config_path}")
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
-    it { expect(last_command_started).to have_output(/file .* does not exist/) }
+    it do
+      expect(last_command_started).to have_output(/file .* does not exist/)
+      expect(last_command_started).to have_exit_status(1)
+    end
   end
   
   context 'invalid storage location' do
@@ -35,7 +38,7 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}")
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     after do
@@ -46,6 +49,7 @@ describe 'validate_config', :type => :aruba do
       expect(last_command_started).to have_output(/Application configuration invalid/)
       expect(last_command_started).to have_output(
               /Storage location 'loc1' specifies invalid 'path' property: Path must not be empty/)
+      expect(last_command_started).to have_exit_status(1)
     end
   end
   
@@ -59,7 +63,7 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}")
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     after do
@@ -69,6 +73,7 @@ describe 'validate_config', :type => :aruba do
     it 'outputs path does not exist configuration error' do
       expect(last_command_started).to have_output(/Application configuration invalid/)
       expect(last_command_started).to have_output(/Path does not exist or is not a directory/)
+      expect(last_command_started).to have_exit_status(1)
     end
   end
   
@@ -82,14 +87,17 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}")
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     after do
       FileUtils.rmdir([md_dir, path_dir])
     end
     
-    it { expect(last_command_started).to have_output(/Success, application configuration passed validation/) }
+    it do
+      expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/)
+      expect(last_command_started).to have_exit_status(0)
+    end
   end
   
   context 'overlapping storage locations' do
@@ -104,7 +112,7 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}")
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     after do
@@ -114,6 +122,7 @@ describe 'validate_config', :type => :aruba do
     it 'outputs overlapping storage paths error' do
       expect(last_command_started).to have_output(/Application configuration invalid/)
       expect(last_command_started).to have_output(/which overlaps with another configured path/)
+      expect(last_command_started).to have_exit_status(1)
     end
   end
   
@@ -127,7 +136,7 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}")
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     after do
@@ -137,6 +146,7 @@ describe 'validate_config', :type => :aruba do
     it 'outputs missing field error' do
       expect(last_command_started).to have_output(/Application configuration invalid/)
       expect(last_command_started).to have_output(/Service definition 'serv1' must specify a 'work_script' property/)
+      expect(last_command_started).to have_exit_status(1)
     end
   end
   
@@ -148,10 +158,10 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}")
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
-    it { expect(last_command_started).to have_output(/Success, application configuration passed validation/) }
+    it { expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/) }
   end
   
   context 'valid service mapping' do
@@ -164,13 +174,16 @@ describe 'validate_config', :type => :aruba do
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config #{config_path}")
+      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
     
     after do
       FileUtils.rmdir([md_dir, path_dir])
     end
     
-    it { expect(last_command_started).to have_output(/Success, application configuration passed validation/) }
+    it do
+      expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/)
+      expect(last_command_started).to have_exit_status(0)
+    end
   end
 end

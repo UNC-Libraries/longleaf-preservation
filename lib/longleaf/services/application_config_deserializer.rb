@@ -35,11 +35,9 @@ module Longleaf
         YAML.load_file(config_path)
       rescue Errno::ENOENT => err
         raise Longleaf::ConfigurationError.new(
-            "Cannot load application configuration, file #{config_path} does not exist.")
+            "Configuration file #{config_path} does not exist.")
       rescue => err
-        raise Longleaf::ConfigurationError.new(
-            %Q(Failed to load application configuration due to the following reason:
-            #{err.message}))
+        raise Longleaf::ConfigurationError.new(err)
       end
     end
   end

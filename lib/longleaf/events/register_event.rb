@@ -7,6 +7,8 @@ require 'time'
 # Event to register a file with longleaf
 module Longleaf
   class RegisterEvent
+    EVENT_NAME = 'register'
+    
     # @param file_rec [FileRecord] file record
     # @param app_manager [ApplicationConfigManager] the application configuration
     # @param force [boolean] if true, then already registered files will be re-registered
