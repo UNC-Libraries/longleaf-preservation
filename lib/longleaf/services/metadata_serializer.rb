@@ -1,6 +1,7 @@
 require 'yaml'
-require_relative '../models/metadata_record'
-require_relative '../models/md_fields'
+require 'longleaf/models/metadata_record'
+require 'longleaf/models/md_fields'
+require 'pathname'
 
 # Service which serializes MetadataRecord objects
 module Longleaf
@@ -22,6 +23,10 @@ module Longleaf
       else
         raise ArgumentError.new('Invalid serialization format #{format} specified')
       end
+      
+      # Fill in parent directories if they do not exist
+      parent_dir = Pathname(file_path).parent
+      parent_dir.mkpath unless parent_dir.exist?
       
       File.write(file_path, content)
     end
