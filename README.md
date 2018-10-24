@@ -1,7 +1,5 @@
 # Longleaf
-Longleaf is a command-line tool which allows users to configure a set of storage locations and define custom sets of preservation services to run on their contents. These services are executed in response to applicable preservation events issued by clients.
-
-It's primary goal is to provide tools to create a simple and customizable preservation environment.  Longleaf:
+Longleaf is a command-line tool which allows users to configure a set of storage locations and define custom sets of preservation services to run on their contents. These services are executed in response to applicable preservation events issued by clients. Its primary goal is to provide tools to create a simple and customizable preservation environment.  Longleaf:
 
 * Offers a predictable command-line interface and integrates with standard command-line tools.
 * Offers configurable and customizable criteria based preservation workflows.
@@ -41,7 +39,7 @@ Application configuration files can be validated prior to usage with the followi
 
 The primary output from Longleaf is directed to STDOUT, and contains both success and failure messages. If you would like to only return failure messages, you may provide the `--failure_only` flag.
 
-Additional logging is sent to STDERR. To control the level of logging, you may provide the `--log-level` parameter, which expects the standard Ruby Logger levels. The default log level is 'WARN'.
+Additional logging is sent to STDERR. To control the level of logging, you may provide the `--log-level` parameter, which expects the standard [Ruby Logger levels](https://ruby-doc.org/stdlib-2.4.0/libdoc/logger/rdoc/Logger.html). The default log level is 'WARN'.
 
 Messages sent to STDOUT are duplicated to STDERR at 'INFO' level, so they are excluded by default. In order to store an ongoing log of activity and errors, you would perform the following:
 `longleaf <command> --log-level 'INFO' 2> /logs/longleaf.log`
