@@ -10,8 +10,10 @@ module Longleaf
       raise ArgumentError.new("Parameters name, path and metadata_path are required") unless name && path && metadata_path
       
       @path = path
+      @path += '/' unless @path.end_with?('/')
       @name = name
       @metadata_path = metadata_path
+      @metadata_path += '/' unless @metadata_path.end_with?('/')
     end
     
     # Get the path for the metadata file for the given file path located in this storage location.
