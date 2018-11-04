@@ -1,5 +1,6 @@
-require_relative '../models/app_fields'
-require_relative '../models/storage_location'
+require 'longleaf/models/app_fields'
+require 'longleaf/models/storage_location'
+require 'longleaf/errors'
 
 # Manager which loads and provides access to Longleaf::StorageLocation objects
 module Longleaf
@@ -32,6 +33,19 @@ module Longleaf
       end
       
       nil
+    end
+    
+    # Raises a StorageLocationUnavailableError if the given path is not in a known storage location,
+    #    or if it is not within the expected location if provided
+    # @param path [String] file path
+    # @param expected_loc [String] name of the storage location which path should be contained by
+    def verify_path_in_location(path, expected_loc = nil)
+      location = get_location_by_path(path)
+      if location.nil?
+        raise StorageLocationUnavailableError.new("Path #{path} is not from a known storage location.")
+      elsif !expected_loc.nil? && expected_loc != location.name
+        raise StorageLocationUnavailableError.new("Path #{path} is not contained by storage location #{expected_loc}.")
+      end
     end
   end
 end
