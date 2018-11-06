@@ -6,6 +6,10 @@ FactoryBot.define do
     properties { {} }
     
     initialize_with { new(attributes) }
+    
+    trait :timestamp_now do
+      timestamp { Time.now.iso8601 }
+    end
   end
   
   factory(:metadata_record, class: Longleaf::MetadataRecord) do
