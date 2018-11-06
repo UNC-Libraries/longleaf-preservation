@@ -11,8 +11,9 @@ module Longleaf
   class ServiceCandidateFilesystemIterator
     include Longleaf::Logging
     
-    def initialize(file_selector, app_config)
+    def initialize(file_selector, event, app_config)
       @file_selector = file_selector
+      @event = event
       @app_config = app_config
     end
     
@@ -65,7 +66,8 @@ module Longleaf
       
       present_services = md_rec.list_services
       
-      expected_services = @app_config.service_manager.list_service_definitions(location: storage_loc.name)
+      expected_services = @app_config.service_manager.list_service_definitions(
+          location: storage_loc.name, event: @event)
       expected_services.each do |service_def|
         expected_name = service_def.name
         # If service not recorded for file, then it is needed
