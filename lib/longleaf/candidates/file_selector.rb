@@ -64,7 +64,7 @@ module Longleaf
           if File.directory?(path)
             logger.debug("Expanding directory #{path}")
             # For a directory, add all children to file_paths
-            Dir.children(path).each { |child| @paths << File.join(path, child) }
+            Dir.entries(path).each { |child| @paths << File.join(path, child) unless child == '.' or child == '..' }
           else
             logger.debug("Returning file #{path}")
             return path
