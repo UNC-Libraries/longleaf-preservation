@@ -21,5 +21,9 @@ module Longleaf
       @metadata_path = @storage_location.get_metadata_path_for(path) if @metadata_path.nil?
       @metadata_path
     end
+    
+    def registered?
+      File.exist?(metadata_path)
+    end
   end
 end

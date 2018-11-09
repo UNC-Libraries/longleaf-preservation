@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'longleaf/services/storage_location_manager'
 require 'longleaf/specs/config_builder'
+require 'longleaf/errors'
 
 describe Longleaf::StorageLocationManager do
   ConfigBuilder ||= Longleaf::ConfigBuilder
@@ -110,6 +111,35 @@ describe Longleaf::StorageLocationManager do
         
         expect(result.name).to eq 'loc2'
         expect(result.path).to eq '/file/path2/'
+      end
+    end
+  end
+  
+  describe '.verify_path_in_location' do
+    context 'with one location' do
+      let(:config) { ConfigBuilder.new.with_locations
+          .with_location(name: 'loc1', path: '/file/path1/', md_path: '/metadata/path1/')
+          .get }
+      let(:manager) { build(:storage_location_manager, config: config) }
+      
+      context 'with nil path' do
+        it { expect { manager.verify_path_in_location(nil) }.to raise_error(ArgumentError) }
+      end
+      
+      context 'file in known location' do
+        it { expect { manager.verify_path_in_location('/file/path1/file') }.to_not raise_error }
+      end
+      
+      context 'file not in known location' do
+        it { expect { manager.verify_path_in_location('/unknown/file') }.to raise_error(Longleaf::StorageLocationUnavailableError) }
+      end
+      
+      context 'file in expected location' do
+        it { expect { manager.verify_path_in_location('/file/path1/file', 'loc1') }.to_not raise_error }
+      end
+      
+      context 'file not in expected location' do
+        it { expect { manager.verify_path_in_location('/file/path1/file', 'other_loc') }.to raise_error(Longleaf::StorageLocationUnavailableError) }
       end
     end
   end
