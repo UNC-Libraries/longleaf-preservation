@@ -12,4 +12,8 @@ module Longleaf
   class EventError < LongleafError; end
   
   class RegistrationError < EventError; end
+  
+  class PreservationServiceError < LongleafError; end
+  
+  class ChecksumMismatchError < PreservationServiceError; end
 end

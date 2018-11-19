@@ -2,6 +2,7 @@ require 'longleaf/services/application_config_deserializer'
 require 'longleaf/events/register_event'
 require 'longleaf/models/file_record'
 require 'longleaf/commands/abstract_command'
+require 'longleaf/events/event_names'
 
 # Command for registering files with longleaf
 module Longleaf
@@ -40,17 +41,17 @@ module Longleaf
                 checksums: checksums)
             register_event.perform
             
-            record_success(RegisterEvent::EVENT_NAME, f_path)
+            record_success(EventNames::REGISTER, f_path)
           rescue RegistrationError => err
-            record_failure(RegisterEvent::EVENT_NAME, f_path, err.message)
+            record_failure(EventNames::REGISTER, f_path, err.message)
           rescue InvalidStoragePathError => err
-            record_failure(RegisterEvent::EVENT_NAME, f_path, err.message)
+            record_failure(EventNames::REGISTER, f_path, err.message)
           end
         end
       rescue ConfigurationError => err
         record_failure("Failed to load application configuration due to the following issue:\n#{err.message}")
       rescue => err
-        record_failure(RegisterEvent::EVENT_NAME, error: err)
+        record_failure(EventNames::REGISTER, error: err)
       end
       
       return_status

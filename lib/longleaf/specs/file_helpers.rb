@@ -25,6 +25,7 @@ module Longleaf
       if dir.nil?
         file = Tempfile.create(name)
         file << content
+        file.close
         return file.path
       else
         path = File.join(dir, name)
