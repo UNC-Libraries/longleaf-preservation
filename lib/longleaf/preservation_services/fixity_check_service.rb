@@ -4,14 +4,15 @@ require 'longleaf/logging'
 require 'digest'
 require 'set'
 
-# Preservation service which performs one or more fixity checks on a file based on the configured list
-# of digest algorithms. It currently supports 'md5', 'sha1', 'sha2', 'sha256', 'sha384', 'sha512' and 'rmd160'.
-#
-# By default, it will skip calculating digests for configured algorithms which are not present for a file.
-# This can be changed by configuring the service with a 'absent_digest' property. To raise an exception 
-# when a digest is missing, provide the value 'fail'. To generate and store a checksum for future comparison,
-# provide the value 'generate'.
 module Longleaf
+  # Preservation service which performs one or more fixity checks on a file based on the configured list
+  # of digest algorithms. It currently supports 'md5', 'sha1', 'sha2', 'sha256', 'sha384', 'sha512' and 'rmd160'.
+  #
+  # If the service encounters a file which is missing any of the digest algorithms the service is configured
+  # to check, the outcome may be controlled with the 'absent_digest' property via the following values:
+  #   * 'fail' - the service will raise a ChecksumMismatchError for the missing algorithm. This is the default.
+  #   * 'ignore' - the service will skip calculating any algorithms not already present for the file.
+  #   * 'generate' - the service will generate and store any missing digests from the set of configured algorithms.
   class FixityCheckService
     include Longleaf::Logging
     
@@ -30,7 +31,10 @@ module Longleaf
     # @param service_def [ServiceDefinition] the configuration for this service
     def initialize(service_def)
       @service_def = service_def
-      init_absent_digest_behavior
+      @absent_digest_behavior = @service_def.properties[ABSENT_DIGEST_PROPERTY] || FAIL_IF_ABSENT
+      unless ABSENT_DIGEST_OPTIONS.include?(@absent_digest_behavior)
+        raise ArgumentError.new("Invalid option '#{@absent_digest_behavior}' for property #{ABSENT_DIGEST_PROPERTY} in service #{service_def.name}")
+      end
       
       service_algs = service_def.properties[ServiceFields::DIGEST_ALGORITHMS]
       if service_algs.nil? || service_algs.empty?
@@ -61,7 +65,12 @@ module Longleaf
       # Get the list of existing checksums for the file and normalize algorithm names
       file_digests = Hash.new
       md_rec.checksums.each do |alg, digest|
-        file_digests[alg.downcase.delete('-')] = digest
+        normalized_alg = alg.downcase.delete('-')
+        if @digest_algs.include?(normalized_alg)
+          file_digests[normalized_alg] = digest
+        else
+          logger.debug("Metadata for file #{path} contains unexpected '#{alg}' digest, it will be ignored.")
+        end
       end
       
       @digest_algs.each do |alg|
@@ -69,7 +78,7 @@ module Longleaf
         
         if existing_digest.nil?
           if @absent_digest_behavior == FAIL_IF_ABSENT
-            raise ChecksumMismatchError.new("No digest of type '#{alg}' available to compare for file #{path}")
+            raise ChecksumMismatchError.new("Fixity check using algorithm '#{alg}' failed for file #{path}: no existing digest of type '#{alg}' on record.")
           elsif @absent_digest_behavior == IGNORE_IF_ABSENT
             logger.debug("Skipping check of algorithm '#{alg}' for file #{path}: no digest on record.")
             next
@@ -89,7 +98,7 @@ module Longleaf
           if existing_digest == generated_digest
             logger.info("Fixity check using algorithm '#{alg}' succeeded for file #{path}")
           else
-            raise ChecksumMismatchError.new("Fixity check using algorithm '#{alg}' failed for file #{path}: expected #{existing_digest}, found #{generated_digest}.")
+            raise ChecksumMismatchError.new("Fixity check using algorithm '#{alg}' failed for file #{path}: expected '#{existing_digest}', calculated '#{generated_digest}.'")
           end
         end
       end
@@ -122,15 +131,6 @@ module Longleaf
         return Digest::SHA2.new(512)
       when 'rmd160'
         return Digest::RMD160.new
-      end
-    end
-    
-    def init_absent_digest_behavior
-      @absent_digest_behavior = @service_def.properties[ABSENT_DIGEST_PROPERTY]
-      if @absent_digest_behavior.nil?
-        @absent_digest_behavior = IGNORE_IF_ABSENT
-      elsif !ABSENT_DIGEST_OPTIONS.include?(@absent_digest_behavior)
-        raise ArgumentError.new("Invalid option #{@absent_digest_behavior} for property #{ABSENT_DIGEST_PROPERTY} in service #{service_def.name}")
       end
     end
   end
