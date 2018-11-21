@@ -7,8 +7,6 @@ require 'time'
 # Event to register a file with longleaf
 module Longleaf
   class RegisterEvent
-    EVENT_NAME = 'register'
-    
     # @param file_rec [FileRecord] file record
     # @param app_manager [ApplicationConfigManager] the application configuration
     # @param force [boolean] if true, then already registered files will be re-registered
@@ -29,9 +27,8 @@ module Longleaf
     # Perform a registration event on the given file
     # @raises RegistrationError if a file cannot be registered 
     def perform
-      metadata_exists = File.file?(@file_rec.metadata_path)
-      # If the file's metadata exists, only need to register it if the force flag is provided
-      if metadata_exists && !@force
+      # Only need to re-register file if the force flag is provided
+      if @file_rec.registered? && !@force
         raise RegistrationError.new("Unable to register '#{@file_rec.path}', it is already registered.")
       end
       
@@ -40,7 +37,7 @@ module Longleaf
       @file_rec.metadata_record = md_rec
       
       # retain significant details from former record
-      if metadata_exists
+      if @file_rec.registered?
         retain_existing_properties
       end
       
