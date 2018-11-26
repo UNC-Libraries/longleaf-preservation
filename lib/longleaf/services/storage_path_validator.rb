@@ -1,11 +1,11 @@
 require 'longleaf/errors'
 
-# Validator for storage paths
 module Longleaf
+  # Validator for storage paths
   class StoragePathValidator
     # Checks that the given path is a syntactically valid storage path
     # @param path [String] file storage path to validate
-    # @raises [InvalidStoragePathError]
+    # @raise [InvalidStoragePathError]
     def self.validate(path)
       raise InvalidStoragePathError.new("Path must not be empty") if path.to_s.strip.empty?
       raise InvalidStoragePathError.new("Path must be absolute") unless Pathname.new(path).absolute?

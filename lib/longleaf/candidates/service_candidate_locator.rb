@@ -1,7 +1,7 @@
 require 'longleaf/candidates/service_candidate_filesystem_iterator'
 
-# Service which locates files that have services which need to be performed on them.
 module Longleaf
+  # Service which locates files that have services which need to be performed on them.
   class ServiceCandidateLocator
     def initialize(app_config)
       @app_config = app_config

@@ -1,7 +1,7 @@
 require 'longleaf/logging'
 
-# Selects and allows for iteration over files which match a provided set of selection criteria
 module Longleaf
+  # Selects and allows for iteration over files which match a provided set of selection criteria
   class FileSelector
     include Longleaf::Logging
     
@@ -44,7 +44,7 @@ module Longleaf
     
     # Get the next file path for this selector.
     # @return [String] an absolute path to the next file targeted by this selector,
-    #    or nil if no more files selected
+    # or nil if no more files selected
     def next_path
       if @paths.nil?
         # Start the paths listing out from the targetted set of paths for this selector

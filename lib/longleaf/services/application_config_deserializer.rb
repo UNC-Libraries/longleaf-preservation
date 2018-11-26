@@ -1,14 +1,14 @@
 require 'longleaf/services/application_config_validator'
 require 'longleaf/services/application_config_manager'
 
-# Deserializer for application configuration files
 module Longleaf
+  # Deserializer for application configuration files
   class ApplicationConfigDeserializer
     
     # Deserializes a valid application configuration file as a ApplicationConfigManager option
     # @param config_path [String] file path to the application configuration file
     # @param format [String] encoding format of the config file
-    # return [Longleaf::ApplicationConfigManager] manager for the loaded configuration
+    # return [ApplicationConfigManager] manager for the loaded configuration
     def self.deserialize(config_path, format: 'yaml')
       config = load(config_path, format: format)
       

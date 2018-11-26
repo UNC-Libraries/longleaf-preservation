@@ -2,13 +2,15 @@ require 'longleaf/models/app_fields'
 require 'longleaf/models/storage_location'
 require 'longleaf/errors'
 
-# Manager which loads and provides access to Longleaf::StorageLocation objects
 module Longleaf
+  # Manager which loads and provides access to {StorageLocation} objects
   class StorageLocationManager
     AF ||= Longleaf::AppFields
     
+    # Hash mapping storage location names to {StorageLocation} objects
     attr_reader :locations
     
+    # @param config [Hash] has representation of the application configuration
     def initialize(config)
       raise ArgumentError.new("Configuration must be provided") if config&.empty?
 
@@ -23,7 +25,7 @@ module Longleaf
       @locations.freeze
     end
     
-    # Get the StorageLocation object which should contain the given path
+    # Get the {StorageLocation} object which should contain the given path
     # @return [Longleaf::StorageLocation] location containing the given path
     #    or nil if the path is not contained by a registered location.
     def get_location_by_path(path)
@@ -35,10 +37,11 @@ module Longleaf
       nil
     end
     
-    # Raises a StorageLocationUnavailableError if the given path is not in a known storage location,
+    # Raises a {StorageLocationUnavailableError} if the given path is not in a known storage location,
     #    or if it is not within the expected location if provided
     # @param path [String] file path
     # @param expected_loc [String] name of the storage location which path should be contained by
+    # @raise [StorageLocationUnavailableError] if the path is not in a known/expected storage location
     def verify_path_in_location(path, expected_loc = nil)
       location = get_location_by_path(path)
       if location.nil?

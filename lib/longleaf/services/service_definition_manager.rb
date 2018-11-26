@@ -1,14 +1,16 @@
 require_relative '../models/app_fields'
 require_relative '../models/service_definition'
 
-# Manager which loads and provides access to Longleaf::ServiceDefinition objects
 module Longleaf
+  # Manager which loads and provides access to Longleaf::ServiceDefinition objects
   class ServiceDefinitionManager
     SF ||= Longleaf::ServiceFields
     AF ||= Longleaf::AppFields
     
+    # Hash containing the set of configured services, represented as {ServiceDefinition} objects
     attr_reader :services
     
+    # @param config [Hash] hash representation of the application configuration
     def initialize(config)
       raise ArgumentError.new("Configuration must be provided") if config.nil? || config.empty?
 

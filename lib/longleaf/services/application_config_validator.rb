@@ -2,8 +2,8 @@ require_relative 'storage_location_validator'
 require_relative 'service_definition_validator'
 require_relative 'service_mapping_validator'
 
-# Validator for Longleaf application configuration
 module Longleaf
+  # Validator for Longleaf application configuration
   class ApplicationConfigValidator
     
     # Validates the application configuration provided. Will raise ConfigurationError

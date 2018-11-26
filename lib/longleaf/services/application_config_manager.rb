@@ -6,8 +6,8 @@ require_relative 'service_mapping_validator'
 require_relative 'service_mapping_manager'
 require_relative 'service_manager'
 
-# Manager which loads and provides access to the configuration of the application
 module Longleaf
+  # Manager which loads and provides access to the configuration of the application
   class ApplicationConfigManager
     attr_reader :service_manager
     attr_reader :location_manager

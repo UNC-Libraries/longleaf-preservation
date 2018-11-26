@@ -1,11 +1,15 @@
 require 'longleaf/services/metadata_serializer'
 
 module Longleaf
+  # Representation of a configured storage location
   class StorageLocation
     attr_reader :name
     attr_reader :path
     attr_reader :metadata_path
     
+    # @param name [String] the name of this storage location
+    # @param path [String] absolute path where the storage location is located
+    # @param metadata_path [String] absolute path where the metadata for files in this location will be stored.
     def initialize(name:, path:, metadata_path:)
       raise ArgumentError.new("Parameters name, path and metadata_path are required") unless name && path && metadata_path
       

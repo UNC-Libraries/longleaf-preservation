@@ -1,11 +1,12 @@
-require_relative '../models/app_fields'
-require_relative '../models/service_definition'
+require 'longleaf/models/app_fields'
+require 'longleaf/models/service_definition'
 
-# Manager which loads and provides access to location to service mappings
 module Longleaf
+  # Manager which loads and provides access to location to service mappings
   class ServiceMappingManager
     AF ||= Longleaf::AppFields
     
+    # @param config [Hash] has representation of the application configuration
     def initialize(config)
       raise ArgumentError.new("Configuration must be provided") if config.nil? || config.empty?
 

@@ -1,8 +1,8 @@
 require_relative 'md_fields'
 require_relative 'service_record'
 
-# Metadata record for a single file
 module Longleaf
+  # Metadata record for a single file
   class MetadataRecord
     attr_reader :deregistered, :registered
     attr_reader :checksums
@@ -35,8 +35,8 @@ module Longleaf
     # Adds a service to this record
     #
     # @param name [String] identifier for the service being added
-    # @param service_properties [ServiceRecord] properties for populating the new service
-    def add_service(name, service = Longleaf::ServiceRecord.new)
+    # @param service [ServiceRecord] properties for populating the new service
+    def add_service(name, service = ServiceRecord.new)
       raise ArgumentError.new("Value must be a ServiceRecord object when adding a service") unless service.class == Longleaf::ServiceRecord
       raise IndexError.new("Service with name '#{name}' already exists") if @services.key?(name)
       

@@ -3,10 +3,10 @@ require 'longleaf/models/metadata_record'
 require 'longleaf/models/md_fields'
 require 'pathname'
 
-# Service which serializes MetadataRecord objects
 module Longleaf
+  # Service which serializes MetadataRecord objects
   class MetadataSerializer
-    MDF = Longleaf::MDFields
+    MDF ||= MDFields
     
     # Serialize the contents of the provided metadata record to the specified path
     #
@@ -15,7 +15,7 @@ module Longleaf
     # @param format [String] format to serialize the metadata in. Default is 'yaml'.
     def self.write(metadata:, file_path:, format: 'yaml')
       raise ArgumentError.new('metadata parameter must be a MetadataRecord') \
-          unless metadata.class == Longleaf::MetadataRecord
+          unless metadata.class == MetadataRecord
       
       case format
       when 'yaml'
@@ -38,6 +38,8 @@ module Longleaf
       props.to_yaml
     end
     
+    # Create a hash representation of the given MetadataRecord file
+    # @param metadata [MetadataRecord] metadata record to transform into a hash
     def self.to_hash(metadata)
       props = Hash.new
       
@@ -64,6 +66,9 @@ module Longleaf
       props
     end
     
+    # @param format [String] encoding format used for metadata file
+    # @return [String] the suffix used to indicate that a file is a metadata file in the provided encoding
+    # @raise [ArgumentError] raised if the provided format is not a supported metadata encoding format
     def self.metadata_suffix(format: 'yaml')
       case format
       when 'yaml'

@@ -1,4 +1,5 @@
 module Longleaf
+  # File metadata fields
   class MDFields
     DATA = 'data'
     SERVICES = 'services'

@@ -1,9 +1,9 @@
-require_relative '../models/app_fields'
-require_relative '../models/service_fields'
+require 'longleaf/models/app_fields'
+require 'longleaf/models/service_fields'
 require 'yaml'
 
-# Test helper for constructing application configuration hashes
 module Longleaf
+  # Test helper for constructing application configuration hashes
   class ConfigBuilder
     AF ||= Longleaf::AppFields
     SF ||= Longleaf::ServiceFields

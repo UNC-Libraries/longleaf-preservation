@@ -1,7 +1,7 @@
 require_relative 'service_fields'
 
-# Definition of a preservation service
 module Longleaf
+  # Definition of a configured preservation service
   class ServiceDefinition
     attr_reader :name
     attr_reader :work_script

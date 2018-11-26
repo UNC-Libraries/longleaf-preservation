@@ -4,10 +4,10 @@ require 'longleaf/errors'
 require 'longleaf/logging'
 require 'time'
 
-# Iterator for getting file candidates which have services which need to be run.
-# Implementation uses metadata files directly from the filesystem for determinations
-# about service status.
 module Longleaf
+  # Iterator for getting file candidates which have services which need to be run.
+  # Implementation uses metadata files directly from the filesystem for determinations
+  # about service status.
   class ServiceCandidateFilesystemIterator
     include Longleaf::Logging
     
@@ -20,7 +20,7 @@ module Longleaf
     # Get the file record for the next candidate which needs services run which match the 
     # provided file_selector
     # @return [FileRecord] file record of the next candidate with services needing to be run,
-    #    or nil if there are no more candidates.
+    # or nil if there are no more candidates.
     def next_candidate
       loop do
         begin

@@ -1,7 +1,7 @@
 require 'longleaf/logging'
 
-# Parent class for longleaf commands
 module Longleaf
+  # Parent class for longleaf commands
   class AbstractCommand
     include Longleaf::Logging
     
@@ -28,7 +28,7 @@ module Longleaf
     end
     
     # @return [Integer] the return status for this command, where 0 indicates success,
-    #    1 indicates failure, and 2 indicates partial failure
+    # 1 indicates failure, and 2 indicates partial failure
     def return_status
       @return_status = 0 if @return_status.nil?
       @return_status
