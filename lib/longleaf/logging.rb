@@ -1,6 +1,7 @@
 require 'longleaf/logging/redirecting_logger'
 
 module Longleaf
+  # Module for access logging within longleaf
   module Logging
     # Get the main logger for longleaf
     def logger

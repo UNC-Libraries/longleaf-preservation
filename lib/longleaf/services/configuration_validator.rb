@@ -1,4 +1,5 @@
 module Longleaf
+  # Abstract configuration validator class
   class ConfigurationValidator
     protected
     def self.assert(fail_message, assertion_passed)

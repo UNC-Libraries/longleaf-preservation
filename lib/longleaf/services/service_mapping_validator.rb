@@ -1,11 +1,11 @@
 require 'pathname'
-require_relative '../models/service_fields'
-require_relative '../models/app_fields'
-require_relative '../errors'
+require 'longleaf/models/service_fields'
+require 'longleaf/models/app_fields'
+require 'longleaf/errors'
 require_relative 'configuration_validator'
 
-# Validates application configuration of service to location mappings
 module Longleaf
+  # Validates application configuration of service to location mappings
   class ServiceMappingValidator < ConfigurationValidator
     AF ||= Longleaf::AppFields
     

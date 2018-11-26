@@ -6,6 +6,7 @@ require 'longleaf/commands/validate_config_command'
 require 'longleaf/commands/register_command'
 
 module Longleaf
+  # Main commandline interface setup for Longleaf using Thor.
   class CLI < Thor
     include Longleaf::Logging
     

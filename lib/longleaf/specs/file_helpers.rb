@@ -2,6 +2,7 @@ require 'tempfile'
 require 'tmpdir'
 
 module Longleaf
+  # Test helper methods for creating test files
   module FileHelpers
     def make_test_dir(parent: nil, name: nil)
       FileHelpers.make_test_dir(parent: parent, name: name)

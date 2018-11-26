@@ -4,8 +4,8 @@ require 'longleaf/services/metadata_deserializer'
 require 'longleaf/services/metadata_serializer'
 require 'time'
 
-# Event to register a file with longleaf
 module Longleaf
+  # Event to register a file with longleaf
   class RegisterEvent
     # @param file_rec [FileRecord] file record
     # @param app_manager [ApplicationConfigManager] the application configuration
@@ -25,7 +25,7 @@ module Longleaf
     end
     
     # Perform a registration event on the given file
-    # @raises RegistrationError if a file cannot be registered 
+    # @raise RegistrationError if a file cannot be registered 
     def perform
       # Only need to re-register file if the force flag is provided
       if @file_rec.registered? && !@force

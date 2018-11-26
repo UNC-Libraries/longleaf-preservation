@@ -1,14 +1,15 @@
 require 'time'
 
 module Longleaf
+  # Helper methods for interacting with dates/timestamps on services
   class ServiceDateHelper
     
     # Adds the amount of time from modifier to the provided timestamp
     # @param timestamp [String] ISO-8601 timestamp string
     # @param modifier [String] amount of time to add to the timestamp. It must follow the syntax
-    #    "<quantity> <time unit>", where quantity must be a positive whole number and time unit
-    #    must be second, minute, hour, day, week, month or year (unit may be plural).
-    #    Any info after a comma will be ignored.
+    # "<quantity> <time unit>", where quantity must be a positive whole number and time unit
+    # must be second, minute, hour, day, week, month or year (unit may be plural).
+    # Any info after a comma will be ignored.
     # @return [String] the original timestamp in ISO-8601 format with the provided amount of time added.
     def self.add_to_timestamp(timestamp, modifier)
       if modifier =~ /^(\d+) *(second|minute|hour|day|week|month|year)s?(,.*)?/

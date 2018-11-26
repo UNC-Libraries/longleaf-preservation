@@ -1,4 +1,5 @@
 module Longleaf
+  # Constants for preservation event names
   class EventNames
     REGISTER = 'register'
     VERIFY = 'verify'

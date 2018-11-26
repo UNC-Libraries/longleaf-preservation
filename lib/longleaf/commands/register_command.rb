@@ -4,8 +4,8 @@ require 'longleaf/models/file_record'
 require 'longleaf/commands/abstract_command'
 require 'longleaf/events/event_names'
 
-# Command for registering files with longleaf
 module Longleaf
+  # Command for registering files with longleaf
   class RegisterCommand < AbstractCommand
     
     def initialize(config_path)

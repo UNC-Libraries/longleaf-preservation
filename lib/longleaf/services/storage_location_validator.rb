@@ -5,8 +5,8 @@ require 'longleaf/errors'
 require_relative 'configuration_validator'
 require 'longleaf/services/storage_path_validator'
 
-# Validates application configuration of storage locations
 module Longleaf
+  # Validates application configuration of storage locations
   class StorageLocationValidator < ConfigurationValidator
     AF ||= Longleaf::AppFields
     

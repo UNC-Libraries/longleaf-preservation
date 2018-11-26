@@ -1,12 +1,12 @@
 require 'yaml'
-require_relative '../models/metadata_record'
-require_relative '../models/md_fields'
-require_relative '../errors'
+require 'longleaf/models/metadata_record'
+require 'longleaf/models/md_fields'
+require 'longleaf/errors'
 
-# Service which deserializes metadata files into MetadataRecord objects
 module Longleaf
+  # Service which deserializes metadata files into MetadataRecord objects
   class MetadataDeserializer
-    MDF = Longleaf::MDFields
+    MDF ||= MDFields
     
     # Deserialize a file into a MetadataRecord object
     #
@@ -61,6 +61,7 @@ module Longleaf
           last_modified: last_modified)
     end
     
+    # Load configuration a yaml encoded configuration file
     def self.from_yaml(file_path)
       YAML.load_file(file_path)
     end

@@ -2,11 +2,13 @@ require 'longleaf/services/application_config_deserializer'
 require 'longleaf/commands/abstract_command'
 
 module Longleaf
+  # Command for validating an application configuration file
   class ValidateConfigCommand < AbstractCommand
     def initialize(config_path)
       @config_path = config_path
     end
     
+    # Execute the validate command on the specified configuration yml file
     def execute
       begin
         app_config_manager = Longleaf::ApplicationConfigDeserializer.deserialize(@config_path)

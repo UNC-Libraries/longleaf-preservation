@@ -1,4 +1,5 @@
 module Longleaf
+  # Application configuration field names
   class AppFields
     LOCATIONS = 'locations'
     SERVICES = 'services'

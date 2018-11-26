@@ -1,7 +1,8 @@
-# Manager which provides preservation service definitions based on their mappings
 module Longleaf
+  # Manager which provides preservation service definitions based on their mappings
   class ServiceManager
-    
+    # @param definition_manager [ServiceDefinitionManager] the service definition manager
+    # @param mapping_manager [ServiceMappingManager] the mapping of services to locations
     def initialize(definition_manager:, mapping_manager:)
       raise ArgumentError.new('Service definition manager required') if definition_manager.nil?
       raise ArgumentError.new('Service mappings manager required') if mapping_manager.nil?
@@ -21,6 +22,9 @@ module Longleaf
     end
     
     # Determines if a service is applicable for a specific preservation event
+    # @param definition [ServiceDefinition] definition of the service being evaluated
+    # @param event [String] name of the event to check against
+    # @return [Boolean] true if the service is applicable for the event
     def applicable_for_event?(definition, event)
       # Placeholder, waiting on preservation service implementation
       true

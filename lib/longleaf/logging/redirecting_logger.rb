@@ -1,14 +1,14 @@
 require 'logger'
 
-# Logger which directs messages to stdout and/or stderr, depending on the nature of the message.
-# Status logging, which includes standard logger methods, goes to STDERR.
-# Operation success and failure messages go to STDOUT, and to STDERR at info level.
 module Longleaf
   module Logging
+    # Logger which directs messages to stdout and/or stderr, depending on the nature of the message.
+    # Status logging, which includes standard logger methods, goes to STDERR.
+    # Operation success and failure messages go to STDOUT, and to STDERR at info level.
     class RedirectingLogger
-      # @param failure_only [Boolean] If set to true, only failure messages will be output to STDOUT
+      # @param [Boolean] failure_only If set to true, only failure messages will be output to STDOUT
       # @param log_level [String] logger level used for output to STDERR
-      # @param log_format [Strfailure_onlying] format string for log entries to STDERR. There are 4 variables available
+      # @param log_format [String] format string for log entries to STDERR. There are 4 variables available
       #    for inclusion in the output: severity, datetime, progname, msg. Variables must be wrapped in %{}.
       # @param datetime_format [String] datetime formatting string used for logger dates appearing in STDERR.
       def initialize(failure_only: false, log_level: 'WARN', log_format: nil, datetime_format: nil)
@@ -67,7 +67,8 @@ module Longleaf
       end
     
       # Logs a success message to STDOUT, as well as STDERR at info level.
-      # @param eventOrMessage [String] name of the preservation event which succeeded, 
+      # 
+      # @param [String] eventOrMessage name of the preservation event which succeeded, 
       #    or the message to output if it is the only parameter. Required.
       # @param file_name [String] file name which is the subject of this message.
       # @param message [String] descriptive message to accompany this output
@@ -97,7 +98,7 @@ module Longleaf
       #
       # @param outcome [String] The status of the outcome. Required.
       # @param eventOrMessage [String] name of the preservation event which was successful, 
-      #    or the message to output if it is the only parameter. Required.
+      #     or the message to output if it is the only parameter. Required.
       # @param file_name [String] file name which is the subject of this message.
       # @param message [String] descriptive message to accompany this output
       # @param service [String] name of the service which executed.
@@ -108,7 +109,6 @@ module Longleaf
         @stderr_log.info(text)
       end
     
-      # FAILURE verify[cdr_fixity_check] /path/to/file: Something terrible
       private
       def outcome_text(outcome, eventOrMessage, file_name = nil, message = nil, service = nil, error = nil)
         message_only = file_name.nil? && message.nil? && error.nil?

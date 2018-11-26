@@ -57,7 +57,7 @@ module Longleaf
     #
     # @param file_rec [FileRecord] record representing the file to perform the service on.
     # @param event [String] name of the event this service is being invoked by.
-    # @throws ChecksumMismatchError if the checksum on record does not match the generated checksum
+    # @raise [ChecksumMismatchError] if the checksum on record does not match the generated checksum
     def perform(file_rec, event)
       path = file_rec.path
       md_rec = file_rec.metadata_record
@@ -107,6 +107,7 @@ module Longleaf
     # Determine if this service is applicable for the provided event, given the configured service definition
     #
     # @param event [String] name of the event
+    # @return [Boolean] returns true if this service is applicable for the provided event
     def is_applicable?(event)
       case event
       when EventNames::VERIFY
