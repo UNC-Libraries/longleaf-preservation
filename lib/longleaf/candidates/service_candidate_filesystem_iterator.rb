@@ -1,4 +1,4 @@
-require 'longleaf/helpers/service_date_helper'
+require 'longleaf/services/service_manager'
 require 'longleaf/services/metadata_deserializer'
 require 'longleaf/errors'
 require 'longleaf/logging'
@@ -63,27 +63,14 @@ module Longleaf
     def needs_run?(file_rec)
       md_rec = file_rec.metadata_record
       storage_loc = file_rec.storage_location
+      service_manager = @app_config.service_manager
       
-      present_services = md_rec.list_services
-      
-      expected_services = @app_config.service_manager.list_service_definitions(
-          location: storage_loc.name, event: @event)
+      expected_services = service_manager.list_service_definitions(
+          location: storage_loc.name,
+          event: @event)
       expected_services.each do |service_def|
-        expected_name = service_def.name
-        # If service not recorded for file, then it is needed
-        return true unless present_services.include?(expected_name)
-        
-        service_rec = md_rec.service(expected_name)
-        return true if service_rec.run_needed
-        return true if service_rec.timestamp.nil?
-        
-        # Check if the amount of time defined in frequency has passed since the service timestamp
-        frequency = service_def.frequency
-        unless frequency.nil?
-          service_timestamp = service_rec.timestamp
-          now = Time.now.iso8601.to_s
-          
-          return true if now > ServiceDateHelper.add_to_timestamp(service_timestamp, frequency)
+        if service_manager.service_needed?(service_def, md_rec)
+          return true
         end
       end
       

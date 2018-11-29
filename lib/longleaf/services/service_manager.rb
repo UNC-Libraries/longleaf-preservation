@@ -1,3 +1,5 @@
+require 'longleaf/helpers/service_date_helper'
+
 module Longleaf
   # Manager which provides preservation service definitions based on their mappings
   class ServiceManager
@@ -28,6 +30,33 @@ module Longleaf
     def applicable_for_event?(definition, event)
       # Placeholder, waiting on preservation service implementation
       true
+    end
+    
+    # Determine if a service should run for a particular file based on the service's definition and
+    # the file's service related metadata.
+    # @param definition [ServiceDefinition] definition of the service being evaluated
+    # @param md_rec [MetadataRecord] metadata record for the file being evaluated
+    # @return [Boolean] true if the service should be run.
+    def service_needed?(definition, md_rec)
+      def_name = definition.name
+      # If service not recorded for file, then it is needed
+      present_services = md_rec.list_services
+      return true unless present_services.include?(def_name)
+      
+      service_rec = md_rec.service(def_name)
+      
+      return true if service_rec.run_needed
+      return true if service_rec.timestamp.nil?
+      
+      # Check if the amount of time defined in frequency has passed since the service timestamp
+      frequency = definition.frequency
+      unless frequency.nil?
+        service_timestamp = service_rec.timestamp
+        now = Time.now.iso8601.to_s
+        
+        return true if now > ServiceDateHelper.add_to_timestamp(service_timestamp, frequency)
+      end
+      false
     end
   end
 end
