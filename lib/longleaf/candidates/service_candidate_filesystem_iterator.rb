@@ -65,11 +65,11 @@ module Longleaf
       storage_loc = file_rec.storage_location
       service_manager = @app_config.service_manager
       
-      expected_services = service_manager.list_service_definitions(
+      expected_services = service_manager.list_services(
           location: storage_loc.name,
           event: @event)
-      expected_services.each do |service_def|
-        if service_manager.service_needed?(service_def, md_rec)
+      expected_services.each do |service_name|
+        if service_manager.service_needed?(service_name, md_rec)
           return true
         end
       end

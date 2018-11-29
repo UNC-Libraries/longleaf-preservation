@@ -16,7 +16,7 @@ describe Longleaf::ServiceManager do
     end
   end
   
-  describe '.list_service_definitions' do
+  describe '.list_services' do
     context 'with empty sections' do
       let(:config) { ConfigBuilder.new
           .with_services
@@ -25,7 +25,7 @@ describe Longleaf::ServiceManager do
       let(:manager) { build(:service_manager, config: config) }
       
       it 'returns nothing' do
-        expect(manager.list_service_definitions(location: 'loc1')).to be_empty
+        expect(manager.list_services(location: 'loc1')).to be_empty
       end
     end
     
@@ -47,14 +47,12 @@ describe Longleaf::ServiceManager do
       end
       
       it 'returns services for loc1' do
-        result = manager.list_service_definitions(location: 'loc1')
-        expect(result.length).to eq 2
-        expect(result[0].name).to eq 'serv1'
-        expect(result[1].name).to eq 'serv2'
+        result = manager.list_services(location: 'loc1')
+        expect(result).to contain_exactly('serv1', 'serv2')
       end
       
       it 'returns empty list for unmapped location' do
-        expect(manager.list_service_definitions(location: 'imaginary_place')).to be_empty
+        expect(manager.list_services(location: 'imaginary_place')).to be_empty
       end
     end
   end
