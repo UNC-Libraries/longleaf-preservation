@@ -20,11 +20,13 @@ module Longleaf
       @services = Hash.new
       config[AF::SERVICES].each do |name, properties|
         work_script = properties.delete(SF::WORK_SCRIPT)
+        work_class = properties.delete(SF::WORK_CLASS)
         frequency = properties.delete(SF::FREQUENCY)
         delay = properties.delete(SF::DELAY)
         service = Longleaf::ServiceDefinition.new(
             name: name,
             work_script: work_script,
+            work_class: work_class,
             frequency: frequency,
             delay: delay,
             properties: properties)

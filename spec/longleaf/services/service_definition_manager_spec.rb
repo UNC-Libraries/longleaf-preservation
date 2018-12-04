@@ -37,6 +37,7 @@ describe Longleaf::ServiceDefinitionManager do
       let(:config) { ConfigBuilder.new.with_services
           .with_service(name: 'serv1',
               work_script: 'preserve.rb',
+              work_class: 'PreserveStuff',
               delay: '1 day',
               frequency: '3 months',
               properties: { 'priority' => '1' })
@@ -49,6 +50,7 @@ describe Longleaf::ServiceDefinitionManager do
         
         expect(service.name).to eq 'serv1'
         expect(service.work_script).to eq 'preserve.rb'
+        expect(service.work_class).to eq 'PreserveStuff'
         expect(service.delay).to eq '1 day'
         expect(service.frequency).to eq '3 months'
         expect(service.properties).to include('priority' => '1')
