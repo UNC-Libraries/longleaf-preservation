@@ -34,5 +34,24 @@ module Longleaf
         path
       end
     end
+    
+    def create_work_class(lib_dir, class_name, file_name, module_name = nil)
+      FileHelpers.create_work_class(lib_dir, class_name, file_name, module_name)
+    end
+    
+    def self.create_work_class(lib_dir, class_name, file_name, module_name = nil)
+      class_contents = %Q(
+        class #{class_name}
+          def initialize(service_def)
+          end
+          def perform(file_rec, event)
+          end
+          def is_applicable?(event)
+          end
+        end
+      )
+      class_contents = "module #{module_name}\n#{class_contents}\nend" unless module_name.nil?
+      create_test_file(dir: lib_dir, name: file_name, content: class_contents)
+    end
   end
 end
