@@ -1,9 +1,12 @@
 require 'spec_helper'
+require 'longleaf/specs/file_helpers'
 require 'longleaf/services/service_manager'
 require 'longleaf/specs/config_builder'
+require 'longleaf/errors'
 require 'tmpdir'
 
 describe Longleaf::ServiceManager do
+  include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
   describe '.initialize' do
@@ -53,6 +56,80 @@ describe Longleaf::ServiceManager do
       
       it 'returns empty list for unmapped location' do
         expect(manager.list_services(location: 'imaginary_place')).to be_empty
+      end
+    end
+  end
+  
+  describe '.applicable_for_event?' do
+    context 'location with multiple services' do
+      let(:md_dir) { Dir.mktmpdir('metadata') }
+      let(:path_dir) { Dir.mktmpdir('path') }
+      let(:lib_dir) { make_test_dir(name: 'lib_dir') }
+      
+      let!(:work_script_file1) { create_work_class(lib_dir, 'ApplPresService', 'appl_pres_service.rb',
+          is_applicable: true) }
+      let!(:work_script_file2) { create_work_class(lib_dir, 'PresService', 'pres_service.rb',
+          is_applicable: 'event != "verify"') }
+  
+      before { $LOAD_PATH.unshift(lib_dir) }
+      
+      let(:config) { ConfigBuilder.new
+          .with_service(name: 'serv1', work_script: work_script_file1)
+          .with_service(name: 'serv2', work_script: work_script_file2)
+          .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+          .map_services('loc1', ['serv1', 'serv2'])
+          .get }
+      let(:manager) { build(:service_manager, config: config) }
+      
+      after(:each) do
+        $LOAD_PATH.delete(lib_dir)
+        FileUtils.rm_rf([md_dir, path_dir, lib_dir])
+      end
+      
+      it 'returns true for an applicable service' do
+        expect(manager.applicable_for_event?('serv1', 'verify')).to be true
+      end
+      
+      it 'returns false for a non-applicable event' do
+        expect(manager.applicable_for_event?('serv2', 'verify')).to be false
+      end
+      
+      it 'returns true for an applicable event' do
+        expect(manager.applicable_for_event?('serv2', 'replicate')).to be true
+      end
+    end
+  end
+  
+  describe '.perform_service' do
+    context 'location with service that succeeds for verify event' do
+      let(:file_rec) { build(:file_record) }
+      let(:md_dir) { Dir.mktmpdir('metadata') }
+      let(:path_dir) { Dir.mktmpdir('path') }
+      let(:lib_dir) { make_test_dir(name: 'lib_dir') }
+      
+      let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb',
+          perform: "raise Longleaf::PreservationServiceError.new if event == 'replicate'") }
+  
+      before { $LOAD_PATH.unshift(lib_dir) }
+      
+      let(:config) { ConfigBuilder.new
+          .with_service(name: 'serv1', work_script: work_script_file)
+          .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+          .map_services('loc1', ['serv1'])
+          .get }
+      let(:manager) { build(:service_manager, config: config) }
+      
+      after(:each) do
+        $LOAD_PATH.delete(lib_dir)
+        FileUtils.rm_rf([md_dir, path_dir, lib_dir])
+      end
+      
+      it 'succeeds for verify event' do
+        expect{ manager.perform_service('serv1', file_rec, 'verify') }.to_not raise_error
+      end
+      
+      it 'raises error for replicate event' do
+        expect{ manager.perform_service('serv1', file_rec, 'replicate') }.to raise_error(Longleaf::PreservationServiceError)
       end
     end
   end
