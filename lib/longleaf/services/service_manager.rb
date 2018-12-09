@@ -60,7 +60,7 @@ module Longleaf
       frequency = definition.frequency
       unless frequency.nil?
         service_timestamp = service_rec.timestamp
-        now = Time.now.iso8601.to_s
+        now = ServiceDateHelper.formatted_timestamp
         
         return true if now > ServiceDateHelper.add_to_timestamp(service_timestamp, frequency)
       end

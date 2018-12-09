@@ -102,7 +102,6 @@ describe Longleaf::ServiceManager do
   
   describe '.perform_service' do
     context 'location with service that succeeds for verify event' do
-      let(:file_rec) { build(:file_record) }
       let(:md_dir) { Dir.mktmpdir('metadata') }
       let(:path_dir) { Dir.mktmpdir('path') }
       let(:lib_dir) { make_test_dir(name: 'lib_dir') }
@@ -124,12 +123,18 @@ describe Longleaf::ServiceManager do
         FileUtils.rm_rf([md_dir, path_dir, lib_dir])
       end
       
-      it 'succeeds for verify event' do
-        expect{ manager.perform_service('serv1', file_rec, 'verify') }.to_not raise_error
-      end
+      context 'with metadata record' do
+        let(:serv_rec) { build(:service_record, timestamp: Longleaf::ServiceDateHelper.formatted_timestamp)}
+        let(:md_rec) { build(:metadata_record) }
+        let(:file_rec) { build(:file_record, metadata_record: md_rec) }
       
-      it 'raises error for replicate event' do
-        expect{ manager.perform_service('serv1', file_rec, 'replicate') }.to raise_error(Longleaf::PreservationServiceError)
+        it 'succeeds for verify event ' do
+          expect{ manager.perform_service('serv1', file_rec, 'verify') }.to_not raise_error
+        end
+      
+        it 'raises error for replicate event' do
+          expect{ manager.perform_service('serv1', file_rec, 'replicate') }.to raise_error(Longleaf::PreservationServiceError)
+        end
       end
     end
   end
