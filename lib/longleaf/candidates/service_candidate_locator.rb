@@ -10,9 +10,9 @@ module Longleaf
     # Get a iterator of the candidates matching the given FileSelector which need services run.
     # @param file_selector [FileSelector] selector identifying the files to pull candidates from.
     # @return an iterator
-    def candidate_iterator(file_selector, event)
+    def candidate_iterator(file_selector, event, force = false)
       # Get filesystem based implementation
-      ServiceCandidateFilesystemIterator.new(file_selector, event, @app_config)
+      ServiceCandidateFilesystemIterator.new(file_selector, event, @app_config, force)
     end
   end
 end

@@ -72,6 +72,22 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
         end
       end
       
+      context 'file with no services needed, with force flag' do
+        let(:iterator) { build(:service_candidate_filesystem_iterator,
+            file_selector: file_selector,
+            app_config: app_config,
+            force: true) }
+        
+        let(:file_path1) { create_test_file(dir: path_dir1) }
+        let(:service_record) { build(:service_record, :timestamp_now) }
+        before { create_metadata(file_path1, { 'serv1' => service_record}, app_config) }
+        
+        it 'returns file' do
+          expect(iterator.next_candidate).to be_file_record_for(file_path1)
+          expect(iterator.next_candidate).to be_nil
+        end
+      end
+      
       context 'file with service with no timestamp' do
         let(:file_path1) { create_test_file(dir: path_dir1) }
         before { create_metadata(file_path1, { 'serv1' => build(:service_record)}, app_config) }

@@ -5,7 +5,8 @@ FactoryBot.define do
     file_selector { nil }
     event { 'verify' }
     app_config { nil }
+    force { false }
     
-    initialize_with { new(file_selector, event, app_config) }
+    initialize_with { new(file_selector, event, app_config, force) }
   end
 end

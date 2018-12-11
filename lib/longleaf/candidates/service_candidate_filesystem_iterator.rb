@@ -11,10 +11,11 @@ module Longleaf
   class ServiceCandidateFilesystemIterator
     include Longleaf::Logging
     
-    def initialize(file_selector, event, app_config)
+    def initialize(file_selector, event, app_config, force = false)
       @file_selector = file_selector
       @event = event
       @app_config = app_config
+      @force = force
     end
     
     # Get the file record for the next candidate which needs services run which match the 
@@ -68,6 +69,12 @@ module Longleaf
       expected_services = service_manager.list_services(
           location: storage_loc.name,
           event: @event)
+      
+      # When in force mode, candidate needs a run as long as there are any services configured for it.
+      if @force && expected_services.length > 0
+        return true
+      end
+          
       expected_services.each do |service_name|
         if service_manager.service_needed?(service_name, md_rec)
           return true
