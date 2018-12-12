@@ -35,6 +35,16 @@ module Longleaf
       end
     end
     
+    def track_status(status)
+      if status == 2
+        @return_status = 2
+      elsif status == 0
+        track_success
+      elsif status == 1
+        track_failure
+      end
+    end
+    
     # @return [Integer] the return status for this command, where 0 indicates success,
     # 1 indicates failure, and 2 indicates partial failure
     def return_status
