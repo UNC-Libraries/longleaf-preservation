@@ -64,7 +64,7 @@ module Longleaf
       
       # Get the list of existing checksums for the file and normalize algorithm names
       file_digests = Hash.new
-      md_rec.checksums.each do |alg, digest|
+      md_rec.checksums&.each do |alg, digest|
         normalized_alg = alg.downcase.delete('-')
         if @digest_algs.include?(normalized_alg)
           file_digests[normalized_alg] = digest

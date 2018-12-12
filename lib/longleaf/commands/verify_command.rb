@@ -8,7 +8,7 @@ require 'longleaf/logging'
 
 module Longleaf
   # Command for verifying files
-  class VerifyCommand < AbstractCommand
+  class VerifyCommand
     include Longleaf::Logging
     include Longleaf::EventStatusTracking
     
@@ -30,7 +30,6 @@ module Longleaf
         # Perform verify events on each of the file paths provided
         candidate_locator = ServiceCandidateLocator.new(@app_manager)
         candidate_it = candidate_locator.candidate_iterator(file_selector, EventNames::VERIFY, force)
-        # logger.warn("Start")
         candidate_it.each do |file_rec|
           f_path = file_rec.path
           

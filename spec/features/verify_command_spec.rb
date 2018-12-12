@@ -42,7 +42,7 @@ describe 'verify', :type => :aruba do
   context 'with one service configured' do
     let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb') }
 
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: work_script_file, frequency: '1 hour')
         .map_services('loc1', 'serv1')
@@ -89,7 +89,7 @@ describe 'verify', :type => :aruba do
         run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{out_of_location}", fail_on_error: false)
       end
 
-      it 'completes with no output' do
+      it 'fails with message indicating unknown storage location' do
         expect(last_command_started).to have_output(/FAILURE verify: .+ not from a known storage location./)
         expect(last_command_started).to have_exit_status(1)
       end
@@ -101,7 +101,7 @@ describe 'verify', :type => :aruba do
       end
 
       it 'completes with no output' do
-        expect(last_command_started).to_not have_output(/.+/)
+        expect(last_command_started).to_not have_output
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -201,7 +201,7 @@ describe 'verify', :type => :aruba do
       run_simple("longleaf register -c #{config_path} -f #{file_path1},#{file_path2},#{file_path3}", fail_on_error: false)
     end
 
-    context 'all need service' do
+    context 'all files need service' do
       before do
         run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
@@ -264,7 +264,7 @@ describe 'verify', :type => :aruba do
 
     context 'no files need service' do
       before do
-        # Set timestamp for service on the second file so that it does not need to be run again
+        # Set timestamp for service on all files so that they do not need to run
         update_timestamp(file_path1, config_path, 'serv1')
         update_timestamp(file_path2, config_path, 'serv1')
         update_timestamp(file_path3, config_path, 'serv1')
@@ -295,19 +295,6 @@ describe 'verify', :type => :aruba do
 
     before do
       run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
-    end
-
-    context 'all services needed' do
-      before do
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
-      end
-
-      it 'successfully verifies file' do
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path}/)
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv2\] #{file_path}/)
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv3\] #{file_path}/)
-        expect(last_command_started).to have_exit_status(0)
-      end
     end
 
     context 'all services needed' do
@@ -355,7 +342,7 @@ describe 'verify', :type => :aruba do
       end
     end
 
-    context 'all service fails' do
+    context 'all services fail' do
       let!(:work_script_file1) { create_work_class(lib_dir, 'PresService1', 'pres_service1.rb',
           perform: "raise Longleaf::PreservationServiceError.new('Bad1')") }
       let!(:work_script_file2) { create_work_class(lib_dir, 'PresService2', 'pres_service2.rb',
