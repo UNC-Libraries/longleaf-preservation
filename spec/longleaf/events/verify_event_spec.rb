@@ -12,6 +12,7 @@ require 'digest'
 
 describe Longleaf::VerifyEvent do
   include Longleaf::FileHelpers
+  
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
   describe '.initialize' do
@@ -85,11 +86,11 @@ describe Longleaf::VerifyEvent do
       context 'service raises error' do
         before do
           allow(service_manager).to receive(:service_needed?) { true }
-          allow(service_manager).to receive(:perform_service)
+          allow(service_manager).to receive(:perform_service).and_raise(Longleaf::PreservationServiceError.new)
         end
         
-        it 'registers the service as having run' do
-          perform_and_verify_run(event, file_rec, ['serv1'], service_manager)
+        it 'registers the service as having failed' do
+          perform_and_verify_no_change(event, md_path, expected_status: 1)
         end
       end
       
@@ -157,7 +158,7 @@ describe Longleaf::VerifyEvent do
           allow(service_manager).to receive(:list_services) { service_names }
         end
         
-        it 'ran service one and two' do
+        it 'ran services one and two' do
           perform_and_verify_run(event, file_rec, ['serv1', 'serv3'], service_manager)
         end
       end
@@ -169,23 +170,25 @@ describe Longleaf::VerifyEvent do
           allow(service_manager).to receive(:list_services) { service_names }
         end
         
-        it 'ran service one and two' do
+        it 'ran services one and two' do
           expect(service_manager).to receive(:perform_service).with('serv1', file_rec, 'verify')
           expect(service_manager).to receive(:perform_service).with('serv2', file_rec, 'verify')
+          expect(service_manager).to receive(:perform_service).with('serv3', file_rec, 'verify')
     
-          expect { event.perform }.to raise_error(Longleaf::PreservationServiceError)
+          status = event.perform
+          expect(status).to eq 2
     
           # Expect only the first service to have completed
           updated_md = load_metadata_record(file_rec)
           expect(updated_md.service('serv1').timestamp).to_not be_nil
           expect(updated_md.service('serv2')).to be_nil
-          expect(updated_md.service('serv3')).to be_nil
+          expect(updated_md.service('serv3').timestamp).to_not be_nil
         end
       end
     end
   end
   
-  def perform_and_verify_run(event, file_rec, service_names, service_manager)
+  def perform_and_verify_run(event, file_rec, service_names, service_manager, expected_status: 0)
     original_timestamps = Hash.new
     md_rec = load_metadata_record(file_rec)
     service_names.each do |service_name|
@@ -193,7 +196,8 @@ describe Longleaf::VerifyEvent do
       expect(service_manager).to receive(:perform_service).with(service_name, file_rec, 'verify')
     end
     
-    event.perform
+    status = event.perform
+    expect(status).to eq expected_status
     
     updated_md = load_metadata_record(file_rec)
     service_names.each do |service_name|
@@ -204,9 +208,12 @@ describe Longleaf::VerifyEvent do
     end
   end
   
-  def perform_and_verify_no_change(event, md_path)
+  def perform_and_verify_no_change(event, md_path, expected_status: 0)
     md_digest = Digest::SHA1.file(md_path)
-    event.perform
+    
+    status = event.perform
+    expect(status).to eq expected_status
+    
     expect(md_digest).to eq Digest::SHA1.file(md_path)
   end
   
