@@ -13,9 +13,15 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
   
   let(:md_dir1) { make_test_dir(name: 'metadata1') }
   let(:path_dir1) { make_test_dir(name: 'path1') }
+  let(:lib_dir) { make_test_dir(name: 'lib_dir') }
+  
+  before { $LOAD_PATH.unshift(lib_dir) }
+  
   after do
-    FileUtils.rm_rf([md_dir1, path_dir1])
+    FileUtils.rm_rf([md_dir1, path_dir1, lib_dir])
   end
+  
+  let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb') }
   
   let(:app_config) { build(:application_config_manager, config: config) }
   
@@ -30,7 +36,7 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
   describe '.next_candidate' do
     context 'configured with one service' do
       let(:config) { ConfigBuilder.new
-          .with_service(name: 'serv1', frequency: '10 days')
+          .with_service(name: 'serv1', frequency: '10 days', work_script: work_script_file)
           .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
           .map_services(['loc1'], ['serv1'])
           .get }
@@ -61,6 +67,22 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
         before { create_metadata(file_path1, { 'serv1' => service_record}, app_config) }
         
         it 'returns file with run_needed' do
+          expect(iterator.next_candidate).to be_file_record_for(file_path1)
+          expect(iterator.next_candidate).to be_nil
+        end
+      end
+      
+      context 'file with no services needed, with force flag' do
+        let(:iterator) { build(:service_candidate_filesystem_iterator,
+            file_selector: file_selector,
+            app_config: app_config,
+            force: true) }
+        
+        let(:file_path1) { create_test_file(dir: path_dir1) }
+        let(:service_record) { build(:service_record, :timestamp_now) }
+        before { create_metadata(file_path1, { 'serv1' => service_record}, app_config) }
+        
+        it 'returns file' do
           expect(iterator.next_candidate).to be_file_record_for(file_path1)
           expect(iterator.next_candidate).to be_nil
         end
@@ -137,8 +159,8 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
     
     context 'configured location with multiple services' do
       let(:config) { ConfigBuilder.new
-          .with_service(name: 'serv1')
-          .with_service(name: 'serv2')
+          .with_service(name: 'serv1', work_script: work_script_file)
+          .with_service(name: 'serv2', work_script: work_script_file)
           .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
           .map_services(['loc1'], ['serv1', 'serv2'])
           .get }
@@ -211,7 +233,7 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
     
     context 'configured service with no frequency attribute' do
       let(:config) { ConfigBuilder.new
-          .with_service(name: 'serv1')
+          .with_service(name: 'serv1', work_script: work_script_file)
           .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
           .map_services(['loc1'], ['serv1'])
           .get }
@@ -231,7 +253,7 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
   describe '.each' do
     context 'configured with a service' do
       let(:config) { ConfigBuilder.new
-          .with_service(name: 'serv1', frequency: '10 days')
+          .with_service(name: 'serv1', frequency: '10 days', work_script: work_script_file)
           .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
           .map_services(['loc1'], ['serv1'])
           .get }

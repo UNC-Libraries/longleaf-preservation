@@ -40,5 +40,12 @@ module Longleaf
       modified_time = datetime + (value * unit_modifier)
       modified_time.iso8601
     end
+    
+    # Get a timestamp in the format expected for service timestamps.
+    # @param timestamp [Time] the time to format. Defaults to now.
+    # @return [String] the time formatted as iso8601
+    def self.formatted_timestamp(timestamp = Time.now)
+      timestamp.iso8601.to_s
+    end
   end
 end

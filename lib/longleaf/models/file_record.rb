@@ -8,12 +8,13 @@ module Longleaf
     
     # @param file_path [String] path to the file
     # @param storage_location [StorageLocation] storage location containing the file
-    def initialize(file_path, storage_location)
+    def initialize(file_path, storage_location, metadata_record = nil)
       raise ArgumentError.new("FileRecord requires a path") if file_path.nil?
       raise ArgumentError.new("FileRecord requires a storage_location") if storage_location.nil?
       
       @path = file_path
       @storage_location = storage_location
+      @metadata_record = metadata_record
     end
     
     # @return [String] path for the metadata file for this file

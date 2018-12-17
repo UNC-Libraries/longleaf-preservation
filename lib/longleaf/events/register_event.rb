@@ -64,13 +64,10 @@ module Longleaf
       md_rec = @file_rec.metadata_record
       
       service_manager = @app_manager.service_manager
-      definitions = service_manager.list_service_definitions(location: @file_rec.storage_location.name)
+      service_names = service_manager.list_services(location: @file_rec.storage_location.name)
       
       # Add service section
-      definitions.each do |serv_def|
-        serv_name = serv_def.name
-        md_rec.add_service(serv_name)
-      end
+      service_names.each { |serv_name| md_rec.add_service(serv_name) }
     end
     
     # Copy a subset of properties from an existing metadata record to the new record

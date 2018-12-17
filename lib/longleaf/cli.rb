@@ -4,6 +4,8 @@ require 'longleaf/logging'
 require 'longleaf/errors'
 require 'longleaf/commands/validate_config_command'
 require 'longleaf/commands/register_command'
+require 'longleaf/commands/verify_command'
+require 'longleaf/candidates/file_selector'
 
 module Longleaf
   # Main commandline interface setup for Longleaf using Thor.
@@ -14,6 +16,8 @@ module Longleaf
         :default => ENV['LONGLEAF_CFG'],
         :required => true,
         :desc => 'Absolute path to the application configuration used for this command. By default, the value of the environment variable LONGLEAF_CFG is used.')
+    class_option(:load_path, :aliases => "-I",
+        :desc => 'Specify comma seperated directories to add to the $LOAD_PATH, which can be used to specify additional paths from which to load preservation services.')
     # Logging/output options
     class_option(:failure_only,
         :type => :boolean,
@@ -56,8 +60,30 @@ module Longleaf
         end
       end
       
-      command = Longleaf::RegisterCommand.new(config_path)
+      command = RegisterCommand.new(config_path)
       exit command.execute(file_paths: file_paths, force: options[:force], checksums: checksums)
+    end
+    
+    desc "verify", "Verify files with Longleaf"
+    method_option(:file, :aliases => "-f", 
+        :required => false,
+        :desc => 'File or files to verify. Paths must be absolute. If multiple files are provided, they must be comma separated.')
+    method_option(:location, :aliases => "-s",
+        :required => false,
+        :desc => 'Name or comma separated names of storage locations to verify.')
+    method_option(:force,
+        :type => :boolean, 
+        :default => false,
+        :desc => 'Force the execution of preservation services, disregarding scheduling information.')
+    def verify
+      setup_logger(options)
+      
+      extend_load_path(options[:load_path])
+      app_config_manager = load_application_config(options[:config])
+      file_selector = create_file_selector(options[:file], options[:location], app_config_manager)
+      
+      command = VerifyCommand.new(app_config_manager)
+      exit command.execute(file_selector: file_selector, force: options[:force])
     end
     
     desc "validate_config", "Validate an application configuration file, provided using --config."
@@ -74,6 +100,34 @@ module Longleaf
             options[:log_level],
             options[:log_format],
             options[:log_datetime])
+      end
+      
+      def load_application_config(config_path)
+        begin
+          app_manager = ApplicationConfigDeserializer.deserialize(config_path)
+        rescue ConfigurationError => err
+          logger.failure("Failed to load application configuration due to the following issue:\n#{err.message}")
+          exit 1
+        end
+      end
+      
+      def create_file_selector(file_paths, storage_locations, app_config_manager)
+        file_paths = file_paths&.split(/\s*,\s*/)
+        storage_locations = storage_locations&.split(/\s*,\s*/)
+        
+        begin
+          FileSelector.new(file_paths: file_paths, storage_locations: storage_locations, app_config: app_config_manager)
+        rescue ArgumentError => e
+          logger.failure(e.message)
+          exit 1
+        end
+      end
+      
+      def extend_load_path(load_paths)
+        load_paths = load_paths&.split(/\s*,\s*/)
+        if !load_paths.nil?
+          load_paths.each { |path| $LOAD_PATH.unshift(path) }
+        end
       end
     end
   end

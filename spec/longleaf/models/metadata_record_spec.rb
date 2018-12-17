@@ -149,4 +149,38 @@ describe Longleaf::MetadataRecord do
       expect { record.add_service('new_service') }.to raise_error(IndexError)
     end
   end
+  
+  describe '.update_service_as_performed' do
+    context 'with no run information' do
+      let(:record) { build(:metadata_record) }
+    
+      it 'sets timestamp' do
+        record.update_service_as_performed('serv1')
+        expect(record.service('serv1').timestamp).to_not be_nil
+      end
+    end
+    
+    context 'with run-need' do
+      let(:serv_rec) { build(:service_record, run_needed: true)}
+      let(:record) { build(:metadata_record, services: { 'serv1' => serv_rec } ) }
+      
+      it 'sets timestamp and clears run-needed flag' do
+        record.update_service_as_performed('serv1')
+        expect(record.service('serv1').run_needed).to be false
+        expect(record.service('serv1').timestamp).to_not be_nil
+      end
+    end
+    
+    context 'metadata record with previous timestamp' do
+      let(:past_timestamp) { Longleaf::ServiceDateHelper.formatted_timestamp(Time.now - 1) }
+      let(:serv_rec) { build(:service_record, timestamp: past_timestamp)}
+      let(:record) { build(:metadata_record, services: { 'serv1' => serv_rec } ) }
+      
+      it 'replaces timestamp with new timestamp' do
+        record.update_service_as_performed('serv1')
+        expect(record.service('serv1').timestamp).to_not be_nil
+        expect(record.service('serv1').timestamp).to_not eq past_timestamp
+      end
+    end
+  end
 end

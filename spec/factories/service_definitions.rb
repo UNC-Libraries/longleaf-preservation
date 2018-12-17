@@ -2,6 +2,7 @@ require 'longleaf/models/service_definition'
 require 'longleaf/services/service_definition_manager'
 require 'longleaf/services/service_mapping_manager'
 require 'longleaf/services/service_manager'
+require 'longleaf/services/service_class_cache'
 
 FactoryBot.define do
   factory(:service_definition, class: Longleaf::ServiceDefinition) do
@@ -32,5 +33,9 @@ FactoryBot.define do
     mapping_manager { build(:service_mapping_manager, config: config) }
 
     initialize_with { new(attributes) }
+  end
+  
+  factory(:service_class_cache, class: Longleaf::ServiceClassCache) do
+    initialize_with { new }
   end
 end
