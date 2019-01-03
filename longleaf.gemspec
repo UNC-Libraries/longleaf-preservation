@@ -23,10 +23,10 @@ Gem::Specification.new do |spec|
   spec.executables   = "longleaf"
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "thor", "~> 0.20.0"
-  spec.add_dependency "yard", "~> 0.9.16"
+  spec.add_dependency "thor", "0.20.3"
+  spec.add_dependency "yard", "0.9.16"
 
-  spec.add_development_dependency "bundler", "~> 1.16"
+  spec.add_development_dependency "bundler", "1.17.1"
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "rspec", "~> 3.6.0"
   spec.add_development_dependency "factory_bot", "~> 4.0"
