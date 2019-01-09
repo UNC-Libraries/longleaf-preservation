@@ -13,44 +13,46 @@ describe Longleaf::FixityCheckService do
   VERIFY_EVENT ||= Longleaf::EventNames::VERIFY
   ChecksumMismatchError ||= Longleaf::ChecksumMismatchError
   
+  let(:app_manager) { double("Longleaf::ApplicationConfigManager") }
+  
   describe '.initialize' do
     context 'no algorithms configured' do
       let(:service_def) { build(:service_definition) }
       
-      it { expect { FixityCheckService.new(service_def) }.to raise_error(ArgumentError,
+      it { expect { FixityCheckService.new(service_def, app_manager) }.to raise_error(ArgumentError,
           /requires a list of one or more digest algorithms/) }
     end
     
     context 'empty algorithms configured' do
       let(:service_def) { make_service_def([]) }
       
-      it { expect { FixityCheckService.new(service_def) }.to raise_error(ArgumentError,
+      it { expect { FixityCheckService.new(service_def, app_manager) }.to raise_error(ArgumentError,
           /requires a list of one or more digest algorithms/) }
     end
     
     context 'valid algorithms configured' do
       let(:service_def) { make_service_def(['sha1', 'md5']) }
       
-      it { expect(FixityCheckService.new(service_def)).to be_a(FixityCheckService) }
+      it { expect(FixityCheckService.new(service_def, app_manager)).to be_a(FixityCheckService) }
     end
     
     context 'valid algorithms with varied formatting configured' do
       let(:service_def) { make_service_def(['sha-1', 'MD5']) }
       
-      it { expect(FixityCheckService.new(service_def)).to be_a(FixityCheckService) }
+      it { expect(FixityCheckService.new(service_def, app_manager)).to be_a(FixityCheckService) }
     end
     
     context 'invalid algorithms configured' do
       let(:service_def) { make_service_def(['md5', 'indigestion']) }
       
-      it { expect { FixityCheckService.new(service_def) }.to raise_error(ArgumentError,
+      it { expect { FixityCheckService.new(service_def, app_manager) }.to raise_error(ArgumentError,
           /Unsupported checksum algorithm 'indigestion'/) }
     end
     
     context 'invalid digest_absent configured' do
       let(:service_def) { make_service_def(['sha1'], absent_digest: 'who cares') }
       
-      it { expect { FixityCheckService.new(service_def) }.to raise_error(ArgumentError,
+      it { expect { FixityCheckService.new(service_def, app_manager) }.to raise_error(ArgumentError,
           /Invalid option 'who cares' for property absent_digest/) }
     end
   end
@@ -58,7 +60,7 @@ describe Longleaf::FixityCheckService do
   describe '.is_applicable?' do
     context 'with valid algorithms' do
       let(:service_def) { make_service_def(['sha1', 'md5']) }
-      let(:fixity_service) { FixityCheckService.new(service_def) }
+      let(:fixity_service) { FixityCheckService.new(service_def, app_manager) }
       
       it "returns true for verify event" do
         expect(fixity_service.is_applicable?(VERIFY_EVENT)).to be true
@@ -89,7 +91,7 @@ describe Longleaf::FixityCheckService do
     
     context 'with default absent_digest behavior' do
       let(:service_def) { make_service_def(['sha1']) }
-      let(:fixity_service) { FixityCheckService.new(service_def) }
+      let(:fixity_service) { FixityCheckService.new(service_def, app_manager) }
       
       context 'file with missing checksum' do
         let(:md_rec) { build(:metadata_record, checksums: {} ) }
@@ -102,7 +104,7 @@ describe Longleaf::FixityCheckService do
     
     context 'with absent_digest behavior set to fail' do
       let(:service_def) { make_service_def(['sha1'], absent_digest: FixityCheckService::FAIL_IF_ABSENT) }
-      let(:fixity_service) { FixityCheckService.new(service_def) }
+      let(:fixity_service) { FixityCheckService.new(service_def, app_manager) }
       
       context 'file with matching checksum' do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha1' => SHA1_DIGEST } ) }
@@ -137,7 +139,7 @@ describe Longleaf::FixityCheckService do
     
     context 'with absent_digest behavior set to generate' do
       let(:service_def) { make_service_def(['sha1'], absent_digest: FixityCheckService::GENERATE_IF_ABSENT) }
-      let(:fixity_service) { FixityCheckService.new(service_def) }
+      let(:fixity_service) { FixityCheckService.new(service_def, app_manager) }
       
       context 'file with matching checksum' do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha1' => SHA1_DIGEST } ) }
@@ -170,7 +172,7 @@ describe Longleaf::FixityCheckService do
     
     context 'with absent_digest behavior set to ignore' do
       let(:service_def) { make_service_def(['sha1'], absent_digest: FixityCheckService::IGNORE_IF_ABSENT) }
-      let(:fixity_service) { FixityCheckService.new(service_def) }
+      let(:fixity_service) { FixityCheckService.new(service_def, app_manager) }
       
       context 'file with matching checksum' do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha1' => SHA1_DIGEST } ) }
@@ -203,7 +205,7 @@ describe Longleaf::FixityCheckService do
     
     context 'with multiple configured checksums' do
       let(:service_def) { make_service_def(['sha1', 'md5']) }
-      let(:fixity_service) { FixityCheckService.new(service_def) }
+      let(:fixity_service) { FixityCheckService.new(service_def, app_manager) }
       
       context 'file with multiple matching checksum' do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha1' => SHA1_DIGEST, 'md5' => MD5_DIGEST } ) }
@@ -248,7 +250,7 @@ describe Longleaf::FixityCheckService do
     context 'with all checksums configured' do
       let(:service_def) { make_service_def(['sha1', 'md5', 'sha2', 'sha384', 'sha512', 'rmd160'],
           absent_digest: FixityCheckService::IGNORE_IF_ABSENT) }
-      let(:fixity_service) { FixityCheckService.new(service_def) }
+      let(:fixity_service) { FixityCheckService.new(service_def, app_manager) }
     
       context 'file with all matching checksums' do
         let(:md_rec) { build(:metadata_record, checksums: {

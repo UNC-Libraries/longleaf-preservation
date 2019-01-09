@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'longleaf/specs/file_helpers'
 require 'longleaf/services/service_manager'
+require 'longleaf/services/application_config_manager'
 require 'longleaf/specs/config_builder'
 require 'longleaf/errors'
 require 'tmpdir'
@@ -9,13 +10,15 @@ describe Longleaf::ServiceManager do
   include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
+  let(:app_manager) { double(Longleaf::ApplicationConfigManager) }
+  
   describe '.initialize' do
     it 'fails with missing parameters' do
       expect { Longleaf::ServiceManager.new }.to raise_error(ArgumentError)
     end
     
     it 'fails with nil parameters' do
-      expect { build(:service_mapping_manager, definition_manager: nil, mapping_manager: nil) }.to raise_error(ArgumentError)
+      expect { build(:service_manager, definition_manager: nil, mapping_manager: nil, app_manager: nil) }.to raise_error(ArgumentError)
     end
   end
   
@@ -25,7 +28,7 @@ describe Longleaf::ServiceManager do
           .with_services
           .with_locations
           .with_mappings.get }
-      let(:manager) { build(:service_manager, config: config) }
+      let(:manager) { build(:service_manager, config: config, app_manager: app_manager) }
       
       it 'returns nothing' do
         expect(manager.list_services(location: 'loc1')).to be_empty
@@ -43,7 +46,7 @@ describe Longleaf::ServiceManager do
           .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
           .map_services('loc1', ['serv1', 'serv2'])
           .get }
-      let(:manager) { build(:service_manager, config: config) }
+      let(:manager) { build(:service_manager, config: config, app_manager: app_manager) }
       
       after(:each) do
         FileUtils.rmdir([md_dir, path_dir])
@@ -79,7 +82,7 @@ describe Longleaf::ServiceManager do
           .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
           .map_services('loc1', ['serv1', 'serv2'])
           .get }
-      let(:manager) { build(:service_manager, config: config) }
+      let(:manager) { build(:service_manager, config: config, app_manager: app_manager) }
       
       after(:each) do
         $LOAD_PATH.delete(lib_dir)
@@ -116,7 +119,7 @@ describe Longleaf::ServiceManager do
           .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
           .map_services('loc1', ['serv1'])
           .get }
-      let(:manager) { build(:service_manager, config: config) }
+      let(:manager) { build(:service_manager, config: config, app_manager: app_manager) }
       
       after(:each) do
         $LOAD_PATH.delete(lib_dir)

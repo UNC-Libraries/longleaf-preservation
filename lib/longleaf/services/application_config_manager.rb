@@ -18,7 +18,9 @@ module Longleaf
       definition_manager = Longleaf::ServiceDefinitionManager.new(config)
       mapping_manager = Longleaf::ServiceMappingManager.new(config)
       @service_manager = Longleaf::ServiceManager.new(
-          definition_manager: definition_manager, mapping_manager: mapping_manager)
+          definition_manager: definition_manager,
+          mapping_manager: mapping_manager,
+          app_manager: self)
     end
   end
 end

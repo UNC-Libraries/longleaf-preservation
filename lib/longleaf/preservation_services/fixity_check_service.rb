@@ -29,7 +29,8 @@ module Longleaf
     # Initialize a FixityCheckService from the given service definition
     #
     # @param service_def [ServiceDefinition] the configuration for this service
-    def initialize(service_def)
+    # @param app_manager [ApplicationConfigManager] manager for configured storage locations
+    def initialize(service_def, app_manager)
       @service_def = service_def
       @absent_digest_behavior = @service_def.properties[ABSENT_DIGEST_PROPERTY] || FAIL_IF_ABSENT
       unless ABSENT_DIGEST_OPTIONS.include?(@absent_digest_behavior)

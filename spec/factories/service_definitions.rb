@@ -31,11 +31,12 @@ FactoryBot.define do
     
     definition_manager { build(:service_definition_manager, config: config) }
     mapping_manager { build(:service_mapping_manager, config: config) }
+    app_manager { nil }
 
     initialize_with { new(attributes) }
   end
   
   factory(:service_class_cache, class: Longleaf::ServiceClassCache) do
-    initialize_with { new }
+    initialize_with { new(attributes) }
   end
 end

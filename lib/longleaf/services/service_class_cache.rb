@@ -5,7 +5,8 @@ module Longleaf
   class ServiceClassCache
     STD_PRESERVATION_SERVICE_PATH = 'longleaf/preservation_services/'
     
-    def initialize
+    def initialize(app_manager)
+      @app_manager = app_manager
       # Cache storing per service definition instances of service classes
       @service_instance_cache = Hash.new
       # Cache storing per script path class of service
@@ -26,7 +27,7 @@ module Longleaf
       
       clazz = service_class(service_def)
       # Cache and return the class instance
-      @service_instance_cache[service_name] = clazz.new(service_def)
+      @service_instance_cache[service_name] = clazz.new(service_def, @app_manager)
     end
     
     # Load and return the PreservationService class assigned to the provided service definition,
