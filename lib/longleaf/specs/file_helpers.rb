@@ -43,7 +43,7 @@ module Longleaf
     def self.create_work_class(lib_dir, class_name, file_name, module_name = nil, is_applicable: true, perform: "")
       class_contents = %Q(
         class #{class_name}
-          def initialize(service_def)
+          def initialize(service_def, app_manager)
           end
           def perform(file_rec, event)
             #{perform}

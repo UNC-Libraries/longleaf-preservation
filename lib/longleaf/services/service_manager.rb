@@ -6,12 +6,15 @@ module Longleaf
   class ServiceManager
     # @param definition_manager [ServiceDefinitionManager] the service definition manager
     # @param mapping_manager [ServiceMappingManager] the mapping of services to locations
-    def initialize(definition_manager:, mapping_manager:)
+    # @param app_manager [ApplicationConfigManager] manager for storage locations
+    def initialize(definition_manager:, mapping_manager:, app_manager:)
       raise ArgumentError.new('Service definition manager required') if definition_manager.nil?
       raise ArgumentError.new('Service mappings manager required') if mapping_manager.nil?
+      raise ArgumentError.new('Storage location manager required') if app_manager.nil?
       @definition_manager = definition_manager
       @mapping_manager = mapping_manager
-      @service_class_cache = ServiceClassCache.new
+      @app_manager = app_manager
+      @service_class_cache = ServiceClassCache.new(app_manager)
     end
     
     # List the names of services which are applicable to the given criteria
