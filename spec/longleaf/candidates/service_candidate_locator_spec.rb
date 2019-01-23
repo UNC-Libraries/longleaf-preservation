@@ -32,7 +32,7 @@ describe Longleaf::ServiceCandidateLocator do
       let(:locator) { Longleaf::ServiceCandidateLocator.new(app_config) }
       
       it 'returns a ServiceCandidateFilesystemIterator' do
-        expect(locator.candidate_iterator(file_selector, 'verify')).to be_a(Longleaf::ServiceCandidateFilesystemIterator)
+        expect(locator.candidate_iterator(file_selector, 'preserve')).to be_a(Longleaf::ServiceCandidateFilesystemIterator)
       end
     end
   end

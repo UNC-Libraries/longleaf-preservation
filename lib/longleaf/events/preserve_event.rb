@@ -5,7 +5,7 @@ require 'longleaf/logging'
 
 module Longleaf
   # Verify event for a single file
-  class VerifyEvent
+  class PreserveEvent
     include Longleaf::Logging
     include Longleaf::EventStatusTracking
     
@@ -21,19 +21,19 @@ module Longleaf
       @force = force
     end
     
-    # Perform a verify event on the given file, updating its metadata record if any services were executed.
+    # Perform a preserve event on the given file, updating its metadata record if any services were executed.
     def perform
       storage_loc = @file_rec.storage_location
       service_manager = @app_manager.service_manager
       md_rec = @file_rec.metadata_record
       f_path = @file_rec.path
       
-      logger.info("Performing verify event on #{@file_rec.path}")
+      logger.info("Performing preserve event on #{@file_rec.path}")
       
       service_performed = false
       begin
         # get the list of services applicable to this location and event
-        service_manager.list_services(location: storage_loc.name, event: EventNames::VERIFY).each do |service_name|
+        service_manager.list_services(location: storage_loc.name, event: EventNames::PRESERVE).each do |service_name|
           # Skip over this service if it does not need to be run, unless force flag active
           unless @force || service_manager.service_needed?(service_name, md_rec)
             logger.debug("Service #{service_name} not needed for file '#{@file_rec.path}', skipping")
@@ -43,16 +43,16 @@ module Longleaf
           begin
             logger.info("Verifying service #{service_name} for #{@file_rec.path}")
             # execute the service
-            service_manager.perform_service(service_name, @file_rec, EventNames::VERIFY)
+            service_manager.perform_service(service_name, @file_rec, EventNames::PRESERVE)
             
             # record the outcome
             @file_rec.metadata_record.update_service_as_performed(service_name)
             service_performed = true
-            record_success(EventNames::VERIFY, f_path, nil, service_name)
+            record_success(EventNames::PRESERVE, f_path, nil, service_name)
           rescue PreservationServiceError => e
-            record_failure(EventNames::VERIFY, f_path, e.message, service_name)
+            record_failure(EventNames::PRESERVE, f_path, e.message, service_name)
           rescue StandardError => e
-            record_failure(EventNames::VERIFY, f_path, nil, service_name, error: e)
+            record_failure(EventNames::PRESERVE, f_path, nil, service_name, error: e)
             return return_status
           end
         end

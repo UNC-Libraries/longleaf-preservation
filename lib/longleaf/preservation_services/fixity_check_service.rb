@@ -110,7 +110,7 @@ module Longleaf
     # @return [Boolean] returns true if this service is applicable for the provided event
     def is_applicable?(event)
       case event
-      when EventNames::VERIFY
+      when EventNames::PRESERVE
         true
       else
         false

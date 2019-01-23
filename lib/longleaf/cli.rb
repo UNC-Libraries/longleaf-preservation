@@ -4,7 +4,7 @@ require 'longleaf/logging'
 require 'longleaf/errors'
 require 'longleaf/commands/validate_config_command'
 require 'longleaf/commands/register_command'
-require 'longleaf/commands/verify_command'
+require 'longleaf/commands/preserve_command'
 require 'longleaf/candidates/file_selector'
 
 module Longleaf
@@ -64,25 +64,25 @@ module Longleaf
       exit command.execute(file_paths: file_paths, force: options[:force], checksums: checksums)
     end
     
-    desc "verify", "Verify files with Longleaf"
+    desc "preserve", "Perform preservation services on files with Longleaf"
     method_option(:file, :aliases => "-f", 
         :required => false,
-        :desc => 'File or files to verify. Paths must be absolute. If multiple files are provided, they must be comma separated.')
+        :desc => 'File or files to preserve. Paths must be absolute. If multiple files are provided, they must be comma separated.')
     method_option(:location, :aliases => "-s",
         :required => false,
-        :desc => 'Name or comma separated names of storage locations to verify.')
+        :desc => 'Name or comma separated names of storage locations to preserve.')
     method_option(:force,
         :type => :boolean, 
         :default => false,
         :desc => 'Force the execution of preservation services, disregarding scheduling information.')
-    def verify
+    def preserve
       setup_logger(options)
       
       extend_load_path(options[:load_path])
       app_config_manager = load_application_config(options[:config])
       file_selector = create_file_selector(options[:file], options[:location], app_config_manager)
       
-      command = VerifyCommand.new(app_config_manager)
+      command = PreserveCommand.new(app_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force])
     end
     

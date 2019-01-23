@@ -1,6 +1,6 @@
 require 'spec_helper'
 require 'longleaf/specs/file_helpers'
-require 'longleaf/events/verify_event'
+require 'longleaf/events/preserve_event'
 require 'longleaf/services/service_manager'
 require 'longleaf/helpers/service_date_helper'
 require 'longleaf/errors'
@@ -10,7 +10,7 @@ require 'tmpdir'
 require 'tempfile'
 require 'digest'
 
-describe Longleaf::VerifyEvent do
+describe Longleaf::PreserveEvent do
   include Longleaf::FileHelpers
   
   ConfigBuilder ||= Longleaf::ConfigBuilder
@@ -24,14 +24,14 @@ describe Longleaf::VerifyEvent do
           .get }
       let(:app_config) { build(:application_config_manager, config: config) }
       
-      it { expect { Longleaf::VerifyEvent.new(file_rec: nil, app_manager: app_config) }
+      it { expect { Longleaf::PreserveEvent.new(file_rec: nil, app_manager: app_config) }
           .to raise_error(ArgumentError, /Must provide a file_rec parameter/) }
     end
     
     context 'without an application config manager' do
       let(:file_rec) { build(:file_record) }
     
-      it { expect { Longleaf::VerifyEvent.new(file_rec: file_rec, app_manager: nil) }
+      it { expect { Longleaf::PreserveEvent.new(file_rec: file_rec, app_manager: nil) }
           .to raise_error(ArgumentError, /Must provide an ApplicationConfigManager/ ) }
     end
   end
@@ -50,7 +50,7 @@ describe Longleaf::VerifyEvent do
     let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_loc) }
     let!(:md_path) { register(file_rec) }
     
-    let(:event) { Longleaf::VerifyEvent.new(file_rec: file_rec, app_manager: app_config) }
+    let(:event) { Longleaf::PreserveEvent.new(file_rec: file_rec, app_manager: app_config) }
 
     after do
       FileUtils.remove_dir(md_dir)
@@ -123,7 +123,7 @@ describe Longleaf::VerifyEvent do
         end
         
         context 'with force flag' do
-          let(:event) { Longleaf::VerifyEvent.new(file_rec: file_rec, app_manager: app_config, force: true) }
+          let(:event) { Longleaf::PreserveEvent.new(file_rec: file_rec, app_manager: app_config, force: true) }
           
           before do
             allow(service_manager).to receive(:perform_service)
@@ -171,9 +171,9 @@ describe Longleaf::VerifyEvent do
         end
         
         it 'ran services one and two' do
-          expect(service_manager).to receive(:perform_service).with('serv1', file_rec, 'verify')
-          expect(service_manager).to receive(:perform_service).with('serv2', file_rec, 'verify')
-          expect(service_manager).to receive(:perform_service).with('serv3', file_rec, 'verify')
+          expect(service_manager).to receive(:perform_service).with('serv1', file_rec, 'preserve')
+          expect(service_manager).to receive(:perform_service).with('serv2', file_rec, 'preserve')
+          expect(service_manager).to receive(:perform_service).with('serv3', file_rec, 'preserve')
     
           status = event.perform
           expect(status).to eq 2
@@ -193,7 +193,7 @@ describe Longleaf::VerifyEvent do
     md_rec = load_metadata_record(file_rec)
     service_names.each do |service_name|
       original_timestamps[service_name] = md_rec.service(service_name)&.timestamp
-      expect(service_manager).to receive(:perform_service).with(service_name, file_rec, 'verify')
+      expect(service_manager).to receive(:perform_service).with(service_name, file_rec, 'preserve')
     end
     
     status = event.perform

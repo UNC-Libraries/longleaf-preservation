@@ -10,7 +10,7 @@ describe Longleaf::FixityCheckService do
   include Longleaf::FileHelpers
   
   FixityCheckService ||= Longleaf::FixityCheckService
-  VERIFY_EVENT ||= Longleaf::EventNames::VERIFY
+  PRESERVE_EVENT ||= Longleaf::EventNames::PRESERVE
   ChecksumMismatchError ||= Longleaf::ChecksumMismatchError
   
   describe '.initialize' do
@@ -60,11 +60,11 @@ describe Longleaf::FixityCheckService do
       let(:service_def) { make_service_def(['sha1', 'md5']) }
       let(:fixity_service) { FixityCheckService.new(service_def) }
       
-      it "returns true for verify event" do
-        expect(fixity_service.is_applicable?(VERIFY_EVENT)).to be true
+      it "returns true for preserve event" do
+        expect(fixity_service.is_applicable?(PRESERVE_EVENT)).to be true
       end
       
-      it "returns false for non-verify event" do
+      it "returns false for non-preserve event" do
         expect(fixity_service.is_applicable?(Longleaf::EventNames::REGISTER)).to be false
       end
       
@@ -95,7 +95,7 @@ describe Longleaf::FixityCheckService do
         let(:md_rec) { build(:metadata_record, checksums: {} ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to raise_error(ChecksumMismatchError,
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(ChecksumMismatchError,
             /no existing digest of type 'sha1'/) }
       end
     end
@@ -108,14 +108,14 @@ describe Longleaf::FixityCheckService do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha1' => SHA1_DIGEST } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to_not raise_error }
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to_not raise_error }
       end
       
       context 'file with missing checksum' do
         let(:md_rec) { build(:metadata_record, checksums: {} ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to raise_error(ChecksumMismatchError,
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(ChecksumMismatchError,
             /no existing digest of type 'sha1'/) }
       end
       
@@ -123,14 +123,14 @@ describe Longleaf::FixityCheckService do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha1' => 'not_right' } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to raise_error(ChecksumMismatchError) }
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(ChecksumMismatchError) }
       end
       
       context 'file has no checksums' do
         let(:md_rec) { build(:metadata_record) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to raise_error(ChecksumMismatchError,
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(ChecksumMismatchError,
             /no existing digest of type 'sha1'/) }
       end
     end
@@ -143,7 +143,7 @@ describe Longleaf::FixityCheckService do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha1' => SHA1_DIGEST } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to_not raise_error }
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to_not raise_error }
       end
       
       context 'file with missing checksum' do
@@ -152,7 +152,7 @@ describe Longleaf::FixityCheckService do
         
         it "metadata updated with missing checksum" do
           expect(md_rec.checksums.key?('sha1')).to be false
-          expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to_not raise_error
+          expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to_not raise_error
           expect(md_rec.checksums['sha1']).to eq SHA1_DIGEST
         end
       end
@@ -162,7 +162,7 @@ describe Longleaf::FixityCheckService do
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
         it "metadata updated with missing checksum" do
-          expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to_not raise_error
+          expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to_not raise_error
           expect(md_rec.checksums['sha1']).to eq SHA1_DIGEST
         end
       end
@@ -176,28 +176,28 @@ describe Longleaf::FixityCheckService do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha1' => SHA1_DIGEST } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to_not raise_error }
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to_not raise_error }
       end
       
       context 'file with missing checksum' do
         let(:md_rec) { build(:metadata_record, checksums: {} ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to_not raise_error }
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to_not raise_error }
       end
       
       context 'file with incorrect checksum' do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha1' => 'not_right' } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to raise_error(ChecksumMismatchError) }
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(ChecksumMismatchError) }
       end
       
       context 'file has no checksums' do
         let(:md_rec) { build(:metadata_record) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to_not raise_error }
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to_not raise_error }
       end
     end
     
@@ -209,14 +209,14 @@ describe Longleaf::FixityCheckService do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha1' => SHA1_DIGEST, 'md5' => MD5_DIGEST } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to_not raise_error }
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to_not raise_error }
       end
       
       context 'file with one checksum mistmatch' do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha1' => SHA1_DIGEST, 'md5' => 'not_right' } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to raise_error(ChecksumMismatchError) }
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(ChecksumMismatchError) }
       end
       
       context 'file contains unconfigured checksum' do
@@ -227,7 +227,7 @@ describe Longleaf::FixityCheckService do
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
         it "passes, with no changes to stored checksums" do
-          expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to_not raise_error
+          expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to_not raise_error
           expect(md_rec.checksums['indigestion']).to eq 'nope'
         end
       end
@@ -240,7 +240,7 @@ describe Longleaf::FixityCheckService do
           File.delete(file_path)
         end
         
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to raise_error(Errno::ENOENT) }
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(Errno::ENOENT) }
       end
         
     end
@@ -261,14 +261,14 @@ describe Longleaf::FixityCheckService do
         } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
       
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to_not raise_error }
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to_not raise_error }
       end
       
       context 'file with all sha2 mismatch' do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha2' => 'sha2_not_right' } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
       
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to raise_error(ChecksumMismatchError,
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(ChecksumMismatchError,
             /expected 'sha2_not_right'/) }
       end
       
@@ -276,7 +276,7 @@ describe Longleaf::FixityCheckService do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha384' => 'sha384_not_right' } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
       
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to raise_error(ChecksumMismatchError,
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(ChecksumMismatchError,
             /expected 'sha384_not_right'/) }
       end
       
@@ -284,7 +284,7 @@ describe Longleaf::FixityCheckService do
         let(:md_rec) { build(:metadata_record, checksums: { 'sha512' => 'sha512_not_right' } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
       
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to raise_error(ChecksumMismatchError,
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(ChecksumMismatchError,
             /expected 'sha512_not_right'/) }
       end
       
@@ -292,7 +292,7 @@ describe Longleaf::FixityCheckService do
         let(:md_rec) { build(:metadata_record, checksums: { 'rmd160' => 'rmd160_not_right' } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
       
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to raise_error(ChecksumMismatchError,
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(ChecksumMismatchError,
             /expected 'rmd160_not_right'/) }
       end
       
@@ -300,7 +300,7 @@ describe Longleaf::FixityCheckService do
         let(:md_rec) { build(:metadata_record, checksums: { 'SHA-2' => SHA2_DIGEST } ) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
       
-        it { expect { fixity_service.perform(file_rec, VERIFY_EVENT) }.to_not raise_error }
+        it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to_not raise_error }
       end
     end
   end
