@@ -41,7 +41,7 @@ module Longleaf
           end
           
           begin
-            logger.info("Verifying service #{service_name} for #{@file_rec.path}")
+            logger.info("Performing preserve service #{service_name} for #{@file_rec.path}")
             # execute the service
             service_manager.perform_service(service_name, @file_rec, EventNames::PRESERVE)
             

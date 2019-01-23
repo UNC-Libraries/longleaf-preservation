@@ -7,7 +7,7 @@ require 'longleaf/events/event_names'
 require 'longleaf/logging'
 
 module Longleaf
-  # Command for preserveing files
+  # Command for preserving files
   class PreserveCommand
     include Longleaf::Logging
     include Longleaf::EventStatusTracking
