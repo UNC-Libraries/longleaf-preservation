@@ -3,7 +3,7 @@ require 'longleaf/candidates/service_candidate_filesystem_iterator'
 FactoryBot.define do
   factory(:service_candidate_filesystem_iterator, class: Longleaf::ServiceCandidateFilesystemIterator) do
     file_selector { nil }
-    event { 'verify' }
+    event { 'preserve' }
     app_config { nil }
     force { false }
     

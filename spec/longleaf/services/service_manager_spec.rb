@@ -72,7 +72,7 @@ describe Longleaf::ServiceManager do
       let!(:work_script_file1) { create_work_class(lib_dir, 'ApplPresService', 'appl_pres_service.rb',
           is_applicable: true) }
       let!(:work_script_file2) { create_work_class(lib_dir, 'PresService', 'pres_service.rb',
-          is_applicable: 'event != "verify"') }
+          is_applicable: 'event != "preserve"') }
   
       before { $LOAD_PATH.unshift(lib_dir) }
       
@@ -90,11 +90,11 @@ describe Longleaf::ServiceManager do
       end
       
       it 'returns true for an applicable service' do
-        expect(manager.applicable_for_event?('serv1', 'verify')).to be true
+        expect(manager.applicable_for_event?('serv1', 'preserve')).to be true
       end
       
       it 'returns false for a non-applicable event' do
-        expect(manager.applicable_for_event?('serv2', 'verify')).to be false
+        expect(manager.applicable_for_event?('serv2', 'preserve')).to be false
       end
       
       it 'returns true for an applicable event' do
@@ -104,7 +104,7 @@ describe Longleaf::ServiceManager do
   end
   
   describe '.perform_service' do
-    context 'location with service that succeeds for verify event' do
+    context 'location with service that succeeds for preserve event' do
       let(:md_dir) { Dir.mktmpdir('metadata') }
       let(:path_dir) { Dir.mktmpdir('path') }
       let(:lib_dir) { make_test_dir(name: 'lib_dir') }
@@ -131,8 +131,8 @@ describe Longleaf::ServiceManager do
         let(:md_rec) { build(:metadata_record) }
         let(:file_rec) { build(:file_record, metadata_record: md_rec) }
       
-        it 'succeeds for verify event ' do
-          expect{ manager.perform_service('serv1', file_rec, 'verify') }.to_not raise_error
+        it 'succeeds for preserve event ' do
+          expect{ manager.perform_service('serv1', file_rec, 'preserve') }.to_not raise_error
         end
       
         it 'raises error for replicate event' do

@@ -84,10 +84,10 @@ describe Longleaf::Logging::RedirectingLogger do
       end
       
       context 'with event, file, message and service' do
-        specify { expect { logger.success('verify', '/path/to/file', 'good stuff', 'my_service') }.to output(
-            /SUCCESS verify\[my_service\] \/path\/to\/file: good stuff/).to_stdout }
-        specify { expect { logger.success('verify', '/path/to/file', 'good stuff', 'my_service') }.to output(
-            /INFO.*SUCCESS verify\[my_service\] \/path\/to\/file: good stuff/).to_stderr }
+        specify { expect { logger.success('preserve', '/path/to/file', 'good stuff', 'my_service') }.to output(
+            /SUCCESS preserve\[my_service\] \/path\/to\/file: good stuff/).to_stdout }
+        specify { expect { logger.success('preserve', '/path/to/file', 'good stuff', 'my_service') }.to output(
+            /INFO.*SUCCESS preserve\[my_service\] \/path\/to\/file: good stuff/).to_stderr }
       end
     end
     
@@ -112,10 +112,10 @@ describe Longleaf::Logging::RedirectingLogger do
       end
       
       context 'with event, file, message and service' do
-        specify { expect { logger.failure('verify', '/path/to/file', 'bad stuff', 'my_service') }.to output(
-            /FAILURE verify\[my_service\] \/path\/to\/file: bad stuff/).to_stdout }
-        specify { expect { logger.failure('verify', '/path/to/file', 'bad stuff', 'my_service') }.to output(
-            /INFO.*FAILURE verify\[my_service\] \/path\/to\/file: bad stuff/).to_stderr }
+        specify { expect { logger.failure('preserve', '/path/to/file', 'bad stuff', 'my_service') }.to output(
+            /FAILURE preserve\[my_service\] \/path\/to\/file: bad stuff/).to_stdout }
+        specify { expect { logger.failure('preserve', '/path/to/file', 'bad stuff', 'my_service') }.to output(
+            /INFO.*FAILURE preserve\[my_service\] \/path\/to\/file: bad stuff/).to_stderr }
       end
       
       context 'with event, file and raised error' do

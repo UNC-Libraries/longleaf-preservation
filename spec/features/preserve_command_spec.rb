@@ -10,7 +10,7 @@ require 'tempfile'
 require 'yaml'
 require 'fileutils'
 
-describe 'verify', :type => :aruba do
+describe 'preserve', :type => :aruba do
   include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
@@ -29,7 +29,7 @@ describe 'verify', :type => :aruba do
       config_path = config_file.path
       config_file.delete
 
-      run_simple("longleaf verify -c #{config_path} -f '/path/to/file'", fail_on_error: false)
+      run_simple("longleaf preserve -c #{config_path} -f '/path/to/file'", fail_on_error: false)
     end
 
     it 'outputs error loading configuration' do
@@ -51,7 +51,7 @@ describe 'verify', :type => :aruba do
 
     context 'no file path or storage location' do
       before do
-        run_simple("longleaf verify -c #{config_path}", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path}", fail_on_error: false)
       end
 
       it 'exits with failure' do
@@ -62,7 +62,7 @@ describe 'verify', :type => :aruba do
 
     context 'both file path and storage location' do
       before do
-        run_simple("longleaf verify -c #{config_path} -s loc1 -f #{file_path}", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -s loc1 -f #{file_path}", fail_on_error: false)
       end
 
       it 'exits with failure' do
@@ -73,7 +73,7 @@ describe 'verify', :type => :aruba do
 
     context 'invalid storage location' do
       before do
-        run_simple("longleaf verify -c #{config_path} -s nope", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -s nope", fail_on_error: false)
       end
 
       it 'exits with failure' do
@@ -86,18 +86,18 @@ describe 'verify', :type => :aruba do
       before do
         test_file = Tempfile.new('not_in_loc')
         out_of_location = test_file.path
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{out_of_location}", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{out_of_location}", fail_on_error: false)
       end
 
       it 'fails with message indicating unknown storage location' do
-        expect(last_command_started).to have_output(/FAILURE verify: .+ not from a known storage location./)
+        expect(last_command_started).to have_output(/FAILURE preserve: .+ not from a known storage location./)
         expect(last_command_started).to have_exit_status(1)
       end
     end
 
     context 'specifying unregistered file' do
       before do
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'completes with no output' do
@@ -113,11 +113,11 @@ describe 'verify', :type => :aruba do
 
       context 'service has not run before' do
         before do
-          run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+          run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
         end
         
         it 'successfully verifies file' do
-          expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path}/)
+          expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path}/)
           expect(last_command_started).to have_exit_status(0)
         end
       end
@@ -125,7 +125,7 @@ describe 'verify', :type => :aruba do
       context 'does not need to run again' do
         before do
           update_timestamp(file_path, config_path, 'serv1')
-          run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+          run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
         end
 
         it 'completes without any output' do
@@ -137,11 +137,11 @@ describe 'verify', :type => :aruba do
       context 'does not need to run again, force flag provided' do
         before do
           update_timestamp(file_path, config_path, 'serv1')
-          run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{file_path} --force", fail_on_error: false)
+          run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path} --force", fail_on_error: false)
         end
 
         it 'successfully verifies file' do
-          expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path}/)
+          expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path}/)
           expect(last_command_started).to have_exit_status(0)
         end
       end
@@ -151,11 +151,11 @@ describe 'verify', :type => :aruba do
           # Change the last run timestamp to a while ago
           update_timestamp(file_path, config_path, 'serv1', timestamp: Time.new(2000))
 
-          run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+          run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
         end
 
         it 'successfully verifies file' do
-          expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path}/)
+          expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path}/)
           expect(last_command_started).to have_exit_status(0)
         end
       end
@@ -175,11 +175,11 @@ describe 'verify', :type => :aruba do
 
     before do
       run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
-      run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+      run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
     end
 
     it 'fails to verify file' do
-      expect(last_command_started).to have_output(/FAILURE verify\[serv1\] #{file_path}/)
+      expect(last_command_started).to have_output(/FAILURE preserve\[serv1\] #{file_path}/)
       expect(last_command_started).to have_exit_status(1)
     end
   end
@@ -203,13 +203,13 @@ describe 'verify', :type => :aruba do
 
     context 'all files need service' do
       before do
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
 
       it 'successfully verifies file' do
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path1}/)
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path2}/)
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path3}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path1}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path2}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path3}/)
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -219,13 +219,13 @@ describe 'verify', :type => :aruba do
           perform: "raise Longleaf::PreservationServiceError.new('Bad') if file_rec.path == '#{file_path2}'") }
 
       before do
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
 
       it 'successfully verifies two files, fails one' do
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path1}/)
-        expect(last_command_started).to have_output(/FAILURE verify\[serv1\] #{file_path2}/)
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path3}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path1}/)
+        expect(last_command_started).to have_output(/FAILURE preserve\[serv1\] #{file_path2}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path3}/)
         expect(last_command_started).to have_exit_status(2)
       end
     end
@@ -235,13 +235,13 @@ describe 'verify', :type => :aruba do
           perform: "raise Longleaf::PreservationServiceError.new('Bad')") }
 
       before do
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
 
       it 'all files fail for the service' do
-        expect(last_command_started).to have_output(/FAILURE verify\[serv1\] #{file_path1}/)
-        expect(last_command_started).to have_output(/FAILURE verify\[serv1\] #{file_path2}/)
-        expect(last_command_started).to have_output(/FAILURE verify\[serv1\] #{file_path3}/)
+        expect(last_command_started).to have_output(/FAILURE preserve\[serv1\] #{file_path1}/)
+        expect(last_command_started).to have_output(/FAILURE preserve\[serv1\] #{file_path2}/)
+        expect(last_command_started).to have_output(/FAILURE preserve\[serv1\] #{file_path3}/)
         expect(last_command_started).to have_exit_status(1)
       end
     end
@@ -251,13 +251,13 @@ describe 'verify', :type => :aruba do
         # Set timestamp for service on the second file so that it does not need to be run again
         update_timestamp(file_path2, config_path, 'serv1')
 
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
 
       it 'successfully verifies two files, skips one' do
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path1}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path1}/)
         expect(last_command_started).to_not have_output(/#{file_path2}/)
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path3}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path3}/)
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -269,7 +269,7 @@ describe 'verify', :type => :aruba do
         update_timestamp(file_path2, config_path, 'serv1')
         update_timestamp(file_path3, config_path, 'serv1')
 
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
 
       it 'skips all files' do
@@ -299,13 +299,13 @@ describe 'verify', :type => :aruba do
 
     context 'all services needed' do
       before do
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'reports that all services succeeded' do
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path}/)
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv2\] #{file_path}/)
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv3\] #{file_path}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv2\] #{file_path}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv3\] #{file_path}/)
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -315,13 +315,13 @@ describe 'verify', :type => :aruba do
           perform: "raise Longleaf::PreservationServiceError.new('Bad')") }
 
       before do
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'reports that one service failed' do
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path}/)
-        expect(last_command_started).to have_output(/FAILURE verify\[serv2\] #{file_path}/)
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv3\] #{file_path}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path}/)
+        expect(last_command_started).to have_output(/FAILURE preserve\[serv2\] #{file_path}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv3\] #{file_path}/)
         expect(last_command_started).to have_exit_status(2)
       end
     end
@@ -331,12 +331,12 @@ describe 'verify', :type => :aruba do
           perform: "raise StandardError.new('Really Bad')") }
 
       before do
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'reports that one service succeeded, one failed, and one was skipped' do
-        expect(last_command_started).to have_output(/SUCCESS verify\[serv1\] #{file_path}/)
-        expect(last_command_started).to have_output(/FAILURE verify\[serv2\] #{file_path}/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path}/)
+        expect(last_command_started).to have_output(/FAILURE preserve\[serv2\] #{file_path}/)
         expect(last_command_started).to_not have_output(/serv3/)
         expect(last_command_started).to have_exit_status(2)
       end
@@ -351,13 +351,13 @@ describe 'verify', :type => :aruba do
           perform: "raise Longleaf::PreservationServiceError.new('Bad3')") }
 
       before do
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'reports that all services failed' do
-        expect(last_command_started).to have_output(/FAILURE verify\[serv1\] #{file_path}/)
-        expect(last_command_started).to have_output(/FAILURE verify\[serv2\] #{file_path}/)
-        expect(last_command_started).to have_output(/FAILURE verify\[serv3\] #{file_path}/)
+        expect(last_command_started).to have_output(/FAILURE preserve\[serv1\] #{file_path}/)
+        expect(last_command_started).to have_output(/FAILURE preserve\[serv2\] #{file_path}/)
+        expect(last_command_started).to have_output(/FAILURE preserve\[serv3\] #{file_path}/)
         expect(last_command_started).to have_exit_status(1)
       end
     end
@@ -369,7 +369,7 @@ describe 'verify', :type => :aruba do
         update_timestamp(file_path, config_path, 'serv2')
         update_timestamp(file_path, config_path, 'serv3')
 
-        run_simple("longleaf verify -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'indicates that no services ran' do
