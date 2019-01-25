@@ -3,53 +3,44 @@ require 'longleaf/events/register_event'
 require 'longleaf/models/file_record'
 require 'longleaf/commands/abstract_command'
 require 'longleaf/events/event_names'
+require 'longleaf/events/event_status_tracking'
 
 module Longleaf
   # Command for registering files with longleaf
-  class RegisterCommand < AbstractCommand
+  class RegisterCommand
+    include Longleaf::EventStatusTracking
     
-    def initialize(config_path)
-      @config_path = config_path
+    def initialize(app_manager)
+      @app_manager = app_manager
     end
 
     # Execute the register command on the given parameters
-    def execute(file_paths: nil, force: false, checksums: nil)
-      if file_paths.nil? || file_paths.empty?
+    # @param file_selector [FileSelector] selector for files to register
+    # @param force [Boolean] force flag
+    # @param checksums [Array] array of checksums
+    # @return [Integer] status code
+    def execute(file_selector: nil, force: false, checksums: nil)
+      if file_selector.nil?
         record_failure("Must provide one or more file paths to register")
         return return_status
       end
       
       begin
-        # Retrieve the application configuration
-        app_manager = Longleaf::ApplicationConfigDeserializer.deserialize(@config_path)
-        
         # Perform register events on each of the file paths provided
-        file_paths.each do |f_path|
-          begin
-            storage_location = app_manager.location_manager.get_location_by_path(f_path)
-            if storage_location.nil?
-              raise InvalidStoragePathError.new(
-                  "Unable to register '#{f_path}', it does not belong to any registered storage locations.")
-            end
+        loop do
+          f_path = file_selector.next_path
+          break if f_path.nil?
           
-            raise InvalidStoragePathError.new("Unable to register '#{f_path}', file does not exist or is unreachable.") \
-                unless File.file?(f_path)
+          storage_location = @app_manager.location_manager.get_location_by_path(f_path)
+        
+          file_rec = FileRecord.new(f_path, storage_location)
           
-            file_rec = FileRecord.new(f_path, storage_location)
-            
-            register_event = RegisterEvent.new(file_rec: file_rec, force: force, app_manager: app_manager,
-                checksums: checksums)
-            register_event.perform
-            
-            record_success(EventNames::REGISTER, f_path)
-          rescue RegistrationError => err
-            record_failure(EventNames::REGISTER, f_path, err.message)
-          rescue InvalidStoragePathError => err
-            record_failure(EventNames::REGISTER, f_path, err.message)
-          end
+          register_event = RegisterEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager,
+              checksums: checksums)
+          track_status(register_event.perform)
         end
-      rescue ConfigurationError => err
-        record_failure("Failed to load application configuration due to the following issue:\n#{err.message}")
+      rescue InvalidStoragePathError, StorageLocationUnavailableError => err
+        record_failure(EventNames::REGISTER, nil, err.message)
       rescue => err
         record_failure(EventNames::REGISTER, error: err)
       end

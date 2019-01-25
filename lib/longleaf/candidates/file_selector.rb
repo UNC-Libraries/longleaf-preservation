@@ -7,10 +7,10 @@ module Longleaf
     
     # May only provide either file_paths or storage_locations
     def initialize(file_paths: nil, storage_locations: nil, app_config:)
-      if file_paths.nil? && storage_locations.nil?
+      if nil_or_empty?(file_paths) && nil_or_empty?(storage_locations)
         raise ArgumentError.new("Must provide either file paths or storage locations")
       end
-      if !file_paths.nil? && !storage_locations.nil?
+      if !nil_or_empty?(file_paths) && !nil_or_empty?(storage_locations)
         raise ArgumentError.new("Cannot provide both file paths and storage locations")
       end
       @app_config = app_config
@@ -97,6 +97,11 @@ module Longleaf
       end
       
       @storage_locations
+    end
+    
+    private
+    def nil_or_empty?(value)
+      value.nil? || value.empty?
     end
   end
 end

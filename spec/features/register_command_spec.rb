@@ -66,7 +66,7 @@ describe 'register', :type => :aruba do
       end
 
       it 'rejects missing file path value' do
-        expect(last_command_started).to have_output(/Must provide one or more file paths to register/)
+        expect(last_command_started).to have_output(/Must provide either file paths or storage locations/)
         expect(last_command_started).to have_exit_status(1)
       end
     end
@@ -80,7 +80,7 @@ describe 'register', :type => :aruba do
 
       it 'rejects file which does not exist' do
         expect(last_command_started).to have_output(
-          /Unable to register .*, file does not exist or is unreachable/)
+          /FAILURE register: File .* does not exist./)
         expect(last_command_started).to have_exit_status(1)
       end
     end
@@ -95,7 +95,7 @@ describe 'register', :type => :aruba do
 
       it 'outputs failure to find storage location' do
         expect(last_command_started).to have_output(
-          /Unable to register .*, it does not belong to any registered storage locations/)
+          /FAILURE register: Path .* is not from a known storage location/)
         expect(last_command_started).to have_exit_status(1)
       end
     end

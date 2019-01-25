@@ -63,7 +63,8 @@ describe Longleaf::RegisterEvent do
       let(:event) { Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config) }
       
       it 'persists valid metadata file' do
-        event.perform
+        status = event.perform
+        expect(status).to eq 0
         
         md_rec = load_metadata_record(file_path)
 
@@ -78,19 +79,22 @@ describe Longleaf::RegisterEvent do
       it 'raises RegistrationError for already registered file' do
         event.perform
         
-        expect { event.perform }.to raise_error(Longleaf::RegistrationError,
-            /already registered/)
+        repeat_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config)
+        status = repeat_event.perform
+        expect(status).to eq 1
       end
       
       it 'forces persistence of metadata file with retained property' do
-        event.perform
+        status = event.perform
+        expect(status).to eq 0
         
         md_rec = file_rec.metadata_record
         md_rec.properties['keep_me'] = 'plz'
         update_metadata_record(file_rec.path, md_rec)
         
         force_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, force: true)
-        force_event.perform
+        status = force_event.perform
+        expect(status).to eq 0
         
         md_rec2 = load_metadata_record(file_path)
         expect(md_rec2.properties).to include('keep_me' => 'plz')
@@ -99,7 +103,8 @@ describe Longleaf::RegisterEvent do
       
       it 'persists valid metadata file with force flag' do
         force_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, force: true)
-        force_event.perform
+        status = force_event.perform
+        expect(status).to eq 0
         
         md_rec = load_metadata_record(file_path)
 
@@ -111,7 +116,8 @@ describe Longleaf::RegisterEvent do
             app_manager: app_config,
             checksums: { 'md5' => 'digestvalue',
               'sha1' => 'shadigest' } )
-        event.perform
+        status = event.perform
+        expect(status).to eq 0
         
         md_rec = load_metadata_record(file_path)
 
@@ -138,7 +144,7 @@ describe Longleaf::RegisterEvent do
       let(:event) { Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config) }
       
       it 'persists metadata file with no services' do
-        event.perform
+        status = event.perform
         
         md_rec = load_metadata_record(file_path)
 

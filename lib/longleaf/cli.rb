@@ -47,7 +47,8 @@ module Longleaf
       setup_logger(options)
       
       config_path = options[:config]
-      file_paths = options[:file]&.split(/\s*,\s*/)
+      app_config_manager = load_application_config(options[:config])
+      file_selector = create_file_selector(options[:file], nil, app_config_manager)
       if options[:checksums]
         checksums = options[:checksums]
         # validate checksum list format, must a comma delimited list of prefix:checksums
@@ -60,8 +61,8 @@ module Longleaf
         end
       end
       
-      command = RegisterCommand.new(config_path)
-      exit command.execute(file_paths: file_paths, force: options[:force], checksums: checksums)
+      command = RegisterCommand.new(app_config_manager)
+      exit command.execute(file_selector: file_selector, force: options[:force], checksums: checksums)
     end
     
     desc "preserve", "Perform preservation services on files with Longleaf"

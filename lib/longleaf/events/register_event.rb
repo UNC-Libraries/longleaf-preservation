@@ -1,4 +1,6 @@
 require 'longleaf/errors'
+require 'longleaf/events/event_names'
+require 'longleaf/events/event_status_tracking'
 require 'longleaf/models/metadata_record'
 require 'longleaf/services/metadata_deserializer'
 require 'longleaf/services/metadata_serializer'
@@ -7,6 +9,8 @@ require 'time'
 module Longleaf
   # Event to register a file with longleaf
   class RegisterEvent
+    include Longleaf::EventStatusTracking
+    
     # @param file_rec [FileRecord] file record
     # @param app_manager [ApplicationConfigManager] the application configuration
     # @param force [boolean] if true, then already registered files will be re-registered
@@ -27,28 +31,38 @@ module Longleaf
     # Perform a registration event on the given file
     # @raise RegistrationError if a file cannot be registered 
     def perform
-      # Only need to re-register file if the force flag is provided
-      if @file_rec.registered? && !@force
-        raise RegistrationError.new("Unable to register '#{@file_rec.path}', it is already registered.")
+      begin
+        # Only need to re-register file if the force flag is provided
+        if @file_rec.registered? && !@force
+          raise RegistrationError.new("Unable to register '#{@file_rec.path}', it is already registered.")
+        end
+      
+        # create metadata record
+        md_rec = MetadataRecord.new(registered: Time.now.utc.iso8601)
+        @file_rec.metadata_record = md_rec
+      
+        # retain significant details from former record
+        if @file_rec.registered?
+          retain_existing_properties
+        end
+      
+        populate_file_properties
+      
+        md_rec.checksums.merge!(@checksums) unless @checksums.nil?
+      
+        populate_services
+      
+        # persist the metadata out to file
+        MetadataSerializer::write(metadata: md_rec, file_path: @file_rec.metadata_path)
+        
+        record_success(EventNames::REGISTER, @file_rec.path)
+      rescue RegistrationError => err
+        record_failure(EventNames::REGISTER, @file_rec.path, err.message)
+      rescue InvalidStoragePathError => err
+        record_failure(EventNames::REGISTER, @file_rec.path, err.message)
       end
       
-      # create metadata record
-      md_rec = MetadataRecord.new(registered: Time.now.utc.iso8601)
-      @file_rec.metadata_record = md_rec
-      
-      # retain significant details from former record
-      if @file_rec.registered?
-        retain_existing_properties
-      end
-      
-      populate_file_properties
-      
-      md_rec.checksums.merge!(@checksums) unless @checksums.nil?
-      
-      populate_services
-      
-      # persist the metadata out to file
-      MetadataSerializer::write(metadata: md_rec, file_path: @file_rec.metadata_path)
+      return_status
     end
     
     private
