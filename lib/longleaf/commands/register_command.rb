@@ -1,7 +1,6 @@
 require 'longleaf/services/application_config_deserializer'
 require 'longleaf/events/register_event'
 require 'longleaf/models/file_record'
-require 'longleaf/commands/abstract_command'
 require 'longleaf/events/event_names'
 require 'longleaf/events/event_status_tracking'
 

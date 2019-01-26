@@ -1,9 +1,11 @@
 require 'longleaf/services/application_config_deserializer'
-require 'longleaf/commands/abstract_command'
+require 'longleaf/events/event_status_tracking'
 
 module Longleaf
   # Command for validating an application configuration file
-  class ValidateConfigCommand < AbstractCommand
+  class ValidateConfigCommand
+    include Longleaf::EventStatusTracking
+    
     def initialize(config_path)
       @config_path = config_path
     end
