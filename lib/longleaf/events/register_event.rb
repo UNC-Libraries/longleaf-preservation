@@ -33,7 +33,7 @@ module Longleaf
     def perform
       begin
         # Only need to re-register file if the force flag is provided
-        if @file_rec.registered? && !@force
+        if @file_rec.metadata_present? && !@force
           raise RegistrationError.new("Unable to register '#{@file_rec.path}', it is already registered.")
         end
       
@@ -42,7 +42,7 @@ module Longleaf
         @file_rec.metadata_record = md_rec
       
         # retain significant details from former record
-        if @file_rec.registered?
+        if @file_rec.metadata_present?
           retain_existing_properties
         end
       

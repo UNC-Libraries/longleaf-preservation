@@ -33,7 +33,7 @@ module Longleaf
           file_rec = FileRecord.new(next_path, storage_loc)
       
           # Skip over unregistered files
-          if !file_rec.registered?
+          if !file_rec.metadata_present?
             logger.debug("Ignoring unregistered file #{next_path}")
             next
           end

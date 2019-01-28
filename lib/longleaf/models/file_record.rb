@@ -23,7 +23,7 @@ module Longleaf
       @metadata_path
     end
     
-    def registered?
+    def metadata_present?
       File.exist?(metadata_path)
     end
   end
