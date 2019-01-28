@@ -5,6 +5,7 @@ require 'longleaf/services/application_config_deserializer'
 require 'longleaf/services/metadata_deserializer'
 require 'longleaf/services/metadata_serializer'
 require 'longleaf/errors'
+require 'longleaf/helpers/service_date_helper'
 require 'longleaf/specs/config_builder'
 require 'longleaf/specs/file_helpers'
 require 'fileutils'
@@ -83,6 +84,32 @@ describe Longleaf::RegisterEvent do
         repeat_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config)
         status = repeat_event.perform
         expect(status).to eq 1
+      end
+      
+      context 'file is deregistered' do
+        before do
+          event.perform
+        
+          md_rec = file_rec.metadata_record
+          md_rec.deregistered = Longleaf::ServiceDateHelper::formatted_timestamp
+          expect(md_rec.deregistered?).to be true
+          update_metadata_record(file_rec.path, md_rec)
+        end
+        
+        it 'raises RegistrationError' do
+          repeat_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config)
+          status = repeat_event.perform
+          expect(status).to eq 1
+        end
+        
+        it 'succeeds with force flag' do
+          repeat_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, force: true)
+          status = repeat_event.perform
+          expect(status).to eq 0
+          
+          md_rec = load_metadata_record(file_path)
+          expect(md_rec.deregistered?).to be false
+        end
       end
       
       it 'forces persistence of metadata file with retained property' do
