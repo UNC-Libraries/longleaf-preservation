@@ -20,6 +20,9 @@ module Longleaf
   # Error while attempting to perform a registration event
   class RegistrationError < EventError; end
   
+  # Error while attempting to perform a deregistration event
+  class DeregistrationError < EventError; end
+  
   # Error while performing a preservation service
   class PreservationServiceError < LongleafError; end
   
