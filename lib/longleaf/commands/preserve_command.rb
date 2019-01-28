@@ -1,4 +1,5 @@
 require 'longleaf/errors'
+require 'longleaf/events/event_status_tracking'
 require 'longleaf/events/preserve_event'
 require 'longleaf/services/application_config_deserializer'
 require 'longleaf/candidates/file_selector'
@@ -20,12 +21,7 @@ module Longleaf
     # @param file_selector [FileSelector] selector for files to preserve
     # @param force [Boolean] force flag
     # @return [Integer] status code
-    def execute(file_selector: nil, storage_locations: nil, force: false)
-      if file_selector.nil?
-        record_failure("Must provide either file paths or storage locations to preserve")
-        return return_status
-      end
-
+    def execute(file_selector:, force: false)
       begin
         # Perform preserve events on each of the file paths provided
         candidate_locator = ServiceCandidateLocator.new(@app_manager)

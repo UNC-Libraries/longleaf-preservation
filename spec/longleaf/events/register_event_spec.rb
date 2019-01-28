@@ -6,12 +6,13 @@ require 'longleaf/services/metadata_deserializer'
 require 'longleaf/services/metadata_serializer'
 require 'longleaf/errors'
 require 'longleaf/specs/config_builder'
+require 'longleaf/specs/file_helpers'
 require 'fileutils'
 require 'tmpdir'
 require 'tempfile'
 
 describe Longleaf::RegisterEvent do
-  AppDeserializer ||= Longleaf::ApplicationConfigDeserializer
+  include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
   describe '.initialize' do
@@ -56,14 +57,15 @@ describe Longleaf::RegisterEvent do
           .get }
       let(:app_config) { build(:application_config_manager, config: config) }
     
-      let(:file_path) { make_test_file(path_dir, 'test_file') }
+      let(:file_path) { create_test_file(dir: path_dir) }
       let(:storage_location) { app_config.location_manager.get_location_by_path(file_path) }
       let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_location) }
       
       let(:event) { Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config) }
       
       it 'persists valid metadata file' do
-        event.perform
+        status = event.perform
+        expect(status).to eq 0
         
         md_rec = load_metadata_record(file_path)
 
@@ -78,19 +80,22 @@ describe Longleaf::RegisterEvent do
       it 'raises RegistrationError for already registered file' do
         event.perform
         
-        expect { event.perform }.to raise_error(Longleaf::RegistrationError,
-            /already registered/)
+        repeat_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config)
+        status = repeat_event.perform
+        expect(status).to eq 1
       end
       
       it 'forces persistence of metadata file with retained property' do
-        event.perform
+        status = event.perform
+        expect(status).to eq 0
         
         md_rec = file_rec.metadata_record
         md_rec.properties['keep_me'] = 'plz'
         update_metadata_record(file_rec.path, md_rec)
         
         force_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, force: true)
-        force_event.perform
+        status = force_event.perform
+        expect(status).to eq 0
         
         md_rec2 = load_metadata_record(file_path)
         expect(md_rec2.properties).to include('keep_me' => 'plz')
@@ -99,7 +104,8 @@ describe Longleaf::RegisterEvent do
       
       it 'persists valid metadata file with force flag' do
         force_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, force: true)
-        force_event.perform
+        status = force_event.perform
+        expect(status).to eq 0
         
         md_rec = load_metadata_record(file_path)
 
@@ -111,7 +117,8 @@ describe Longleaf::RegisterEvent do
             app_manager: app_config,
             checksums: { 'md5' => 'digestvalue',
               'sha1' => 'shadigest' } )
-        event.perform
+        status = event.perform
+        expect(status).to eq 0
         
         md_rec = load_metadata_record(file_path)
 
@@ -131,14 +138,14 @@ describe Longleaf::RegisterEvent do
           .get }
       let(:app_config) { build(:application_config_manager, config: config) }
     
-      let(:file_path) { make_test_file(path_dir, 'test_file') }
+      let(:file_path) { create_test_file(dir: path_dir) }
       let(:storage_location) { app_config.location_manager.get_location_by_path(file_path) }
       let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_location) }
       
       let(:event) { Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config) }
       
       it 'persists metadata file with no services' do
-        event.perform
+        status = event.perform
         
         md_rec = load_metadata_record(file_path)
 
@@ -149,12 +156,6 @@ describe Longleaf::RegisterEvent do
         
         expect(md_rec.list_services).to be_empty
       end
-    end
-    
-    def make_test_file(dir, file_name = 'test_file', content = 'content')
-      path = File.join(dir, file_name)
-      File.open(path, 'w') { |f| f.write(content) }
-      path
     end
     
     # @returns [Longleaf::MetadataRecord] the metadata record for file_path

@@ -32,6 +32,11 @@ describe Longleaf::FileSelector do
           raise_error(ArgumentError) }
     end
     
+    context 'with empty file paths' do
+      it { expect{ build(:file_selector, file_paths: [], storage_locations: nil, app_config: app_config) }.to \
+          raise_error(ArgumentError) }
+    end
+    
     context 'both file paths and storage locations' do
       it { expect{ build(:file_selector, 
         file_paths: [File.join(path_dir1, 'file')],
@@ -59,14 +64,6 @@ describe Longleaf::FileSelector do
   end
   
   describe '.next_path' do
-    context 'with empty file paths' do
-      let(:selector) { build(:file_selector, 
-              file_paths: [],
-              app_config: app_config) }
-      
-      it { expect(selector.next_path).to be_nil }
-    end
-    
     context 'with non-existent file path' do
       let(:selector) { build(:file_selector, 
               file_paths: [File.join(path_dir1, 'nonexist')],

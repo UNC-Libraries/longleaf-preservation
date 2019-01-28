@@ -2,11 +2,13 @@ require 'spec_helper'
 require 'aruba/rspec'
 require 'longleaf/specs/config_builder'
 require 'longleaf/services/metadata_serializer'
+require 'longleaf/specs/file_helpers'
 require 'tempfile'
 require 'yaml'
 require 'fileutils'
 
 describe 'register', :type => :aruba do
+  include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
   let(:path_dir) { Dir.mktmpdir('path') }
@@ -58,7 +60,7 @@ describe 'register', :type => :aruba do
         .with_service(name: 'serv1')
         .map_services('loc1', 'serv1')
         .write_to_yaml_file }
-    let(:file_path) { make_test_file(path_dir) }
+    let(:file_path) { create_test_file(dir: path_dir) }
     
     context 'empty file path' do
       before do
@@ -66,7 +68,7 @@ describe 'register', :type => :aruba do
       end
 
       it 'rejects missing file path value' do
-        expect(last_command_started).to have_output(/Must provide one or more file paths to register/)
+        expect(last_command_started).to have_output(/Must provide either file paths or storage locations/)
         expect(last_command_started).to have_exit_status(1)
       end
     end
@@ -80,7 +82,7 @@ describe 'register', :type => :aruba do
 
       it 'rejects file which does not exist' do
         expect(last_command_started).to have_output(
-          /Unable to register .*, file does not exist or is unreachable/)
+          /FAILURE register: File .* does not exist./)
         expect(last_command_started).to have_exit_status(1)
       end
     end
@@ -95,7 +97,7 @@ describe 'register', :type => :aruba do
 
       it 'outputs failure to find storage location' do
         expect(last_command_started).to have_output(
-          /Unable to register .*, it does not belong to any registered storage locations/)
+          /FAILURE register: Path .* is not from a known storage location/)
         expect(last_command_started).to have_exit_status(1)
       end
     end
@@ -141,7 +143,7 @@ describe 'register', :type => :aruba do
     end
     
     context 'register multiple files' do
-      let(:file_path2) { make_test_file(path_dir, 'another_file', 'more content') }
+      let(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
       
       before do
         run_simple("longleaf register -c #{config_path} -f '#{file_path},#{file_path2}'")
@@ -191,12 +193,6 @@ describe 'register', :type => :aruba do
         expect(last_command_started).to have_exit_status(0)
       end
     end
-  end
-  
-  def make_test_file(dir, file_name = 'test_file', content = 'content')
-    path = File.join(dir, file_name)
-    File.open(path, 'w') { |f| f.write(content) }
-    path
   end
   
   def metadata_created(file_path, md_dir)
