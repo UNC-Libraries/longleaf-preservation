@@ -6,12 +6,13 @@ require 'longleaf/services/metadata_deserializer'
 require 'longleaf/services/metadata_serializer'
 require 'longleaf/errors'
 require 'longleaf/specs/config_builder'
+require 'longleaf/specs/file_helpers'
 require 'fileutils'
 require 'tmpdir'
 require 'tempfile'
 
 describe Longleaf::RegisterEvent do
-  AppDeserializer ||= Longleaf::ApplicationConfigDeserializer
+  include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
   describe '.initialize' do
@@ -56,7 +57,7 @@ describe Longleaf::RegisterEvent do
           .get }
       let(:app_config) { build(:application_config_manager, config: config) }
     
-      let(:file_path) { make_test_file(path_dir, 'test_file') }
+      let(:file_path) { create_test_file(dir: path_dir) }
       let(:storage_location) { app_config.location_manager.get_location_by_path(file_path) }
       let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_location) }
       
@@ -137,7 +138,7 @@ describe Longleaf::RegisterEvent do
           .get }
       let(:app_config) { build(:application_config_manager, config: config) }
     
-      let(:file_path) { make_test_file(path_dir, 'test_file') }
+      let(:file_path) { create_test_file(dir: path_dir) }
       let(:storage_location) { app_config.location_manager.get_location_by_path(file_path) }
       let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_location) }
       
@@ -155,12 +156,6 @@ describe Longleaf::RegisterEvent do
         
         expect(md_rec.list_services).to be_empty
       end
-    end
-    
-    def make_test_file(dir, file_name = 'test_file', content = 'content')
-      path = File.join(dir, file_name)
-      File.open(path, 'w') { |f| f.write(content) }
-      path
     end
     
     # @returns [Longleaf::MetadataRecord] the metadata record for file_path
