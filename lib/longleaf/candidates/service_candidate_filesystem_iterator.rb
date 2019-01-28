@@ -1,5 +1,6 @@
 require 'longleaf/services/service_manager'
 require 'longleaf/services/metadata_deserializer'
+require 'longleaf/events/event_names'
 require 'longleaf/errors'
 require 'longleaf/logging'
 require 'time'
@@ -65,6 +66,11 @@ module Longleaf
       md_rec = file_rec.metadata_record
       storage_loc = file_rec.storage_location
       service_manager = @app_config.service_manager
+      
+      # File is not a valid candidate for services if it is deregistered, unless performing cleanup
+      if @event != EventNames::CLEANUP && md_rec.deregistered?
+        return false
+      end
       
       expected_services = service_manager.list_services(
           location: storage_loc.name,
