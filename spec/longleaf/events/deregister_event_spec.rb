@@ -109,8 +109,8 @@ describe Longleaf::DeregisterEvent do
           result_md = load_metadata_record(file_path)
 
           expect(result_md.deregistered?).to be true
-          expect { Time.iso8601(result_md.deregistered) }.to_not raise_error
           expect(result_md.deregistered).to_not eq deregistered_timestamp
+          # custom property from original record retained
           expect(result_md.properties['custom']).to eq 'value'
         end
       end

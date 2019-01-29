@@ -75,6 +75,7 @@ describe 'deregister', :type => :aruba do
         before do
           run_simple("longleaf deregister -c #{config_path} -f #{file_path}", fail_on_error: false)
         end
+        
         it 'deregisters the file' do
           expect(last_command_started).to have_output(/SUCCESS deregister #{file_path}/)
           expect(file_deregistered?(file_path, md_dir)).to be true
@@ -120,7 +121,7 @@ describe 'deregister', :type => :aruba do
             run_simple("longleaf deregister -c #{config_path} -f '#{file_path},#{file_path2}'", fail_on_error: false)
           end
 
-          it 'one file registers, the other fails' do
+          it 'registers one file, fails the other' do
             expect(last_command_started).to have_output(/SUCCESS deregister #{file_path}/)
             expect(file_deregistered?(file_path, md_dir)).to be true
             expect(last_command_started).to have_output(

@@ -18,12 +18,7 @@ module Longleaf
     # @param file_selector [FileSelector] selector for files to deregister
     # @param force [Boolean] force flag
     # @return [Integer] status code
-    def execute(file_selector: nil, force: false)
-      if file_selector.nil?
-        record_failure("Must provide one or more file paths to deregister")
-        return return_status
-      end
-      
+    def execute(file_selector:, force: false)
       begin
         # Perform deregister events on each of the file paths provided
         loop do
@@ -42,7 +37,7 @@ module Longleaf
           event = DeregisterEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager)
           track_status(event.perform)
         end
-      rescue InvalidStoragePathError, StorageLocationUnavailableError => err
+      rescue DeregistrationError, InvalidStoragePathError, StorageLocationUnavailableError => err
         record_failure(EventNames::DEREGISTER, nil, err.message)
       rescue => err
         record_failure(EventNames::DEREGISTER, error: err)
