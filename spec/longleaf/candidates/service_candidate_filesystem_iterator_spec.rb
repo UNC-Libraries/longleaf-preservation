@@ -155,6 +155,38 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
           expect(iterator.next_candidate).to be_nil
         end
       end
+      
+      context 'deregistered file with run_needed true' do
+        let(:file_path1) { create_test_file(dir: path_dir1) }
+        let(:service_record) { build(:service_record, :timestamp_now, run_needed: true) }
+        before do
+          create_metadata(file_path1, { 'serv1' => service_record}, app_config, 
+              deregistered: "2000-01-01T00:00:00Z")
+        end
+        
+        it 'returns no candidates' do
+          expect(iterator.next_candidate).to be_nil
+        end
+      end
+      
+      context 'deregistered file with run_needed true in cleanup event' do
+        let(:iterator) { build(:service_candidate_filesystem_iterator,
+            file_selector: file_selector,
+            app_config: app_config,
+            event: Longleaf::EventNames::CLEANUP) }
+        
+        let(:file_path1) { create_test_file(dir: path_dir1) }
+        let(:service_record) { build(:service_record, :timestamp_now, run_needed: true) }
+        before do
+          create_metadata(file_path1, { 'serv1' => service_record}, app_config, 
+              deregistered: "2000-01-01T00:00:00Z")
+        end
+        
+        it 'returns file with run_needed' do
+          expect(iterator.next_candidate).to be_file_record_for(file_path1)
+          expect(iterator.next_candidate).to be_nil
+        end
+      end
     end
     
     context 'configured location with multiple services' do
@@ -334,8 +366,8 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
     Longleaf::MetadataSerializer.write(metadata: md_rec, file_path: md_path)
   end
   
-  def create_metadata(file_path, services, app_config)
-    md = build(:metadata_record)
+  def create_metadata(file_path, services, app_config, deregistered: nil)
+    md = build(:metadata_record, deregistered: deregistered)
     unless services.nil?
       services.each do |name, record|
         md.add_service(name, record)

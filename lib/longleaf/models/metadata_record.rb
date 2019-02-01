@@ -4,7 +4,8 @@ require_relative 'service_record'
 module Longleaf
   # Metadata record for a single file
   class MetadataRecord
-    attr_reader :deregistered, :registered
+    attr_reader :registered
+    attr_accessor :deregistered
     attr_reader :checksums
     attr_reader :properties
     attr_accessor :file_size, :last_modified

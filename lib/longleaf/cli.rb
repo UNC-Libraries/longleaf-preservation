@@ -2,6 +2,7 @@ require 'thor'
 require 'yaml'
 require 'longleaf/logging'
 require 'longleaf/errors'
+require 'longleaf/commands/deregister_command'
 require 'longleaf/commands/validate_config_command'
 require 'longleaf/commands/register_command'
 require 'longleaf/commands/preserve_command'
@@ -63,6 +64,26 @@ module Longleaf
       
       command = RegisterCommand.new(app_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force], checksums: checksums)
+    end
+    
+    desc "deregister", "Deregister files with Longleaf"
+    method_option(:file, :aliases => "-f", 
+        :required => true,
+        :desc => 'File or files to deregister. Paths must be absolute. If multiple files are provided, they must be comma separated.')
+    method_option(:force,
+        :type => :boolean, 
+        :default => false,
+        :desc => 'Force the deregistration of already deregistered files.')
+    # Deregister event command
+    def deregister
+      setup_logger(options)
+      
+      config_path = options[:config]
+      app_config_manager = load_application_config(options[:config])
+      file_selector = create_file_selector(options[:file], nil, app_config_manager)
+      
+      command = DeregisterCommand.new(app_config_manager)
+      exit command.execute(file_selector: file_selector, force: options[:force])
     end
     
     desc "preserve", "Perform preservation services on files with Longleaf"
