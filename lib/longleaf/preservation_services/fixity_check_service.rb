@@ -1,7 +1,7 @@
 require 'longleaf/events/event_names'
 require 'longleaf/models/service_fields'
 require 'longleaf/logging'
-require 'digest'
+require 'longleaf/helpers/digest_helper'
 require 'set'
 
 module Longleaf
@@ -86,7 +86,7 @@ module Longleaf
           end
         end
         
-        digest = start_digest(alg)
+        digest = DigestHelper::start_digest(alg)
         digest.file(path)
         generated_digest = digest.hexdigest
         
@@ -115,24 +115,6 @@ module Longleaf
         true
       else
         false
-      end
-    end
-    
-    private
-    def start_digest(alg)
-      case alg
-      when 'md5'
-        return Digest::MD5.new
-      when 'sha1'
-        return Digest::SHA1.new
-      when 'sha2', 'sha256'
-        return Digest::SHA2.new
-      when 'sha384'
-        return Digest::SHA2.new(384)
-      when 'sha512'
-        return Digest::SHA2.new(512)
-      when 'rmd160'
-        return Digest::RMD160.new
       end
     end
   end

@@ -28,4 +28,7 @@ module Longleaf
   
   # Fixity check failure error
   class ChecksumMismatchError < PreservationServiceError; end
+  
+  # Error indicating an unknown or invalid digest algorithm was specified
+  class InvalidDigestAlgorithmError < LongleafError; end
 end
