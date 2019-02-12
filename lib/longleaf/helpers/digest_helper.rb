@@ -1,8 +1,28 @@
+require 'longleaf/errors'
 require 'digest'
 
 module Longleaf
   # Helper methods for generating digests
   class DigestHelper
+    KNOWN_DIGESTS ||= ['md5', 'sha1', 'sha2', 'sha256', 'sha384', 'sha512', 'rmd160']
+    
+    # @param algs Either a string containing one or an array containing zero or more digest
+    #    algorithm names.
+    # @raise [InvalidDigestAlgorithmError] thrown if any of the digest algorithms listed are not
+    #    known to the system.
+    def self.validate_algorithms(algs)
+      return if algs.nil?
+      if algs.is_a?(String)
+        unless KNOWN_DIGESTS.include?(algs)
+          raise InvalidDigestAlgorithmError.new("Unknown digest algorithm #{algs}")
+        end
+      else
+        unknown = algs.select { |alg| !KNOWN_DIGESTS.include?(alg) }
+        unless unknown.empty?
+          raise InvalidDigestAlgorithmError.new("Unknown digest algorithm(s): #{unknown.to_s}")
+        end
+      end
+    end
     
     # Get a Digest class for the specified algorithm
     # @param alg [String] name of the digest algorithm

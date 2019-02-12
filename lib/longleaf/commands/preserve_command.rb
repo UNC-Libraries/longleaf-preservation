@@ -33,6 +33,8 @@ module Longleaf
           preserve_event = PreserveEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager)
           track_status(preserve_event.perform)
         end
+      rescue LongleafError => e
+        record_failure(EventNames::PRESERVE, nil, e.message)
       rescue => err
         record_failure(EventNames::PRESERVE, error: err)
       end

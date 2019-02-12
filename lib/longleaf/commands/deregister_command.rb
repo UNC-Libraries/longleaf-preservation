@@ -32,7 +32,8 @@ module Longleaf
             raise DeregistrationError.new("Cannot deregister #{f_path}, file is not registered.")
           end
           
-          file_rec.metadata_record = MetadataDeserializer.deserialize(file_path: file_rec.metadata_path)
+          file_rec.metadata_record = MetadataDeserializer.deserialize(file_path: file_rec.metadata_path,
+              digest_algs: storage_location.metadata_digests)
           
           event = DeregisterEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager)
           track_status(event.perform)

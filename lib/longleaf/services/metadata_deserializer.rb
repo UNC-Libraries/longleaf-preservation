@@ -2,20 +2,22 @@ require 'yaml'
 require 'longleaf/models/metadata_record'
 require 'longleaf/models/md_fields'
 require 'longleaf/errors'
+require 'longleaf/logging'
 
 module Longleaf
   # Service which deserializes metadata files into MetadataRecord objects
   class MetadataDeserializer
+    extend Longleaf::Logging
     MDF ||= MDFields
     
     # Deserialize a file into a MetadataRecord object
     #
     # @param file_path [String] path of the file to read. Required.
     # @param format [String] format the file is stored in. Default is 'yaml'.
-    def self.deserialize(file_path:, format: 'yaml')
+    def self.deserialize(file_path:, format: 'yaml', digest_algs: [])
       case format
       when 'yaml'
-        md = from_yaml(file_path)
+        md = from_yaml(file_path, digest_algs)
       else
         raise ArgumentError.new('Invalid deserialization format #{format} specified')
       end
@@ -62,8 +64,40 @@ module Longleaf
     end
     
     # Load configuration a yaml encoded configuration file
-    def self.from_yaml(file_path)
-      YAML.load_file(file_path)
+    def self.from_yaml(file_path, digest_algs)
+      File.open(file_path, 'r:bom|utf-8') do |f|
+        contents = f.read
+        
+        verify_digests(file_path, contents, digest_algs)
+        
+        YAML.load(contents)
+      end
+    end
+    
+    def self.verify_digests(file_path, contents, digest_algs)
+      return if digest_algs.nil? || digest_algs.empty?
+      
+      digest_algs.each do |alg|
+        if file_path.respond_to?(:path)
+          path = file_path.path
+        else
+          path = file_path
+        end
+        digest_path = "#{path}.#{alg}"
+        unless File.exist?(digest_path)
+          self.logger.warn("Missing expected #{alg} digest for #{path}")
+          next
+        end
+        
+        digest = DigestHelper::start_digest(alg)
+        result = digest.hexdigest(contents)
+        existing_digest = IO.read(digest_path)
+        
+        if result != existing_digest
+          raise ChecksumMismatchError.new("Metadata digest of type #{alg} did not match the contents of #{path}:" \
+              + " expected #{existing_digest}, calculated #{result}")
+        end
+      end
     end
   end
 end

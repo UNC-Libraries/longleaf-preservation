@@ -39,7 +39,8 @@ module Longleaf
             next
           end
           
-          file_rec.metadata_record = MetadataDeserializer.deserialize(file_path: file_rec.metadata_path)
+          file_rec.metadata_record = MetadataDeserializer.deserialize(file_path: file_rec.metadata_path,
+              digest_algs: storage_loc.metadata_digests)
       
           # Return the file record if it needs any services run
           return file_rec if needs_run?(file_rec)
