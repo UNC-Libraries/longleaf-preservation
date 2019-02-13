@@ -22,7 +22,7 @@ module Longleaf
         raise ArgumentError.new('Invalid deserialization format #{format} specified')
       end
       
-      if !md || !md.key?(MDF::DATA) || !md.key?(MDF::SERVICES)
+      if !md || !md.is_a?(Hash) || !md.key?(MDF::DATA) || !md.key?(MDF::SERVICES)
         raise Longleaf::MetadataError.new("Invalid metadata file, did not contain data or services fields: #{file_path}")
       end
       
@@ -85,7 +85,7 @@ module Longleaf
         end
         digest_path = "#{path}.#{alg}"
         unless File.exist?(digest_path)
-          self.logger.warn("Missing expected #{alg} digest for #{path}")
+          logger.warn("Missing expected #{alg} digest for #{path}")
           next
         end
         
@@ -93,7 +93,9 @@ module Longleaf
         result = digest.hexdigest(contents)
         existing_digest = IO.read(digest_path)
         
-        if result != existing_digest
+        if result == existing_digest
+          logger.info("Metadata fixity check using algorithm '#{alg}' succeeded for file #{path}")
+        else
           raise ChecksumMismatchError.new("Metadata digest of type #{alg} did not match the contents of #{path}:" \
               + " expected #{existing_digest}, calculated #{result}")
         end

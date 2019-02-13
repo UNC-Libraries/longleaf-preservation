@@ -66,6 +66,18 @@ describe 'deregister', :type => :aruba do
       end
     end
     
+    context 'file not registered' do
+      before do
+        run_simple("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+      end
+
+      it 'outputs failure to find storage location' do
+        expect(last_command_started).to have_output(
+          /FAILURE deregister: Cannot deregister .*, file is not registered./)
+        expect(last_command_started).to have_exit_status(1)
+      end
+    end
+    
     context 'file is registered' do
       before do
         run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)

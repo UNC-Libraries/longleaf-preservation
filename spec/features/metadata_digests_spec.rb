@@ -50,7 +50,7 @@ describe 'metadata digests', :type => :aruba do
       before do
         run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
         
-        change_metadata(file_path, config_path, timestamp: Time.now - 100)
+        change_metadata(file_path, config_path)
         
         run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
@@ -105,7 +105,7 @@ describe 'metadata digests', :type => :aruba do
     location.get_metadata_path_for(file_path)
   end
   
-  def change_metadata(file_path, config_path, timestamp: Time.now)
+  def change_metadata(file_path, config_path)
     md_path = get_metadata_path(file_path, config_path)
     # Add a newline to the metadata to change it
     File.open(md_path, 'a') do |f|
