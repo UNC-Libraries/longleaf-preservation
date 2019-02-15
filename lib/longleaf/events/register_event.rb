@@ -53,7 +53,9 @@ module Longleaf
         populate_services
       
         # persist the metadata out to file
-        MetadataSerializer::write(metadata: md_rec, file_path: @file_rec.metadata_path)
+        MetadataSerializer::write(metadata: md_rec,
+            file_path: @file_rec.metadata_path,
+            digest_algs: @file_rec.storage_location.metadata_digests)
         
         record_success(EventNames::REGISTER, @file_rec.path)
       rescue RegistrationError => err
@@ -88,7 +90,8 @@ module Longleaf
     def retain_existing_properties
       md_rec = @file_rec.metadata_record
       
-      old_md = MetadataDeserializer.deserialize(file_path: @file_rec.metadata_path)
+      old_md = MetadataDeserializer.deserialize(file_path: @file_rec.metadata_path,
+              digest_algs: @file_rec.storage_location.metadata_digests)
       # Copy custom properties
       old_md.properties.each { |name, value| md_rec.properties[name] = value }
       # Copy stale-replicas flag per service

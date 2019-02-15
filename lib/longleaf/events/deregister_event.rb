@@ -38,7 +38,9 @@ module Longleaf
         md_rec.deregistered = Time.now.utc.iso8601
         
         # persist the metadata out to file
-        MetadataSerializer::write(metadata: md_rec, file_path: @file_rec.metadata_path)
+        MetadataSerializer::write(metadata: md_rec,
+            file_path: @file_rec.metadata_path,
+            digest_algs: @file_rec.storage_location.metadata_digests)
         
         record_success(EventNames::DEREGISTER, @file_rec.path)
       rescue DeregistrationError => err

@@ -7,5 +7,6 @@ module Longleaf
     
     LOCATION_PATH = 'path'
     METADATA_PATH = 'metadata_path'
+    METADATA_DIGESTS = 'metadata_digests'
   end
 end

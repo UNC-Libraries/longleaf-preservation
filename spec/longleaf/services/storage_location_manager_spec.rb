@@ -66,6 +66,30 @@ describe Longleaf::StorageLocationManager do
         expect(location.metadata_path).to eq '/metadata/path2/'
       end
     end
+    
+    context 'with a metadata digest' do
+      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', md_digests: 'sha1').get }
+      let(:manager) { build(:storage_location_manager, config: config) }
+      
+      it 'returns location containing digests' do
+        location = manager.locations['loc1']
+        
+        expect(location.name).to eq 'loc1'
+        expect(location.metadata_digests).to contain_exactly('sha1')
+      end
+    end
+    
+    context 'with multiple metadata digests' do
+      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', md_digests: ['sha1', 'sha256']).get }
+      let(:manager) { build(:storage_location_manager, config: config) }
+      
+      it 'returns location containing digests' do
+        location = manager.locations['loc1']
+        
+        expect(location.name).to eq 'loc1'
+        expect(location.metadata_digests).to contain_exactly('sha1', 'sha256')
+      end
+    end
   end
   
   describe '.get_location_by_path' do

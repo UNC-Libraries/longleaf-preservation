@@ -1,11 +1,15 @@
 require 'yaml'
 require 'longleaf/models/metadata_record'
 require 'longleaf/models/md_fields'
+require 'longleaf/helpers/digest_helper'
+require 'longleaf/errors'
+require 'longleaf/logging'
 require 'pathname'
 
 module Longleaf
   # Service which serializes MetadataRecord objects
   class MetadataSerializer
+    extend Longleaf::Logging
     MDF ||= MDFields
     
     # Serialize the contents of the provided metadata record to the specified path
@@ -13,7 +17,9 @@ module Longleaf
     # @param metadata [MetadataRecord] metadata record to serialize. Required.
     # @param file_path [String] path to write the file to. Required.
     # @param format [String] format to serialize the metadata in. Default is 'yaml'.
-    def self.write(metadata:, file_path:, format: 'yaml')
+    # @param digest_algs [Array] if provided, sidecar digest files for the metadata file
+    #    will be generated for each algorithm.
+    def self.write(metadata:, file_path:, format: 'yaml', digest_algs: [])
       raise ArgumentError.new('metadata parameter must be a MetadataRecord') \
           unless metadata.class == MetadataRecord
       
@@ -29,6 +35,7 @@ module Longleaf
       parent_dir.mkpath unless parent_dir.exist?
       
       File.write(file_path, content)
+      write_digests(file_path, content, digest_algs)
     end
     
     # @param metadata [MetadataRecord] metadata record to transform
@@ -75,6 +82,25 @@ module Longleaf
         '-llmd.yaml'
       else
         raise ArgumentError.new('Invalid serialization format #{format} specified')
+      end
+    end
+    
+    private
+    def self.write_digests(file_path, content, digests)
+      return if digests.nil? || digests.empty?
+      
+      digests.each do |alg|
+        digest_class = DigestHelper::start_digest(alg)
+        result = digest_class.hexdigest(content)
+        if file_path.respond_to?(:path)
+          digest_path = "#{file_path.path}.#{alg}"
+        else
+          digest_path = "#{file_path}.#{alg}"
+        end
+        
+        File.write(digest_path, result)
+        
+        self.logger.debug("Generated #{alg} digest for metadata file #{file_path}: #{result}")
       end
     end
   end

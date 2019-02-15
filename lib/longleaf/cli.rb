@@ -4,6 +4,7 @@ require 'longleaf/logging'
 require 'longleaf/errors'
 require 'longleaf/commands/deregister_command'
 require 'longleaf/commands/validate_config_command'
+require 'longleaf/commands/validate_metadata_command'
 require 'longleaf/commands/register_command'
 require 'longleaf/commands/preserve_command'
 require 'longleaf/candidates/file_selector'
@@ -114,6 +115,23 @@ module Longleaf
       setup_logger(options)
       
       exit Longleaf::ValidateConfigCommand.new(options[:config]).execute
+    end
+    
+    desc "validate_metadata", "Validate metadata files."
+    method_option(:file, :aliases => "-f", 
+        :required => false,
+        :desc => 'File or files of which to validate the metadata. Paths must be absolute. If multiple files are provided, they must be comma separated.')
+    method_option(:location, :aliases => "-s",
+        :required => false,
+        :desc => 'Name or comma separated names of storage locations to validate.')
+    # File metadata validation command
+    def validate_metadata
+      setup_logger(options)
+      
+      app_config_manager = load_application_config(options[:config])
+      file_selector = create_file_selector(options[:file], options[:location], app_config_manager)
+      
+      exit Longleaf::ValidateMetadataCommand.new(app_config_manager).execute(file_selector: file_selector)
     end
     
     no_commands do
