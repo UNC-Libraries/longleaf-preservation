@@ -60,7 +60,7 @@ describe 'register', :type => :aruba do
         .with_service(name: 'serv1')
         .map_services('loc1', 'serv1')
         .write_to_yaml_file }
-    let(:file_path) { create_test_file(dir: path_dir) }
+    let!(:file_path) { create_test_file(dir: path_dir) }
     
     context 'empty file path' do
       before do
@@ -147,6 +147,22 @@ describe 'register', :type => :aruba do
       
       before do
         run_simple("longleaf register -c #{config_path} -f '#{file_path},#{file_path2}'")
+      end
+
+      it 'registers both files' do
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
+        expect(metadata_created(file_path, md_dir)).to be true
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
+        expect(metadata_created(file_path2, md_dir)).to be true
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+    
+    context 'register directory of files' do
+      let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
+      
+      before do
+        run_simple("longleaf register -c #{config_path} -f '#{path_dir}/' --log_level DEBUG", fail_on_error: false)
       end
 
       it 'registers both files' do

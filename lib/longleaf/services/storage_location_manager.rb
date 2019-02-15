@@ -18,7 +18,11 @@ module Longleaf
       config[AF::LOCATIONS].each do |name, properties|
         path = properties[AF::LOCATION_PATH]
         md_path = properties[AF::METADATA_PATH]
-        location = Longleaf::StorageLocation.new(name: name, path: path, metadata_path: md_path)
+        md_digests = properties[AF::METADATA_DIGESTS]
+        location = Longleaf::StorageLocation.new(name: name,
+            path: path,
+            metadata_path: md_path,
+            metadata_digests: md_digests)
         
         @locations[name] = location
       end

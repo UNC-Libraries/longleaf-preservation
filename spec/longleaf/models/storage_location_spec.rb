@@ -30,6 +30,50 @@ describe Longleaf::StorageLocation do
     
     it { expect(location.metadata_path).to eq '/metadata/path/' }
   end
+  
+  describe '.metadata_digests' do
+    context 'with nil digests' do
+      let(:location) { build(:storage_location, metadata_digests: []) }
+      
+      it { expect(location.metadata_digests).to eq [] }
+    end
+    
+    context 'with no digests' do
+      let(:location) { build(:storage_location, metadata_digests: []) }
+      
+      it { expect(location.metadata_digests).to eq [] }
+    end
+    
+    context 'with string digest' do
+      let(:location) { build(:storage_location, metadata_digests: 'sha1') }
+      
+      it { expect(location.metadata_digests).to contain_exactly('sha1') }
+    end
+    
+    context 'with array digest' do
+      let(:location) { build(:storage_location, metadata_digests: ['sha1']) }
+      
+      it { expect(location.metadata_digests).to contain_exactly('sha1') }
+    end
+    
+    context 'with non-normalized case array digest' do
+      let(:location) { build(:storage_location, metadata_digests: ['SHA1', 'Sha512']) }
+      
+      it { expect(location.metadata_digests).to contain_exactly('sha1', 'sha512') }
+    end
+    
+    context 'with multiple digests' do
+      let(:location) { build(:storage_location, metadata_digests: ['sha1', 'sha512']) }
+      
+      it { expect(location.metadata_digests).to contain_exactly('sha1', 'sha512') }
+    end
+    
+    context 'with invalid digest' do
+      let(:location) { build(:storage_location, metadata_digests: ['indigestion']) }
+      
+      it { expect { location.get_metadata_path_for }.to raise_error(Longleaf::InvalidDigestAlgorithmError) }
+    end
+  end
 
   describe '.get_metadata_path_for' do
     let(:location) { build(:storage_location) }

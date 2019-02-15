@@ -52,6 +52,30 @@ describe Longleaf::MetadataSerializer do
         
         expect(md.dig(MDF::SERVICES, :service_2)).to be_empty
       end
+      
+      context 'with digest sha1 algorithm' do
+        it 'generates sha1 digest sidecar' do
+          Longleaf::MetadataSerializer.write(metadata: record, file_path: dest_file, digest_algs: ['sha1'])
+          digest_path = "#{dest_file.path}.sha1"
+
+          expect(File.exist?(digest_path)).to be true
+          expect(IO.read(digest_path)).to eq '6753092318f5945c374e14105d53f958b13598f1'
+        end
+      end
+      
+      context 'with multiple digest algorithms' do
+        it 'generates digest sidecar files' do
+          Longleaf::MetadataSerializer.write(metadata: record, file_path: dest_file, digest_algs: ['md5', 'sha512'])
+          digest_path_md5 = "#{dest_file.path}.md5"
+          digest_path_sha512 = "#{dest_file.path}.sha512"
+
+          expect(File.exist?(digest_path_md5)).to be true
+          expect(IO.read(digest_path_md5)).to eq '88f5a63b344a63a071b71850df2aca88'
+          
+          expect(File.exist?(digest_path_sha512)).to be true
+          expect(IO.read(digest_path_sha512)).to eq 'c63b348c6cf9ff222ae728879dfa3905d7762126055fc421e1c75c7ca9aa16bc93177034054794338d727a428252befffb7a9ecd410e7da0edff2e4ec09ace83'
+        end
+      end
     end
     
     context 'with missing parents' do
