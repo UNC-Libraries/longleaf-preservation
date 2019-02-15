@@ -20,14 +20,15 @@ module Longleaf
       @name = name
       @metadata_path = metadata_path
       @metadata_path += '/' unless @metadata_path.end_with?('/')
-      DigestHelper::validate_algorithms(metadata_digests)
+      
       if metadata_digests.nil?
         @metadata_digests = []
       elsif metadata_digests.is_a?(String)
-        @metadata_digests = [metadata_digests]
+        @metadata_digests = [metadata_digests.downcase]
       else
-        @metadata_digests = metadata_digests
+        @metadata_digests = metadata_digests.map(&:downcase)
       end
+      DigestHelper::validate_algorithms(@metadata_digests)
     end
     
     # Get the path for the metadata file for the given file path located in this storage location.

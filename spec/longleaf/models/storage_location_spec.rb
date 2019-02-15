@@ -56,6 +56,12 @@ describe Longleaf::StorageLocation do
       it { expect(location.metadata_digests).to contain_exactly('sha1') }
     end
     
+    context 'with non-normalized case array digest' do
+      let(:location) { build(:storage_location, metadata_digests: ['SHA1', 'Sha512']) }
+      
+      it { expect(location.metadata_digests).to contain_exactly('sha1', 'sha512') }
+    end
+    
     context 'with multiple digests' do
       let(:location) { build(:storage_location, metadata_digests: ['sha1', 'sha512']) }
       
