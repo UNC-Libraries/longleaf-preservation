@@ -31,4 +31,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.6.0"
   spec.add_development_dependency "factory_bot", "~> 4.0"
   spec.add_development_dependency "aruba", "~> 0.14.0"
+  spec.add_development_dependency "bixby", ">= 2.0.0.pre.beta1"
 end
