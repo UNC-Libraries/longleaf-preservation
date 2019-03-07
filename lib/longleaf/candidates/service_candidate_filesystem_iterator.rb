@@ -70,6 +70,7 @@ module Longleaf
       
       # File is not a valid candidate for services if it is deregistered, unless performing cleanup
       if @event != EventNames::CLEANUP && md_rec.deregistered?
+        logger.debug("Skipping deregistered file: #{file_rec.path}")
         return false
       end
       
@@ -79,15 +80,18 @@ module Longleaf
       
       # When in force mode, candidate needs a run as long as there are any services configured for it.
       if @force && expected_services.length > 0
+        logger.debug("Forcing run needed for file: #{file_rec.path}")
         return true
       end
           
       expected_services.each do |service_name|
         if service_manager.service_needed?(service_name, md_rec)
+          logger.debug("Service #{service_name} needed for file: #{file_rec.path}")
           return true
         end
       end
       
+      logger.debug("Run not needed for file: #{file_rec.path}")
       # No services needed to be run for this file
       false
     end
