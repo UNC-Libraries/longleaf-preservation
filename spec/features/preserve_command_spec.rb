@@ -166,7 +166,7 @@ describe 'preserve', :type => :aruba do
     let!(:fail_script) { create_work_class(lib_dir, 'PresService', 'pres_service.rb',
         perform: "raise Longleaf::PreservationServiceError.new") }
 
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: fail_script, frequency: '1 year')
         .map_services('loc1', 'serv1')
@@ -187,7 +187,7 @@ describe 'preserve', :type => :aruba do
   context 'storage location with multiple files' do
     let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb') }
 
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: work_script_file, frequency: '1 hour')
         .map_services('loc1', 'serv1')
@@ -284,7 +284,7 @@ describe 'preserve', :type => :aruba do
     let!(:work_script_file2) { create_work_class(lib_dir, 'PresService2', 'pres_service2.rb') }
     let!(:work_script_file3) { create_work_class(lib_dir, 'PresService3', 'pres_service3.rb') }
 
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: work_script_file1, frequency: '1 hour')
         .with_service(name: 'serv2', work_script: work_script_file2, frequency: '1 hour')
@@ -369,7 +369,7 @@ describe 'preserve', :type => :aruba do
         update_timestamp(file_path, config_path, 'serv2')
         update_timestamp(file_path, config_path, 'serv3')
 
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path} --log_level 'DEBUG'", fail_on_error: false)
       end
 
       it 'indicates that no services ran' do

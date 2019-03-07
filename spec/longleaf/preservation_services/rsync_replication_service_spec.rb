@@ -11,7 +11,7 @@ describe Longleaf::RsyncReplicationService do
   
   RsyncService ||= Longleaf::RsyncReplicationService
   ConfigBuilder ||= Longleaf::ConfigBuilder
-  REPLICATE_EVENT ||= Longleaf::EventNames::REPLICATE
+  PRESERVE_EVENT ||= Longleaf::EventNames::PRESERVE
   
   let(:md_src_dir) { Dir.mktmpdir('metadata') }
   let(:path_src_dir) { Dir.mktmpdir('path') }
@@ -106,7 +106,7 @@ describe Longleaf::RsyncReplicationService do
     let(:service) { RsyncService.new(service_def, app_manager) }
 
     it "returns true for replicate event" do
-      expect(service.is_applicable?(Longleaf::EventNames::REPLICATE)).to be true
+      expect(service.is_applicable?(Longleaf::EventNames::PRESERVE)).to be true
     end
 
     it "returns false for non-verify event" do
@@ -131,7 +131,7 @@ describe Longleaf::RsyncReplicationService do
         original_file = create_test_file(dir: path_src_dir)
         file_rec = make_file_record(original_file, md_rec, "source_loc", app_manager)
         
-        service.perform(file_rec, REPLICATE_EVENT)
+        service.perform(file_rec, PRESERVE_EVENT)
         
         replica_path = File.join(path_dest_dir, File.basename(original_file))
         
@@ -151,7 +151,7 @@ describe Longleaf::RsyncReplicationService do
         original_file = create_test_file(dir: original_path)
         file_rec = make_file_record(original_file, md_rec, "source_loc", app_manager)
         
-        service.perform(file_rec, REPLICATE_EVENT)
+        service.perform(file_rec, PRESERVE_EVENT)
         
         replica_path = File.join(path_dest_dir, "nested/path/to/", File.basename(original_file))
         
@@ -170,7 +170,7 @@ describe Longleaf::RsyncReplicationService do
         # Remove the destination so that is is "unavailable"
         FileUtils.rmdir(path_dest_dir)
         
-        expect { service.perform(file_rec, REPLICATE_EVENT) }.to raise_error(Longleaf::StorageLocationUnavailableError)
+        expect { service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(Longleaf::StorageLocationUnavailableError)
       end
       
       context 'with additional rsync options' do
@@ -181,7 +181,7 @@ describe Longleaf::RsyncReplicationService do
           original_file = create_test_file(dir: path_src_dir)
           file_rec = make_file_record(original_file, md_rec, "source_loc", app_manager)
           
-          service.perform(file_rec, REPLICATE_EVENT)
+          service.perform(file_rec, PRESERVE_EVENT)
         
           replica_path = File.join(path_dest_dir, File.basename(original_file))
         
@@ -198,7 +198,7 @@ describe Longleaf::RsyncReplicationService do
           original_file = create_test_file(dir: path_src_dir)
           file_rec = make_file_record(original_file, md_rec, "source_loc", app_manager)
         
-          expect { service.perform(file_rec, REPLICATE_EVENT) }.to raise_error(Longleaf::PreservationServiceError)
+          expect { service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(Longleaf::PreservationServiceError)
         end
       end
     end
@@ -213,7 +213,7 @@ describe Longleaf::RsyncReplicationService do
         original_file = create_test_file(dir: path_src_dir)
         file_rec = make_file_record(original_file, md_rec, "source_loc", app_manager)
         
-        service.perform(file_rec, REPLICATE_EVENT)
+        service.perform(file_rec, PRESERVE_EVENT)
         
         replica_path = File.join(dest_dir, File.basename(original_file))
         
@@ -227,7 +227,7 @@ describe Longleaf::RsyncReplicationService do
         original_file = create_test_file(dir: original_path)
         file_rec = make_file_record(original_file, md_rec, "source_loc", app_manager)
         
-        service.perform(file_rec, REPLICATE_EVENT)
+        service.perform(file_rec, PRESERVE_EVENT)
         
         replica_path = File.join(dest_dir, "nested/path/to/", File.basename(original_file))
          
@@ -241,7 +241,7 @@ describe Longleaf::RsyncReplicationService do
         
         FileUtils.rmdir(dest_dir)
         
-        expect { service.perform(file_rec, REPLICATE_EVENT) }.to raise_error(Longleaf::StorageLocationUnavailableError)
+        expect { service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(Longleaf::StorageLocationUnavailableError)
       end
     end
     
@@ -255,7 +255,7 @@ describe Longleaf::RsyncReplicationService do
         original_file = create_test_file(dir: path_src_dir)
         file_rec = make_file_record(original_file, md_rec, "source_loc", app_manager)
         
-        service.perform(file_rec, REPLICATE_EVENT)
+        service.perform(file_rec, PRESERVE_EVENT)
         
         replica_path = File.join(path_dest_dir, File.basename(original_file))
         
