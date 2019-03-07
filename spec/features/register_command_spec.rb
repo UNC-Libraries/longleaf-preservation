@@ -36,7 +36,7 @@ describe 'register', :type => :aruba do
   end
   
   context 'invalid storage location' do
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: nil, md_path: md_dir)
         .with_services
         .with_mappings
@@ -55,7 +55,7 @@ describe 'register', :type => :aruba do
   end
   
   context 'with valid configuration' do
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1')
         .map_services('loc1', 'serv1')

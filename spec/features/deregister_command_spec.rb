@@ -20,7 +20,7 @@ describe 'deregister', :type => :aruba do
   end
   
   context 'with valid configuration' do
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1')
         .map_services('loc1', 'serv1')

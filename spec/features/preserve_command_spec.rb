@@ -166,7 +166,7 @@ describe 'preserve', :type => :aruba do
     let!(:fail_script) { create_work_class(lib_dir, 'PresService', 'pres_service.rb',
         perform: "raise Longleaf::PreservationServiceError.new") }
 
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: fail_script, frequency: '1 year')
         .map_services('loc1', 'serv1')
@@ -187,7 +187,7 @@ describe 'preserve', :type => :aruba do
   context 'storage location with multiple files' do
     let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb') }
 
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: work_script_file, frequency: '1 hour')
         .map_services('loc1', 'serv1')

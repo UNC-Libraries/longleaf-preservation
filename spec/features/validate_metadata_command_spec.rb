@@ -19,7 +19,7 @@ describe 'validate_metadata', :type => :aruba do
   end
   
   context 'location with one digest configured' do
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir, md_digests: ['sha1'])
         .with_service(name: 'serv1')
         .map_services('loc1', 'serv1')
@@ -112,7 +112,7 @@ describe 'validate_metadata', :type => :aruba do
   end
   
   context 'location with no digests configured' do
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1')
         .map_services('loc1', 'serv1')
@@ -158,7 +158,7 @@ describe 'validate_metadata', :type => :aruba do
   end
   
   context 'location with multiple digests configured' do
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir, md_digests: ['sha1', 'sha512'])
         .with_service(name: 'serv1')
         .map_services('loc1', 'serv1')

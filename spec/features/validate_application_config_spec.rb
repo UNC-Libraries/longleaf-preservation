@@ -31,7 +31,7 @@ describe 'validate_config', :type => :aruba do
   
   context 'invalid storage location' do
     let(:md_dir) { Dir.mktmpdir('metadata') }
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: nil, md_path: md_dir)
         .with_services
         .with_mappings
@@ -56,7 +56,7 @@ describe 'validate_config', :type => :aruba do
   context 'unavailable storage location' do
     let(:path_dir) { FileUtils.rmdir(Dir.mktmpdir('path'))[0] }
     let(:md_dir) { Dir.mktmpdir('metadata') }
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_services
         .with_mappings
@@ -80,7 +80,7 @@ describe 'validate_config', :type => :aruba do
   context 'valid storage location' do
     let(:path_dir) { Dir.mktmpdir('path') }
     let(:md_dir) { Dir.mktmpdir('metadata') }
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_services
         .with_mappings
@@ -104,7 +104,7 @@ describe 'validate_config', :type => :aruba do
     let(:path_dir1) { Dir.mktmpdir('path') }
     let(:md_dir1) { Dir.mktmpdir('metadata') }
     let(:md_dir2) { Dir.mktmpdir('metadata') }
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
         .with_location(name: 'loc2', path: path_dir1, md_path: md_dir2)
         .with_services
@@ -129,7 +129,7 @@ describe 'validate_config', :type => :aruba do
   context 'invalid service definition' do
     let(:path_dir) { Dir.mktmpdir('path') }
     let(:md_dir) { Dir.mktmpdir('metadata') }
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: nil)
         .with_mappings
@@ -151,7 +151,7 @@ describe 'validate_config', :type => :aruba do
   end
   
   context 'valid service definition' do
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_locations
         .with_service(name: 'serv1', work_script: 'preserve.rb')
         .with_mappings
@@ -167,7 +167,7 @@ describe 'validate_config', :type => :aruba do
   context 'valid service mapping' do
     let(:path_dir) { Dir.mktmpdir('path') }
     let(:md_dir) { Dir.mktmpdir('metadata') }
-    let(:config_path) { ConfigBuilder.new
+    let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: 'preserve.rb')
         .map_services('loc1', 'serv1')
