@@ -4,6 +4,9 @@ require 'longleaf/services/service_class_cache'
 module Longleaf
   # Manager which provides preservation service definitions based on their mappings
   class ServiceManager
+    attr_reader :definition_manager
+    attr_reader :mapping_manager
+    
     # @param definition_manager [ServiceDefinitionManager] the service definition manager
     # @param mapping_manager [ServiceMappingManager] the mapping of services to locations
     # @param app_manager [ApplicationConfigManager] manager for storage locations
@@ -15,6 +18,16 @@ module Longleaf
       @mapping_manager = mapping_manager
       @app_manager = app_manager
       @service_class_cache = ServiceClassCache.new(app_manager)
+    end
+    
+    # Return a service instance instance for provided service name.
+    # @param service_name [String] name of the service
+    # @return Preservation service class for the provided name, or nil if not found.
+    def service(service_name)
+      raise ArgumentError.new('Service name is required') if service_name.nil? || service_name.empty?
+      definition = @definition_manager.services[service_name]
+      return nil if definition.nil?
+      @service_class_cache.service_instance(definition)
     end
     
     # List the names of services which are applicable to the given criteria
@@ -36,10 +49,7 @@ module Longleaf
     # @param event [String] name of the event to check against
     # @return [Boolean] true if the service is applicable for the event
     def applicable_for_event?(service_name, event)
-      definition = @definition_manager.services[service_name]
-      service = @service_class_cache.service_instance(definition)
-      
-      service.is_applicable?(event)
+      service(service_name).is_applicable?(event)
     end
     
     # Determine if a service should run for a particular file based on the service's definition and
