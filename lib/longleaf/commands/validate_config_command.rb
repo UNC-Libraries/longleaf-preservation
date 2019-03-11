@@ -20,6 +20,8 @@ module Longleaf
           location.available?
         end
         
+        validate_services(app_config_manager.service_manager)
+        
         record_success("Application configuration passed validation: #{@config_path}")
       rescue Longleaf::ConfigurationError, Longleaf::StorageLocationUnavailableError => err
         record_failure("Application configuration invalid due to the following issue:\n#{err.message}")
@@ -28,6 +30,22 @@ module Longleaf
       end
       
       return_status
+    end
+    
+    private
+    # Verify that all defined services are valid and may be instantiated with the given configuration,
+    # according to internal expectations.
+    # @raise ConfigurationError if any services may not be instantiated
+    def validate_services(service_manager)
+      def_manager = service_manager.definition_manager
+      
+      def_manager.services.each do |service_name, service_def|
+        begin
+          service_manager.service(service_name)
+        rescue => e
+          raise ConfigurationError.new(e.message)
+        end
+      end
     end
   end
 end

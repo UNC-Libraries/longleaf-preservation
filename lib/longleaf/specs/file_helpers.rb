@@ -35,15 +35,15 @@ module Longleaf
       end
     end
     
-    def create_work_class(lib_dir, class_name, file_name, module_name = nil, is_applicable: true, perform: "")
-      FileHelpers.create_work_class(lib_dir, class_name, file_name, module_name, is_applicable: is_applicable,
-         perform: perform)
+    def create_work_class(lib_dir, class_name, file_name, module_name = nil, is_applicable: true, init_body: "", perform: "")
+      FileHelpers.create_work_class(lib_dir, class_name, file_name, module_name, is_applicable, init_body, perform)
     end
     
-    def self.create_work_class(lib_dir, class_name, file_name, module_name = nil, is_applicable: true, perform: "")
+    def self.create_work_class(lib_dir, class_name, file_name, module_name, is_applicable, init_body, perform)
       class_contents = %Q(
         class #{class_name}
           def initialize(service_def, app_manager)
+            #{init_body}
           end
           def perform(file_rec, event)
             #{perform}

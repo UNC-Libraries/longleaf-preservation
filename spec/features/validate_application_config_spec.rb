@@ -1,12 +1,21 @@
 require 'spec_helper'
 require 'aruba/rspec'
 require 'longleaf/specs/config_builder'
+require 'longleaf/specs/file_helpers'
 require 'tempfile'
 require 'yaml'
 require 'fileutils'
 
 describe 'validate_config', :type => :aruba do
+  include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
+  
+  let(:lib_dir) { make_test_dir(name: 'lib_dir') }
+  let!(:work_script_file) { create_work_class(lib_dir, 'Preserve', 'preserve.rb') }
+  
+  after(:each) do
+    FileUtils.rm_rf(lib_dir)
+  end
   
   context 'no config path' do
     before { run_simple('longleaf validate_config', fail_on_error: false) }
@@ -150,15 +159,41 @@ describe 'validate_config', :type => :aruba do
     end
   end
   
-  context 'valid service definition' do
+  context 'uninitializable service definition' do
+    let(:path_dir) { Dir.mktmpdir('path') }
+    let(:md_dir) { Dir.mktmpdir('metadata') }
+    let!(:work_script_file) { create_work_class(lib_dir, 'Preserve', 'preserve.rb',
+        init_body: 'raise ArgumentError.new("Bad config")') }
     let!(:config_path) { ConfigBuilder.new
-        .with_locations
-        .with_service(name: 'serv1', work_script: 'preserve.rb')
+        .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+        .with_service(name: 'serv1', work_script: work_script_file)
         .with_mappings
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
+      run_simple("longleaf validate_config -c #{config_path} -I #{lib_dir}", fail_on_error: false)
+    end
+    
+    after do
+      FileUtils.rmdir([md_dir, path_dir])
+    end
+    
+    it 'outputs missing field error' do
+      expect(last_command_started).to have_output(/Application configuration invalid/)
+      expect(last_command_started).to have_output(/Bad config/)
+      expect(last_command_started).to have_exit_status(1)
+    end
+  end
+  
+  context 'valid service definition' do
+    let!(:config_path) { ConfigBuilder.new
+        .with_locations
+        .with_service(name: 'serv1', work_script: work_script_file)
+        .with_mappings
+        .write_to_yaml_file }
+    
+    before do
+      run_simple("longleaf validate_config -c #{config_path} -I #{lib_dir}", fail_on_error: false)
     end
     
     it { expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/) }
@@ -169,12 +204,12 @@ describe 'validate_config', :type => :aruba do
     let(:md_dir) { Dir.mktmpdir('metadata') }
     let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
-        .with_service(name: 'serv1', work_script: 'preserve.rb')
+        .with_service(name: 'serv1', work_script: work_script_file)
         .map_services('loc1', 'serv1')
         .write_to_yaml_file }
     
     before do
-      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
+      run_simple("longleaf validate_config -c #{config_path} -I #{lib_dir}", fail_on_error: false)
     end
     
     after do
