@@ -163,7 +163,7 @@ describe 'validate_config', :type => :aruba do
     let(:path_dir) { Dir.mktmpdir('path') }
     let(:md_dir) { Dir.mktmpdir('metadata') }
     let!(:work_script_file) { create_work_class(lib_dir, 'Preserve', 'preserve.rb',
-        init_body: 'raise ArgumentError.new("Bad config")') }
+        init_body: 'raise ArgumentError.new("Service configuration missing option required by service class")') }
     let!(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: work_script_file)
@@ -180,7 +180,7 @@ describe 'validate_config', :type => :aruba do
     
     it 'outputs missing field error' do
       expect(last_command_started).to have_output(/Application configuration invalid/)
-      expect(last_command_started).to have_output(/Bad config/)
+      expect(last_command_started).to have_output(/Service configuration missing option required by service class/)
       expect(last_command_started).to have_exit_status(1)
     end
   end

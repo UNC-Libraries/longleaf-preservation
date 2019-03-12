@@ -22,11 +22,12 @@ module Longleaf
     
     # Return a service instance instance for provided service name.
     # @param service_name [String] name of the service
-    # @return Preservation service class for the provided name, or nil if not found.
+    # @return Preservation service class for the provided name
+    # @raise ArgumentError if service_name does not reference an existing service
     def service(service_name)
       raise ArgumentError.new('Service name is required') if service_name.nil? || service_name.empty?
+      raise ArgumentError.new("No service with name #{service_name}") unless @definition_manager.services.key?(service_name)
       definition = @definition_manager.services[service_name]
-      return nil if definition.nil?
       @service_class_cache.service_instance(definition)
     end
     

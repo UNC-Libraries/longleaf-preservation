@@ -50,8 +50,8 @@ describe Longleaf::ServiceManager do
       expect(manager.service('serv2').class.name).to eq 'PresService2'
     end
     
-    it 'returns nil when no matching service name' do
-      expect(manager.service('whoa_serv')).to be_nil
+    it 'raises ArgumentError when no matching service name' do
+      expect { manager.service('whoa_serv') }.to raise_error(ArgumentError)
     end
     
     it 'raises ArgumentError if no service name provided' do
