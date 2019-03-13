@@ -22,6 +22,43 @@ describe Longleaf::ServiceManager do
     end
   end
   
+  describe '.service' do
+    let(:md_dir) { Dir.mktmpdir('metadata') }
+    let(:path_dir) { Dir.mktmpdir('path') }
+    let(:lib_dir) { make_test_dir(name: 'lib_dir') }
+    
+    let!(:work_script_file1) { create_work_class(lib_dir, 'PresService1', 'pres_service1.rb') }
+    let!(:work_script_file2) { create_work_class(lib_dir, 'PresService2', 'pres_service2.rb') }
+
+    before { $LOAD_PATH.unshift(lib_dir) }
+    
+    let(:config) { ConfigBuilder.new
+        .with_service(name: 'serv1', work_script: work_script_file1)
+        .with_service(name: 'serv2', work_script: work_script_file2)
+        .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+        .map_services('loc1', ['serv1', 'serv2'])
+        .get }
+    let(:manager) { build(:service_manager, config: config, app_manager: app_manager) }
+    
+    after(:each) do
+      $LOAD_PATH.delete(lib_dir)
+      FileUtils.rm_rf([md_dir, path_dir, lib_dir])
+    end
+    
+    it 'returns service matching provided name' do
+      expect(manager.service('serv1').class.name).to eq 'PresService1'
+      expect(manager.service('serv2').class.name).to eq 'PresService2'
+    end
+    
+    it 'raises ArgumentError when no matching service name' do
+      expect { manager.service('whoa_serv') }.to raise_error(ArgumentError)
+    end
+    
+    it 'raises ArgumentError if no service name provided' do
+      expect { manager.service(nil) }.to raise_error(ArgumentError)
+    end
+  end
+  
   describe '.list_services' do
     context 'with empty sections' do
       let(:config) { ConfigBuilder.new

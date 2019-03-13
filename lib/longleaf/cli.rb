@@ -113,6 +113,7 @@ module Longleaf
     # Application configuration validation command
     def validate_config
       setup_logger(options)
+      extend_load_path(options[:load_path])
       
       exit Longleaf::ValidateConfigCommand.new(options[:config]).execute
     end
