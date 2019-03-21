@@ -160,7 +160,7 @@ describe Longleaf::FixityCheckService do
       end
       
       context 'file has no checksums' do
-        let(:md_rec) { build(:metadata_record) }
+        let(:md_rec) { build(:metadata_record, checksums: nil) }
         let(:file_rec) { make_file_record(file_path, md_rec) }
         
         it "metadata updated with missing checksum" do
