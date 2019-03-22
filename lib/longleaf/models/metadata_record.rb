@@ -17,13 +17,13 @@ module Longleaf
     # @param checksums [Hash] hash of checksum values
     # @param file_size [Integer] size of file in bytes
     # @param last_modified [String] iso8601 representation of the last modified date of file
-    def initialize(properties: Hash.new, services: Hash.new, deregistered: nil, registered: nil, checksums: Hash.new,
+    def initialize(properties: nil, services: nil, deregistered: nil, registered: nil, checksums: nil,
           file_size: nil, last_modified: nil)
-      @properties = properties
+      @properties = properties || Hash.new
       @registered = registered
       @deregistered = deregistered
-      @checksums = checksums
-      @services = services
+      @checksums = checksums || Hash.new
+      @services = services || Hash.new
       @file_size = file_size
       @last_modified = last_modified
     end
