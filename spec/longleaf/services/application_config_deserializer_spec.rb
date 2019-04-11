@@ -10,7 +10,7 @@ describe Longleaf::ApplicationConfigDeserializer do
   AppDeserializer ||= Longleaf::ApplicationConfigDeserializer
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
-  describe '#load' do
+  describe '#deserialize' do
     context 'invalid file contents' do
       let(:config_path) {
         Tempfile.open('config') do |f|
@@ -19,7 +19,7 @@ describe Longleaf::ApplicationConfigDeserializer do
         end
       }
       
-      it { expect { AppDeserializer::load(config_path) }.to raise_error(Longleaf::ConfigurationError) }
+      it { expect { AppDeserializer::deserialize(config_path) }.to raise_error(Longleaf::ConfigurationError) }
     end
     
     context 'config file does not exist' do
@@ -30,23 +30,10 @@ describe Longleaf::ApplicationConfigDeserializer do
         config_path
       }
       
-      it { expect { AppDeserializer::load(config_path) }.to raise_error(Longleaf::ConfigurationError,
+      it { expect { AppDeserializer::deserialize(config_path) }.to raise_error(Longleaf::ConfigurationError,
           /Configuration file .* does not exist/) }
     end
     
-    context 'minimal configuration' do
-      let(:config_path) { ConfigBuilder.new
-          .with_services
-          .with_locations
-          .with_services
-          .write_to_yaml_file }
-      
-      it { expect { AppDeserializer::load(config_path) }.to_not raise_error }
-    end
-    
-  end
-  
-  describe '#deserialize' do
     context 'invalid configuration' do
       let(:config_path) { ConfigBuilder.new
           .with_services
@@ -70,6 +57,8 @@ describe Longleaf::ApplicationConfigDeserializer do
           .map_services('loc1', 'serv1')
           .write_to_yaml_file }
       
+      let(:config_md5) { Digest::MD5.file(config_path).hexdigest }
+      
       after(:each) do
         FileUtils.rmdir([md_dir, path_dir])
       end
@@ -78,6 +67,7 @@ describe Longleaf::ApplicationConfigDeserializer do
         result = AppDeserializer::deserialize(config_path)
         expect(result.service_manager).to_not be_nil
         expect(result.location_manager).to_not be_nil
+        expect(result.config_md5).to eq config_md5
       }
     end
   end
