@@ -13,8 +13,9 @@ module Longleaf
     
     # @param file_rec [FileRecord] file record
     # @param app_manager [ApplicationConfigManager] the application configuration
+    # @param md_manager [MetadataPersistenceManager] metadata persister
     # @param force [boolean] if true, then already registered files will be re-registered
-    def initialize(file_rec:, app_manager:, force: false, checksums: nil)
+    def initialize(file_rec:, app_manager:, md_manager:, force: false, checksums: nil)
       raise ArgumentError.new('Must provide a file_rec parameter') if file_rec.nil?
       raise ArgumentError.new('Parameter file_rec must be a FileRecord') \
           unless file_rec.is_a?(FileRecord)
@@ -23,6 +24,7 @@ module Longleaf
           unless app_manager.is_a?(ApplicationConfigManager)
       
       @app_manager = app_manager
+      @md_manager = md_manager
       @file_rec = file_rec
       @force = force
       @checksums = checksums
@@ -52,10 +54,8 @@ module Longleaf
       
         populate_services
       
-        # persist the metadata out to file
-        MetadataSerializer::write(metadata: md_rec,
-            file_path: @file_rec.metadata_path,
-            digest_algs: @file_rec.storage_location.metadata_digests)
+        # persist the metadata
+        @md_manager.persist(@file_rec)
         
         record_success(EventNames::REGISTER, @file_rec.path)
       rescue RegistrationError => err
