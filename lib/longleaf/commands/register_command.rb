@@ -9,8 +9,9 @@ module Longleaf
   class RegisterCommand
     include Longleaf::EventStatusTracking
     
-    def initialize(app_manager)
+    def initialize(app_manager, sys_manager)
       @app_manager = app_manager
+      @sys_manager = sys_manager
     end
 
     # Execute the register command on the given parameters
@@ -29,8 +30,8 @@ module Longleaf
         
           file_rec = FileRecord.new(f_path, storage_location)
           
-          register_event = RegisterEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager,
-              checksums: checksums)
+          register_event = RegisterEvent.new(file_rec: file_rec, force: force, checksums: checksums,
+              app_manager: @app_manager, md_manager: @sys_manager.md_manager)
           track_status(register_event.perform)
         end
       rescue InvalidStoragePathError, StorageLocationUnavailableError => err

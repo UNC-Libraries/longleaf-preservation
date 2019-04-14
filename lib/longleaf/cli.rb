@@ -8,6 +8,7 @@ require 'longleaf/commands/validate_metadata_command'
 require 'longleaf/commands/register_command'
 require 'longleaf/commands/preserve_command'
 require 'longleaf/candidates/file_selector'
+require 'longleaf/services/system_config_deserializer'
 
 module Longleaf
   # Main commandline interface setup for Longleaf using Thor.
@@ -20,6 +21,10 @@ module Longleaf
         :desc => 'Absolute path to the application configuration used for this command. By default, the value of the environment variable LONGLEAF_CFG is used.')
     class_option(:load_path, :aliases => "-I",
         :desc => 'Specify comma seperated directories to add to the $LOAD_PATH, which can be used to specify additional paths from which to load preservation services.')
+    class_option(:system_config, :aliases => "-y",
+        :default => ENV['LONGLEAF_SYSTEM_CFG'],
+        :required => false,
+        :desc => 'Absolute path to the longleaf system configuration used for this command. By default, the value of the environment variable LONGLEAF_SYSTEM_CFG is used.')
     # Logging/output options
     class_option(:failure_only,
         :type => :boolean,
@@ -48,8 +53,9 @@ module Longleaf
     def register
       setup_logger(options)
       
-      config_path = options[:config]
       app_config_manager = load_application_config(options[:config])
+      sys_config_manager = load_system_config(options[:system_config], app_config_manager)
+      
       file_selector = create_file_selector(options[:file], nil, app_config_manager)
       if options[:checksums]
         checksums = options[:checksums]
@@ -63,7 +69,7 @@ module Longleaf
         end
       end
       
-      command = RegisterCommand.new(app_config_manager)
+      command = RegisterCommand.new(app_config_manager, sys_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force], checksums: checksums)
     end
     
@@ -148,6 +154,15 @@ module Longleaf
           app_manager = ApplicationConfigDeserializer.deserialize(config_path)
         rescue ConfigurationError => err
           logger.failure("Failed to load application configuration due to the following issue:\n#{err.message}")
+          exit 1
+        end
+      end
+      
+      def load_system_config(config_path, app_config_manager)
+        begin
+          SystemConfigDeserializer.deserialize(config_path, app_config_manager)
+        rescue ConfigurationError => err
+          logger.failure("Failed to load system configuration due to the following issue:\n#{err.message}")
           exit 1
         end
       end
