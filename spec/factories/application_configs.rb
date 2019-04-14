@@ -5,7 +5,11 @@ FactoryBot.define do
   
   factory(:application_config_manager, class: Longleaf::ApplicationConfigManager) do
     transient do
-      config { {} }
+      config { {
+        'locations' => {},
+        'services' => {},
+        'service_mappings' => {}
+      } }
     end
 
     initialize_with { new(config) }
