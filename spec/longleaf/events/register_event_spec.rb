@@ -16,6 +16,9 @@ describe Longleaf::RegisterEvent do
   include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
+  let(:sys_manager) { build(:system_config_manager) }
+  let(:md_manager) { sys_manager.md_manager }
+  
   describe '.initialize' do
     context 'without a file record' do
       let(:config) { ConfigBuilder.new
@@ -25,18 +28,18 @@ describe Longleaf::RegisterEvent do
           .get }
       let(:app_config) { build(:application_config_manager, config: config) }
       
-      it { expect { Longleaf::RegisterEvent.new(file_rec: nil, app_manager: app_config) }
+      it { expect { Longleaf::RegisterEvent.new(file_rec: nil, app_manager: app_config, md_manager: md_manager) }
           .to raise_error(ArgumentError, /Must provide a file_rec parameter/) }
-      it { expect { Longleaf::RegisterEvent.new(file_rec: 'file', app_manager: app_config) }
+      it { expect { Longleaf::RegisterEvent.new(file_rec: 'file', app_manager: app_config, md_manager: md_manager) }
           .to raise_error(ArgumentError, /Parameter file_rec must be a FileRecord/) }
     end
     
     context 'without an application config manager' do
       let(:file_rec) { build(:file_record) }
     
-      it { expect { Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: nil) }
+      it { expect { Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: nil, md_manager: md_manager) }
           .to raise_error(ArgumentError, /Must provide an ApplicationConfigManager/ ) }
-      it { expect { Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: 'bad') }
+      it { expect { Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: 'bad', md_manager: md_manager) }
           .to raise_error(ArgumentError, /Parameter app_manager must be an ApplicationConfigManager/) }
     end
   end
@@ -62,7 +65,7 @@ describe Longleaf::RegisterEvent do
       let(:storage_location) { app_config.location_manager.get_location_by_path(file_path) }
       let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_location) }
       
-      let(:event) { Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config) }
+      let(:event) { Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, md_manager: md_manager) }
       
       it 'persists valid metadata file' do
         status = event.perform
@@ -81,7 +84,7 @@ describe Longleaf::RegisterEvent do
       it 'raises RegistrationError for already registered file' do
         event.perform
         
-        repeat_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config)
+        repeat_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, md_manager: md_manager)
         status = repeat_event.perform
         expect(status).to eq 1
       end
@@ -97,13 +100,13 @@ describe Longleaf::RegisterEvent do
         end
         
         it 'raises RegistrationError' do
-          repeat_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config)
+          repeat_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, md_manager: md_manager)
           status = repeat_event.perform
           expect(status).to eq 1
         end
         
         it 'succeeds with force flag' do
-          repeat_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, force: true)
+          repeat_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, md_manager: md_manager, force: true)
           status = repeat_event.perform
           expect(status).to eq 0
           
@@ -120,7 +123,7 @@ describe Longleaf::RegisterEvent do
         md_rec.properties['keep_me'] = 'plz'
         update_metadata_record(file_rec.path, md_rec)
         
-        force_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, force: true)
+        force_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, md_manager: md_manager, force: true)
         status = force_event.perform
         expect(status).to eq 0
         
@@ -130,7 +133,7 @@ describe Longleaf::RegisterEvent do
       end
       
       it 'persists valid metadata file with force flag' do
-        force_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, force: true)
+        force_event = Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, md_manager: md_manager, force: true)
         status = force_event.perform
         expect(status).to eq 0
         
@@ -142,6 +145,7 @@ describe Longleaf::RegisterEvent do
       it 'persists metadata with checksums' do
         event = Longleaf::RegisterEvent.new(file_rec: file_rec,
             app_manager: app_config,
+            md_manager: md_manager,
             checksums: { 'md5' => 'digestvalue',
               'sha1' => 'shadigest' } )
         status = event.perform
@@ -169,7 +173,7 @@ describe Longleaf::RegisterEvent do
       let(:storage_location) { app_config.location_manager.get_location_by_path(file_path) }
       let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_location) }
       
-      let(:event) { Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config) }
+      let(:event) { Longleaf::RegisterEvent.new(file_rec: file_rec, app_manager: app_config, md_manager: md_manager) }
       
       it 'persists metadata file with no services' do
         status = event.perform
