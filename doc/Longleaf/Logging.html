@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Longleaf::Logging
+  
+    &mdash; Documentation by YARD 0.9.19
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "Longleaf::Logging";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Longleaf.html" title="Longleaf (module)">Longleaf</a></span></span>
+     &raquo; 
+    <span class="title">Logging</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Longleaf::Logging
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="CLI.html" title="Longleaf::CLI (class)">CLI</a></span>, <span class='object_link'><a href="EventStatusTracking.html" title="Longleaf::EventStatusTracking (module)">EventStatusTracking</a></span>, <span class='object_link'><a href="FileSelector.html" title="Longleaf::FileSelector (class)">FileSelector</a></span>, <span class='object_link'><a href="FixityCheckService.html" title="Longleaf::FixityCheckService (class)">FixityCheckService</a></span>, <span class='object_link'><a href="MetadataDeserializer.html" title="Longleaf::MetadataDeserializer (class)">MetadataDeserializer</a></span>, <span class='object_link'><a href="MetadataSerializer.html" title="Longleaf::MetadataSerializer (class)">MetadataSerializer</a></span>, <span class='object_link'><a href="PreserveCommand.html" title="Longleaf::PreserveCommand (class)">PreserveCommand</a></span>, <span class='object_link'><a href="PreserveEvent.html" title="Longleaf::PreserveEvent (class)">PreserveEvent</a></span>, <span class='object_link'><a href="RsyncReplicationService.html" title="Longleaf::RsyncReplicationService (class)">RsyncReplicationService</a></span>, <span class='object_link'><a href="ServiceCandidateFilesystemIterator.html" title="Longleaf::ServiceCandidateFilesystemIterator (class)">ServiceCandidateFilesystemIterator</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/longleaf/logging.rb<span class="defines">,<br />
+  lib/longleaf/logging/redirecting_logger.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Module for access logging within longleaf</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Logging/RedirectingLogger.html" title="Longleaf::Logging::RedirectingLogger (class)">RedirectingLogger</a></span>
+    
+  
+</p>
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize_logger-class_method" title="initialize_logger (class method)">.<strong>initialize_logger</strong>(failure_only, log_level, log_format, datetime_format)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#logger-class_method" title="logger (class method)">.<strong>logger</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the main logger for longleaf.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize_logger-instance_method" title="#initialize_logger (instance method)">#<strong>initialize_logger</strong>(failure_only, log_level, log_format, datetime_format)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#logger-instance_method" title="#logger (instance method)">#<strong>logger</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the main logger for longleaf.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="initialize_logger-class_method">
+  
+    .<strong>initialize_logger</strong>(failure_only, log_level, log_format, datetime_format)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/logging.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_initialize_logger'>initialize_logger</span><span class='lparen'>(</span><span class='id identifier rubyid_failure_only'>failure_only</span><span class='comma'>,</span> <span class='id identifier rubyid_log_level'>log_level</span><span class='comma'>,</span> <span class='id identifier rubyid_log_format'>log_format</span><span class='comma'>,</span> <span class='id identifier rubyid_datetime_format'>datetime_format</span><span class='rparen'>)</span>
+  <span class='ivar'>@logger</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Logging/RedirectingLogger.html" title="Longleaf::Logging::RedirectingLogger (class)">RedirectingLogger</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Logging/RedirectingLogger.html#initialize-instance_method" title="Longleaf::Logging::RedirectingLogger#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>failure_only:</span> <span class='id identifier rubyid_failure_only'>failure_only</span><span class='comma'>,</span>
+      <span class='label'>log_level:</span> <span class='id identifier rubyid_log_level'>log_level</span><span class='comma'>,</span>
+      <span class='label'>log_format:</span> <span class='id identifier rubyid_log_format'>log_format</span><span class='comma'>,</span>
+      <span class='label'>datetime_format:</span> <span class='id identifier rubyid_datetime_format'>datetime_format</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="logger-class_method">
+  
+    .<strong>logger</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the main logger for longleaf</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/logging.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_logger'>logger</span>
+  <span class='ivar'>@logger</span> <span class='op'>||=</span> <span class='const'><span class='object_link'><a href="Logging/RedirectingLogger.html" title="Longleaf::Logging::RedirectingLogger (class)">RedirectingLogger</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Logging/RedirectingLogger.html#initialize-instance_method" title="Longleaf::Logging::RedirectingLogger#initialize (method)">new</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="initialize_logger-instance_method">
+  
+    #<strong>initialize_logger</strong>(failure_only, log_level, log_format, datetime_format)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/logging.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize_logger'>initialize_logger</span><span class='lparen'>(</span><span class='id identifier rubyid_failure_only'>failure_only</span><span class='comma'>,</span> <span class='id identifier rubyid_log_level'>log_level</span><span class='comma'>,</span> <span class='id identifier rubyid_log_format'>log_format</span><span class='comma'>,</span> <span class='id identifier rubyid_datetime_format'>datetime_format</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="" title="Longleaf::Logging (module)">Logging</a></span></span><span class='period'>.</span><span class='id identifier rubyid_initialize_logger'><span class='object_link'><a href="#initialize_logger-class_method" title="Longleaf::Logging.initialize_logger (method)">initialize_logger</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_failure_only'>failure_only</span><span class='comma'>,</span> <span class='id identifier rubyid_log_level'>log_level</span><span class='comma'>,</span> <span class='id identifier rubyid_log_format'>log_format</span><span class='comma'>,</span> <span class='id identifier rubyid_datetime_format'>datetime_format</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="logger-instance_method">
+  
+    #<strong>logger</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the main logger for longleaf</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/logging.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_logger'>logger</span>
+  <span class='const'><span class='object_link'><a href="" title="Longleaf::Logging (module)">Logging</a></span></span><span class='period'>.</span><span class='id identifier rubyid_logger'><span class='object_link'><a href="#logger-class_method" title="Longleaf::Logging.logger (method)">logger</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Tue Apr 16 16:11:01 2019 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.19 (ruby-2.4.1).
+</div>
+
+    </div>
+  </body>
+</html>

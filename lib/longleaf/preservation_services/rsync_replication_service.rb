@@ -39,7 +39,7 @@ module Longleaf
     # Initialize a RsyncReplicationService from the given service definition
     #
     # @param service_def [ServiceDefinition] the configuration for this service
-    # @param location_manager [StorageLocationManager] manager for configured storage locations
+    # @param app_manager [ApplicationConfigManager] the application configuration
     def initialize(service_def, app_manager)
       @service_def = service_def
       @app_manager = app_manager
