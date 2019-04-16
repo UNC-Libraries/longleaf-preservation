@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<title>class Object - RDoc Documentation</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+  var index_rel_prefix = "./";
+</script>
+
+<script src="./js/jquery.js"></script>
+<script src="./js/darkfish.js"></script>
+
+<link href="./css/fonts.css" rel="stylesheet">
+<link href="./css/rdoc.css" rel="stylesheet">
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="./index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="./table_of_contents.html#pages">Pages</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link">BasicObject
+  
+</div>
+
+    <div id="includes-section" class="nav-section">
+  <h3>Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="Longleaf/FileHelpers.html">Longleaf::FileHelpers</a>
+  
+  
+  
+    <li><span class="include">FactoryBot::Syntax::Methods</span>
+  
+  
+  </ul>
+</div>
+
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-create_metadata">#create_metadata</a>
+    
+    <li ><a href="#method-i-load_metadata_record">#load_metadata_record</a>
+    
+    <li ><a href="#method-i-make_file_record">#make_file_record</a>
+    
+    <li ><a href="#method-i-make_service_def">#make_service_def</a>
+    
+    <li ><a href="#method-i-make_test_file">#make_test_file</a>
+    
+    <li ><a href="#method-i-metadata_created">#metadata_created</a>
+    
+    <li ><a href="#method-i-update_metadata_record">#update_metadata_record</a>
+    
+    <li ><a href="#method-i-write_metadata">#write_metadata</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-Object">
+  <h1 id="class-Object" class="class">
+    class Object
+  </h1>
+
+  <section class="description">
+    
+  </section>
+
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-create_metadata" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">create_metadata</span><span
+            class="method-args">(file_path, services, app_config)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="create_metadata-source">
+            <pre><span class="ruby-comment"># File spec/longleaf/candidates/service_candidate_filesystem_iterator_spec.rb, line 315</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">create_metadata</span>(<span class="ruby-identifier">file_path</span>, <span class="ruby-identifier">services</span>, <span class="ruby-identifier">app_config</span>)
+  <span class="ruby-identifier">md</span> = <span class="ruby-identifier">build</span>(<span class="ruby-value">:metadata_record</span>)
+  <span class="ruby-keyword">unless</span> <span class="ruby-identifier">services</span>.<span class="ruby-identifier">nil?</span>
+    <span class="ruby-identifier">services</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">name</span>, <span class="ruby-identifier">record</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">md</span>.<span class="ruby-identifier">add_service</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">record</span>)
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-identifier">write_metadata</span>(<span class="ruby-identifier">md</span>, <span class="ruby-identifier">file_path</span>, <span class="ruby-identifier">app_config</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-load_metadata_record" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">load_metadata_record</span><span
+            class="method-args">(file_path)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>@returns [Longleaf::MetadataRecord] the metadata record for file_path</p>
+          
+          
+
+          
+          <div class="method-source-code" id="load_metadata_record-source">
+            <pre><span class="ruby-comment"># File spec/longleaf/events/register_event_spec.rb, line 161</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">load_metadata_record</span>(<span class="ruby-identifier">file_path</span>)
+  <span class="ruby-identifier">storage_loc</span> = <span class="ruby-identifier">app_config</span>.<span class="ruby-identifier">location_manager</span>.<span class="ruby-identifier">get_location_by_path</span>(<span class="ruby-identifier">file_path</span>)
+  <span class="ruby-identifier">metadata_path</span> = <span class="ruby-identifier">storage_loc</span>.<span class="ruby-identifier">get_metadata_path_for</span>(<span class="ruby-identifier">file_path</span>)
+  <span class="ruby-constant">Longleaf</span><span class="ruby-operator">::</span><span class="ruby-constant">MetadataDeserializer</span>.<span class="ruby-identifier">deserialize</span>(<span class="ruby-identifier">file_path</span><span class="ruby-operator">:</span> <span class="ruby-identifier">metadata_path</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-make_file_record" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">make_file_record</span><span
+            class="method-args">(file_path, md_rec)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="make_file_record-source">
+            <pre><span class="ruby-comment"># File spec/longleaf/preservation_services/fixity_check_service_spec.rb, line 288</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">make_file_record</span>(<span class="ruby-identifier">file_path</span>, <span class="ruby-identifier">md_rec</span>)
+  <span class="ruby-identifier">storage_loc</span> = <span class="ruby-identifier">build</span>(<span class="ruby-value">:storage_location</span>)
+  <span class="ruby-identifier">file_rec</span> = <span class="ruby-identifier">build</span>(<span class="ruby-value">:file_record</span>, <span class="ruby-identifier">file_path</span><span class="ruby-operator">:</span> <span class="ruby-identifier">file_path</span>, <span class="ruby-identifier">storage_location</span><span class="ruby-operator">:</span> <span class="ruby-identifier">storage_loc</span>)
+  <span class="ruby-identifier">file_rec</span>.<span class="ruby-identifier">metadata_record</span> = <span class="ruby-identifier">md_rec</span>
+  <span class="ruby-identifier">file_rec</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-make_service_def" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">make_service_def</span><span
+            class="method-args">(digest_algs, absent_digest: nil)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="make_service_def-source">
+            <pre><span class="ruby-comment"># File spec/longleaf/preservation_services/fixity_check_service_spec.rb, line 281</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">make_service_def</span>(<span class="ruby-identifier">digest_algs</span>, <span class="ruby-identifier">absent_digest</span><span class="ruby-operator">:</span> <span class="ruby-keyword">nil</span>)
+  <span class="ruby-identifier">properties</span> = <span class="ruby-constant">Hash</span>.<span class="ruby-identifier">new</span>
+  <span class="ruby-identifier">properties</span>[<span class="ruby-constant">Longleaf</span><span class="ruby-operator">::</span><span class="ruby-constant">ServiceFields</span><span class="ruby-operator">::</span><span class="ruby-constant">DIGEST_ALGORITHMS</span>] = <span class="ruby-identifier">digest_algs</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">digest_algs</span>.<span class="ruby-identifier">nil?</span>
+  <span class="ruby-identifier">properties</span>[<span class="ruby-constant">Longleaf</span><span class="ruby-operator">::</span><span class="ruby-constant">FixityCheckService</span><span class="ruby-operator">::</span><span class="ruby-constant">ABSENT_DIGEST_PROPERTY</span>] = <span class="ruby-identifier">absent_digest</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">absent_digest</span>.<span class="ruby-identifier">nil?</span>
+  <span class="ruby-identifier">build</span>(<span class="ruby-value">:service_definition</span>, <span class="ruby-identifier">properties</span><span class="ruby-operator">:</span> <span class="ruby-identifier">properties</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-make_test_file" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">make_test_file</span><span
+            class="method-args">(dir, file_name = 'test_file', content = 'content')</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="make_test_file-source">
+            <pre><span class="ruby-comment"># File spec/features/register_command_spec.rb, line 196</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">make_test_file</span>(<span class="ruby-identifier">dir</span>, <span class="ruby-identifier">file_name</span> = <span class="ruby-string">&#39;test_file&#39;</span>, <span class="ruby-identifier">content</span> = <span class="ruby-string">&#39;content&#39;</span>)
+  <span class="ruby-identifier">path</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">dir</span>, <span class="ruby-identifier">file_name</span>)
+  <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">path</span>, <span class="ruby-string">&#39;w&#39;</span>) { <span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">write</span>(<span class="ruby-identifier">content</span>) }
+  <span class="ruby-identifier">path</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-metadata_created" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">metadata_created</span><span
+            class="method-args">(file_path, md_dir)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="metadata_created-source">
+            <pre><span class="ruby-comment"># File spec/features/register_command_spec.rb, line 202</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">metadata_created</span>(<span class="ruby-identifier">file_path</span>, <span class="ruby-identifier">md_dir</span>)
+  <span class="ruby-identifier">metadata_path</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">md_dir</span>, <span class="ruby-constant">File</span>.<span class="ruby-identifier">basename</span>(<span class="ruby-identifier">file_path</span>) <span class="ruby-operator">+</span> <span class="ruby-constant">Longleaf</span><span class="ruby-operator">::</span><span class="ruby-constant">MetadataSerializer</span><span class="ruby-operator">::</span><span class="ruby-identifier">metadata_suffix</span>)
+  <span class="ruby-constant">File</span>.<span class="ruby-identifier">exist?</span>(<span class="ruby-identifier">metadata_path</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-update_metadata_record" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">update_metadata_record</span><span
+            class="method-args">(file_path, metadata_record)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="update_metadata_record-source">
+            <pre><span class="ruby-comment"># File spec/longleaf/events/register_event_spec.rb, line 167</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">update_metadata_record</span>(<span class="ruby-identifier">file_path</span>, <span class="ruby-identifier">metadata_record</span>)
+  <span class="ruby-identifier">storage_loc</span> = <span class="ruby-identifier">app_config</span>.<span class="ruby-identifier">location_manager</span>.<span class="ruby-identifier">get_location_by_path</span>(<span class="ruby-identifier">file_path</span>)
+  <span class="ruby-identifier">metadata_path</span> = <span class="ruby-identifier">storage_loc</span>.<span class="ruby-identifier">get_metadata_path_for</span>(<span class="ruby-identifier">file_path</span>)
+  <span class="ruby-constant">Longleaf</span><span class="ruby-operator">::</span><span class="ruby-constant">MetadataSerializer</span>.<span class="ruby-identifier">write</span>(<span class="ruby-identifier">file_path</span><span class="ruby-operator">:</span> <span class="ruby-identifier">metadata_path</span>, <span class="ruby-identifier">metadata</span><span class="ruby-operator">:</span> <span class="ruby-identifier">metadata_record</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-write_metadata" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">write_metadata</span><span
+            class="method-args">(md_rec, file_path, app_config)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="write_metadata-source">
+            <pre><span class="ruby-comment"># File spec/longleaf/candidates/service_candidate_filesystem_iterator_spec.rb, line 308</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">write_metadata</span>(<span class="ruby-identifier">md_rec</span>, <span class="ruby-identifier">file_path</span>, <span class="ruby-identifier">app_config</span>)
+  <span class="ruby-identifier">loc</span> = <span class="ruby-identifier">app_config</span>.<span class="ruby-identifier">location_manager</span>.<span class="ruby-identifier">get_location_by_path</span>(<span class="ruby-identifier">file_path</span>)
+  <span class="ruby-identifier">md_path</span> = <span class="ruby-identifier">loc</span>.<span class="ruby-identifier">get_metadata_path_for</span>(<span class="ruby-identifier">file_path</span>)
+  
+  <span class="ruby-constant">Longleaf</span><span class="ruby-operator">::</span><span class="ruby-constant">MetadataSerializer</span>.<span class="ruby-identifier">write</span>(<span class="ruby-identifier">metadata</span><span class="ruby-operator">:</span> <span class="ruby-identifier">md_rec</span>, <span class="ruby-identifier">file_path</span><span class="ruby-operator">:</span> <span class="ruby-identifier">md_path</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="http://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="https://rdoc.github.io/rdoc">RDoc</a> 5.0.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

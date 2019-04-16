@@ -84,7 +84,7 @@ module Longleaf
     # Perform the specified service on the file record, in the context of the specified event
     # @param service_name [String] name of the service
     # @param file_rec [FileRecord] file record to perform service upon
-    # @param event_name [String] name of the event service is being performed within.
+    # @param event [String] name of the event service is being performed within.
     def perform_service(service_name, file_rec, event)
       definition = @definition_manager.services[service_name]
       
