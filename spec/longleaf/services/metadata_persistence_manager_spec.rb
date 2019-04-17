@@ -1,5 +1,6 @@
 require 'spec_helper'
-require 'longleaf/services/metadata_serializer'
+require 'longleaf/services/metadata_persistence_manager'
+require 'longleaf/indexing/index_manager'
 require 'longleaf/models/metadata_record'
 require 'longleaf/models/md_fields'
 require 'yaml'
@@ -7,26 +8,53 @@ require 'tempfile'
 require 'tmpdir'
 
 describe Longleaf::MetadataPersistenceManager do
-  SysConfigBuilder ||= Longleaf::SystemConfigBuilder
+  let(:index_manager) { instance_double('Longleaf::IndexManager') }
   
   describe '.persist' do
-    # without indexing
-    # with indexing
-    # without metadata record
-    
-    context 'minimal configuration' do
-      let(:app_config_manager) { build(:application_config_manager) }
+    context 'without index configured' do
+      let(:md_manager) { Longleaf::MetadataPersistenceManager.new(index_manager) }
       
-      # mock the indexer, verify that serializer called
+      context 'with metadata record' do
+        let(:md_rec) { instance_double('Longleaf::MetadataRecord') }
+        let(:file_rec) { build(:file_record, metadata_record: md_rec) }
+        
+        it 'triggers serialization to disk, does not index' do
+          expect(index_manager).to receive(:using_index?).and_return(false)
+          expect(index_manager).to_not receive(:index)
+        
+          expect(Longleaf::MetadataSerializer).to receive(:write).with(metadata: md_rec,
+              file_path: '/metadata/path/file-llmd.yaml',
+              digest_algs: anything
+            )
+        
+          md_manager.persist(file_rec)
+        end
+      end
       
-      # with metadata record
-      
-      # without metadata record
+      context 'without metadata record' do
+        let(:file_rec) { build(:file_record, metadata_record: nil) }
+        
+        it { expect { md_manager.persist(file_rec) }.to raise_error(Longleaf::MetadataError) }
+      end
     end
     
     context 'configured with metadata index' do
-      let(:sys_config_path) { SysConfigBuilder.new
-          .get }
+      let(:md_rec) { instance_double('Longleaf::MetadataRecord') }
+      let(:file_rec) { build(:file_record, metadata_record: md_rec) }
+      
+      let(:md_manager) { Longleaf::MetadataPersistenceManager.new(index_manager) }
+      
+      it 'triggers serialization to disk and indexing' do
+        expect(index_manager).to receive(:using_index?).and_return(true)
+        expect(index_manager).to receive(:index).with(file_rec)
+        
+        expect(Longleaf::MetadataSerializer).to receive(:write).with(metadata: md_rec,
+            file_path: '/metadata/path/file-llmd.yaml',
+            digest_algs: anything
+          )
+        
+        md_manager.persist(file_rec)
+      end
     end
   end
 end

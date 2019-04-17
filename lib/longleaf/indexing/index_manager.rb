@@ -6,8 +6,6 @@ module Longleaf
   # Manager which configures longleaf system related features, including the metadata index.
   class IndexManager
     SYS_FIELDS ||= Longleaf::SystemConfigFields
-
-    attr_reader :index_driver
     
     def initialize(config, app_config_manager)
       @config = config
@@ -17,7 +15,24 @@ module Longleaf
     
     # @return Returns true if the system is configured to use a metadata index
     def using_index?
-      !index_driver.nil?
+      !@index_driver.nil?
+    end
+    
+    # Index the provided file_rec and its metadata
+    #
+    # @param file_rec [FileRecord] file record to index
+    def index(file_rec)
+      @index_driver.index(file_rec)
+    end
+    
+    # @return true if the index should be reindexed
+    def index_stale?
+      @index_driver.is_stale?
+    end
+    
+    # Setup initial structure of index implementation
+    def setup_index
+      @index_driver.setup_index
     end
     
     private
