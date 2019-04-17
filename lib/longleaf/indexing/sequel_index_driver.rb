@@ -77,7 +77,7 @@ module Longleaf
     # @return The timestamp of the earliest service execution time for the file described by md_rec, in iso8601 format.
     #    Returns nil if no services are expected or all services have already run and do not have a next occurrence.
     def self.first_service_execution_timestamp(expected_services, md_rec)
-      current_time = Time.now.iso8601
+      current_time = Time.now.utc.iso8601(3)
       service_times = Array.new
       
       present_services = md_rec.list_services

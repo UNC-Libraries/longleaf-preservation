@@ -83,7 +83,6 @@ module Longleaf
     def deregister
       setup_logger(options)
       
-      config_path = options[:config]
       app_config_manager = load_application_config(options)
       file_selector = create_file_selector(options[:file], nil, app_config_manager)
       
@@ -137,6 +136,22 @@ module Longleaf
       file_selector = create_file_selector(options[:file], options[:location], app_config_manager)
       
       exit Longleaf::ValidateMetadataCommand.new(app_config_manager).execute(file_selector: file_selector)
+    end
+    
+    desc "setup_index", "Sets up the structure of the metadata index, if one is configured using the system configuration file provided using the --system_config option. Some index types may require additional steps to be taken by an administrator before hand, such as creating users and databases."
+    def setup_index
+      setup_logger(options)
+      
+      app_config_manager = load_application_config(options)
+      
+      if app_config_manager.index_manager.using_index?
+        app_config_manager.index_manager.setup_index
+        logger.success("Setup of index complete")
+        exit 0
+      else
+        logger.failure("No index configured, unable to perform setup.")
+        exit 1
+      end
     end
     
     no_commands do
