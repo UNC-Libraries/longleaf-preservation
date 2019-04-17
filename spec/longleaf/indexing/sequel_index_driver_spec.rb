@@ -215,6 +215,21 @@ describe Longleaf::SequelIndexDriver do
         expect(get_timestamp_from_index(file_rec)).to be_within(5).of (Time.now + SECONDS_IN_DAY * 2)
       end
     end
+    
+    context 'deregistered file' do  
+      before do
+        MetadataBuilder.new(file_path: file_path)
+            .with_service("serv1")
+            .deregistered
+            .register_to(file_rec)
+      end
+      
+      it 'indexes with null timestamp' do
+        driver.index(file_rec)
+        
+        expect(get_timestamp_from_index(file_rec)).to be nil
+      end
+    end
   end
   
   def db_conn

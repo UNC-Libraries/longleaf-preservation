@@ -78,6 +78,10 @@ module Longleaf
     #    Returns nil if no services are expected or all services have already run and do not have a next occurrence.
     def self.first_service_execution_timestamp(expected_services, md_rec)
       current_time = Time.now.utc.iso8601(3)
+      if md_rec.deregistered?
+        return nil
+      end
+      
       service_times = Array.new
       
       present_services = md_rec.list_services

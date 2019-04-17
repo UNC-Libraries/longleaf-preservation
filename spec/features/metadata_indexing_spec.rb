@@ -91,7 +91,17 @@ describe 'metadata indexing', :type => :aruba do
       end
     end
     
-    # TODO: verify indexing after deregister once deregister indexing behavior implemented
+    context 'deregistering a file' do
+      before do
+        run_simple("longleaf register -c #{config_path} -f #{file_path} -y #{sys_config_path}", fail_on_error: false)
+        run_simple("longleaf deregister -c #{config_path} -f #{file_path} -y #{sys_config_path}", fail_on_error: false)
+      end
+    
+      it 'successfully runs and updates entry in index with nil timestamp' do
+        expect(last_command_started).to have_exit_status(0)
+        expect(get_timestamp_from_index(file_path)).to be_nil
+      end
+    end
   end
   
   def db_conn
