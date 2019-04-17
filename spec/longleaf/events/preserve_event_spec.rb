@@ -41,12 +41,17 @@ describe Longleaf::PreserveEvent do
     let(:path_dir) { Dir.mktmpdir('path') }
     let(:file_path) { create_test_file(dir: path_dir, name: 'test_file') }
   
+    let(:index_manager) { instance_double("Longleaf::IndexManager", using_index?: false) }
+    let(:md_manager) { Longleaf::MetadataPersistenceManager.new(index_manager) }
     let(:storage_loc) { build(:storage_location, path: path_dir, metadata_path: md_dir) }
     let(:storage_loc_manager) { instance_double("Longleaf::StorageLocationManager",
         :get_location_by_path => storage_loc) }
     let(:service_manager) { instance_double("Longleaf::ServiceManager") }
     let(:app_config) { instance_double("Longleaf::ApplicationConfigManager",
-        :location_manager => storage_loc_manager, :service_manager => service_manager) }
+        :location_manager => storage_loc_manager,
+        :service_manager => service_manager,
+        :md_manager => md_manager) }
+    
     let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_loc) }
     let!(:md_path) { register(file_rec) }
     
