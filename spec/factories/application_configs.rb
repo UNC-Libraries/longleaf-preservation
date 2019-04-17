@@ -10,8 +10,10 @@ FactoryBot.define do
         'services' => {},
         'service_mappings' => {}
       } }
+      
+      sys_config { nil }
     end
 
-    initialize_with { new(config) }
+    initialize_with { new(config, sys_config) }
   end
 end

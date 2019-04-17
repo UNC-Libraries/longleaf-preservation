@@ -8,7 +8,6 @@ require 'longleaf/commands/validate_metadata_command'
 require 'longleaf/commands/register_command'
 require 'longleaf/commands/preserve_command'
 require 'longleaf/candidates/file_selector'
-require 'longleaf/services/system_config_deserializer'
 
 module Longleaf
   # Main commandline interface setup for Longleaf using Thor.
@@ -53,8 +52,7 @@ module Longleaf
     def register
       setup_logger(options)
       
-      app_config_manager = load_application_config(options[:config])
-      sys_config_manager = load_system_config(options[:system_config], app_config_manager)
+      app_config_manager = load_application_config(options)
       
       file_selector = create_file_selector(options[:file], nil, app_config_manager)
       if options[:checksums]
@@ -69,7 +67,7 @@ module Longleaf
         end
       end
       
-      command = RegisterCommand.new(app_config_manager, sys_config_manager)
+      command = RegisterCommand.new(app_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force], checksums: checksums)
     end
     
@@ -86,7 +84,7 @@ module Longleaf
       setup_logger(options)
       
       config_path = options[:config]
-      app_config_manager = load_application_config(options[:config])
+      app_config_manager = load_application_config(options)
       file_selector = create_file_selector(options[:file], nil, app_config_manager)
       
       command = DeregisterCommand.new(app_config_manager)
@@ -108,7 +106,7 @@ module Longleaf
       setup_logger(options)
       
       extend_load_path(options[:load_path])
-      app_config_manager = load_application_config(options[:config])
+      app_config_manager = load_application_config(options)
       file_selector = create_file_selector(options[:file], options[:location], app_config_manager)
       
       command = PreserveCommand.new(app_config_manager)
@@ -135,7 +133,7 @@ module Longleaf
     def validate_metadata
       setup_logger(options)
       
-      app_config_manager = load_application_config(options[:config])
+      app_config_manager = load_application_config(options)
       file_selector = create_file_selector(options[:file], options[:location], app_config_manager)
       
       exit Longleaf::ValidateMetadataCommand.new(app_config_manager).execute(file_selector: file_selector)
@@ -149,20 +147,12 @@ module Longleaf
             options[:log_datetime])
       end
       
-      def load_application_config(config_path)
+      def load_application_config(options)
         begin
-          app_manager = ApplicationConfigDeserializer.deserialize(config_path)
+          app_manager = ApplicationConfigDeserializer.deserialize(options[:config],
+              options[:system_config])
         rescue ConfigurationError => err
           logger.failure("Failed to load application configuration due to the following issue:\n#{err.message}")
-          exit 1
-        end
-      end
-      
-      def load_system_config(config_path, app_config_manager)
-        begin
-          SystemConfigDeserializer.deserialize(config_path, app_config_manager)
-        rescue ConfigurationError => err
-          logger.failure("Failed to load system configuration due to the following issue:\n#{err.message}")
           exit 1
         end
       end

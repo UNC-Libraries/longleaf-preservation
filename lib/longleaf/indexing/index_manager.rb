@@ -4,18 +4,15 @@ require 'longleaf/errors'
 
 module Longleaf
   # Manager which configures longleaf system related features, including the metadata index.
-  class SystemConfigManager
+  class IndexManager
     SYS_FIELDS ||= Longleaf::SystemConfigFields
 
     attr_reader :index_driver
-    attr_reader :md_manager
     
     def initialize(config, app_config_manager)
       @config = config
       @app_config_manager = app_config_manager
       init_index_driver if @config&.key?(SYS_FIELDS::MD_INDEX)
-      
-      @md_manager = MetadataPersistenceManager.new(self)
     end
     
     # @return Returns true if the system is configured to use a metadata index

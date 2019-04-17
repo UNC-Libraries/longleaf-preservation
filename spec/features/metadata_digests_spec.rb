@@ -71,7 +71,7 @@ describe 'metadata digests', :type => :aruba do
     let(:file_path) { create_test_file(dir: path_dir) }
     
     context 'metadata file digests match' do
-      before do
+      before(:each) do
         run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
         
         run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
@@ -84,7 +84,7 @@ describe 'metadata digests', :type => :aruba do
     end
     
     context 'sha512 digest modified' do
-      before do
+      before(:each) do
         run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
         
         change_digest(file_path, config_path, 'sha512')
