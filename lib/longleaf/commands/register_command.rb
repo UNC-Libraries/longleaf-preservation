@@ -29,8 +29,8 @@ module Longleaf
         
           file_rec = FileRecord.new(f_path, storage_location)
           
-          register_event = RegisterEvent.new(file_rec: file_rec, force: force, checksums: checksums,
-              app_manager: @app_manager)
+          register_event = RegisterEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager,
+              checksums: checksums)
           track_status(register_event.perform)
         end
       rescue InvalidStoragePathError, StorageLocationUnavailableError => err

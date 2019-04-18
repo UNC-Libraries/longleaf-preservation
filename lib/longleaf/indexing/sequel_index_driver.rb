@@ -75,7 +75,8 @@ module Longleaf
     # @param expected_services [Array] list of ServiceDefinition objects expected for specified file.
     # @param md_rec [MetadataRecord] metadata record for the file being evaluated
     # @return The timestamp of the earliest service execution time for the file described by md_rec, in iso8601 format.
-    #    Returns nil if no services are expected or all services have already run and do not have a next occurrence.
+    #    Returns nil if no services are expected all services have already run and do not have a next occurrence, or
+    #    the file is deregistered.
     def self.first_service_execution_timestamp(expected_services, md_rec)
       current_time = Time.now.utc.iso8601(3)
       if md_rec.deregistered?
@@ -118,9 +119,18 @@ module Longleaf
     # Initialize the index's database using the provided configuration
     def setup_index
       # Create the table for tracking when files will need preservation services run on them.
-      db_conn.create_table!(PRESERVE_TBL) do
-        String :file_path, primary_key: true, size: 768
-        DateTime :service_time, null: true
+      case(@adapter)
+      when :mysql, :mysql2
+        # mysql does not support 'text' fields as primary keys
+        db_conn.create_table!(PRESERVE_TBL) do
+          String :file_path, primary_key: true, size: 768
+          DateTime :service_time, null: true
+        end
+      else
+        db_conn.create_table!(PRESERVE_TBL) do
+          String :file_path, primary_key: true, text: true
+          DateTime :service_time, null: true
+        end
       end
   
       # Setup database indexes
