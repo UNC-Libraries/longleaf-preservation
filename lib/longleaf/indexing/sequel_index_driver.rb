@@ -12,9 +12,9 @@ module Longleaf
   # See the Sequel documentation for details about accepted connection parameters:
   # https://github.com/jeremyevans/sequel/blob/master/doc/opening_databases.rdoc
   class SequelIndexDriver
-    INDEX_DB_NAME = 'longleaf_metadata_index'
-    PRESERVE_TBL = "preserve_service_times".to_sym
-    INDEX_STATE_TBL = "index_state".to_sym
+    INDEX_DB_NAME ||= 'longleaf_metadata_index'
+    PRESERVE_TBL ||= "preserve_service_times".to_sym
+    INDEX_STATE_TBL ||= "index_state".to_sym
    
     # Initialize the index driver
     #
@@ -34,7 +34,7 @@ module Longleaf
         # Add in the adapter name
         @conn_details['adapter'] = adapter unless @conn_details.key?('adapter')
         # Add in default database name if none was specified
-        @conn_details['database'] = DB_NAME unless @conn_details.key?('database')
+        @conn_details['database'] = INDEX_DB_NAME unless @conn_details.key?('database')
       end
     end
     
