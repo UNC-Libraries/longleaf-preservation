@@ -31,6 +31,8 @@ module Longleaf
     end
     
     def with_service(name, timestamp: ServiceDateHelper::formatted_timestamp, run_needed: false, properties: nil)
+      timestamp = timestamp.kind_of?(Time) ? ServiceDateHelper::formatted_timestamp(timestamp) : timestamp
+      
       @services[name] = ServiceRecord.new(
           properties: properties.nil? ? Hash.new : nil,
           timestamp: timestamp,

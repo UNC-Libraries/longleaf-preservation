@@ -2,6 +2,7 @@ require 'sequel'
 require 'digest/md5'
 require 'longleaf/events/event_names'
 require 'longleaf/version'
+require 'longleaf/models/system_config_fields'
 
 module Longleaf
   # Driver for interacting with RDBM based metadata index using the Sequel ORM gem.
@@ -15,6 +16,7 @@ module Longleaf
     INDEX_DB_NAME ||= 'longleaf_metadata_index'
     PRESERVE_TBL ||= "preserve_service_times".to_sym
     INDEX_STATE_TBL ||= "index_state".to_sym
+    DEFAULT_PAGE_SIZE ||= 1000
    
     # Initialize the index driver
     #
@@ -23,12 +25,14 @@ module Longleaf
     # @param conn_details Details about the configuration and connection to the database used for the index.
     #    If a string is provided, it will be used as the connection URL and must identify the adapter.
     #    If a hash is provided, it used as the parameters for the database connection.
-    def initialize(app_config, adapter, conn_details)
+    # @param page_size [Integer] number of results to retrieve per query when getting candidates
+    def initialize(app_config, adapter, conn_details, page_size: nil)
       @app_config = app_config
       @adapter = adapter
       @conn_details = conn_details
       # Digest of the app config file so we can tell if it changes
       @config_md5 = app_config.config_md5
+      @page_size = page_size.nil? || page_size <= 0 ? DEFAULT_PAGE_SIZE : page_size
       
       if @conn_details.is_a?(Hash)
         # Add in the adapter name
@@ -161,6 +165,41 @@ module Longleaf
           longleaf_version: Longleaf::VERSION)
     end
     
+    # Retrieves page of file paths which have one or more services which need to run.
+    # @param file_selector [FileSelector] selector for what paths to search for files
+    # @param stale_datetime [DateTime] find file_paths with services needing to be run before this value
+    # @return [Array] array of file paths that need one or more services run.
+    def paths_with_stale_services(file_selector, stale_datetime)
+      if @preserve_dataset.nil?
+        @preserve_dataset = db_conn
+            .from(PRESERVE_TBL)
+            .exclude(service_time: nil)
+            .limit(@page_size)
+            .order(Sequel.asc(:service_time))
+      end
+      
+      # retrieve and return a page of results
+      add_path_restrictions(@preserve_dataset, file_selector)
+          .where { service_time <= stale_datetime }
+          .select_map(:file_path)
+    end
+    
+    # Retrieves a page of paths for registered files.
+    # @param file_selector [FileSelector] selector for what paths to search for files
+    # @return [Array] array of file paths that are registered
+    def registered_paths(file_selector)
+      if @registered_dataset.nil?
+        @registered_dataset = db_conn
+            .from(PRESERVE_TBL)
+            .limit(@page_size)
+            .order(Sequel.asc(:service_time))
+      end
+      
+      # retrieve and return a page of results
+      add_path_restrictions(@registered_dataset, file_selector)
+          .select_map(:file_path)
+    end
+    
     private
     def db_conn
       @connection = Sequel.connect(@conn_details) if @connection.nil?
@@ -170,6 +209,12 @@ module Longleaf
     def preserve_tbl
       @preserve_tbl = db_conn[PRESERVE_TBL] if @preserve_tbl.nil?
       @preserve_tbl
+    end
+    
+    def add_path_restrictions(dataset, file_selector)
+      # Reformat all selected paths into LIKE partial string matches
+      path_conds = file_selector.target_paths.map { |path| path.end_with?('/') ? path + '%' : path }
+      dataset.where(Sequel.like(:file_path, *path_conds))
     end
   end
 end

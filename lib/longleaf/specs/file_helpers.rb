@@ -23,16 +23,10 @@ module Longleaf
     end
     
     def self.create_test_file(dir: nil, name: 'test_file', content: 'content')
-      if dir.nil?
-        file = Tempfile.create(name)
-        file << content
-        file.close
-        return file.path
-      else
-        path = File.join(dir, name)
-        File.open(path, 'w') { |f| f.write(content) }
-        path
-      end
+      file = Tempfile.create(name, dir)
+      file << content
+      file.close
+      return file.path
     end
     
     def create_work_class(lib_dir, class_name, file_name, module_name = nil, is_applicable: true, init_body: "", perform: "")

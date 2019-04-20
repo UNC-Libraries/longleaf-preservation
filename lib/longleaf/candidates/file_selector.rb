@@ -14,8 +14,8 @@ module Longleaf
         raise ArgumentError.new("Cannot provide both file paths and storage locations")
       end
       @app_config = app_config
-      # The top level paths targeted by this selector
-      @target_paths = file_paths
+      # The top level paths targeted by this selector, adding trailing /'s to directories
+      @target_paths = file_paths&.map { |path| (Dir.exists?(path) && !path.end_with?('/')) ? path + '/' : path }
       # The set of storage locations to select file paths from
       @storage_locations = storage_locations
       # Validate that the selected storage locations are known
