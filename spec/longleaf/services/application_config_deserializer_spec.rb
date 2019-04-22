@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'longleaf/services/application_config_deserializer'
 require 'longleaf/errors'
 require 'longleaf/specs/config_builder'
+require 'longleaf/specs/system_config_builder'
 require 'fileutils'
 require 'tmpdir'
 require 'tempfile'
@@ -9,8 +10,9 @@ require 'tempfile'
 describe Longleaf::ApplicationConfigDeserializer do
   AppDeserializer ||= Longleaf::ApplicationConfigDeserializer
   ConfigBuilder ||= Longleaf::ConfigBuilder
+  SysConfigBuilder ||= Longleaf::SystemConfigBuilder
   
-  describe '#load' do
+  describe '#deserialize' do
     context 'invalid file contents' do
       let(:config_path) {
         Tempfile.open('config') do |f|
@@ -19,7 +21,7 @@ describe Longleaf::ApplicationConfigDeserializer do
         end
       }
       
-      it { expect { AppDeserializer::load(config_path) }.to raise_error(Longleaf::ConfigurationError) }
+      it { expect { AppDeserializer::deserialize(config_path) }.to raise_error(Longleaf::ConfigurationError) }
     end
     
     context 'config file does not exist' do
@@ -30,23 +32,10 @@ describe Longleaf::ApplicationConfigDeserializer do
         config_path
       }
       
-      it { expect { AppDeserializer::load(config_path) }.to raise_error(Longleaf::ConfigurationError,
+      it { expect { AppDeserializer::deserialize(config_path) }.to raise_error(Longleaf::ConfigurationError,
           /Configuration file .* does not exist/) }
     end
     
-    context 'minimal configuration' do
-      let(:config_path) { ConfigBuilder.new
-          .with_services
-          .with_locations
-          .with_services
-          .write_to_yaml_file }
-      
-      it { expect { AppDeserializer::load(config_path) }.to_not raise_error }
-    end
-    
-  end
-  
-  describe '#deserialize' do
     context 'invalid configuration' do
       let(:config_path) { ConfigBuilder.new
           .with_services
@@ -59,10 +48,10 @@ describe Longleaf::ApplicationConfigDeserializer do
           it { expect { AppDeserializer::deserialize(config_path) }.to raise_error(Longleaf::ConfigurationError) }
     end
     
-    context 'minimal configuration' do
+    context 'minimal service configuration' do
       let(:md_dir) { Dir.mktmpdir('metadata') }
       let(:path_dir) { Dir.mktmpdir('path') }
-      let(:config_path) { ConfigBuilder.new
+      let!(:config_path) { ConfigBuilder.new
           .with_services
           .with_service(name: 'serv1')
           .with_locations
@@ -70,15 +59,48 @@ describe Longleaf::ApplicationConfigDeserializer do
           .map_services('loc1', 'serv1')
           .write_to_yaml_file }
       
+      let!(:config_md5) { Digest::MD5.file(config_path).hexdigest }
+      
       after(:each) do
         FileUtils.rmdir([md_dir, path_dir])
       end
       
-      it {
-        result = AppDeserializer::deserialize(config_path)
-        expect(result.service_manager).to_not be_nil
-        expect(result.location_manager).to_not be_nil
-      }
+      context 'without system config' do
+        it {
+          result = AppDeserializer::deserialize(config_path)
+          expect(result.service_manager).to_not be_nil
+          expect(result.location_manager).to_not be_nil
+          expect(result.config_md5).to eq config_md5
+          expect(result.index_manager).to be_kind_of(Longleaf::IndexManager)
+          expect(result.index_manager.using_index?).to be false
+        }
+      end
+      
+      context 'with index config' do
+        let(:sys_config_path) { SysConfigBuilder.new
+            .with_index('amalgalite', 'amalgalite://tmp/db')
+            .write_to_yaml_file }
+            
+        it {
+          result = AppDeserializer::deserialize(config_path, sys_config_path)
+          expect(result.service_manager).to_not be_nil
+          expect(result.location_manager).to_not be_nil
+          expect(result.config_md5).to eq config_md5
+          expect(result.index_manager).to be_kind_of(Longleaf::IndexManager)
+          expect(result.index_manager.using_index?).to be true
+        }
+      end
+      
+      context 'invalid system config file contents' do
+        let(:sys_config_path) {
+          Tempfile.open('config') do |f|
+            f.write('bad : yaml : time')
+            return f.path
+          end
+        }
+    
+        it { expect { AppDeserializer::deserialize(config_path, sys_config_path) }.to raise_error(Longleaf::ConfigurationError) }
+      end
     end
   end
 end

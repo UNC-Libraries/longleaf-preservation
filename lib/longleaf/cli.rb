@@ -20,6 +20,10 @@ module Longleaf
         :desc => 'Absolute path to the application configuration used for this command. By default, the value of the environment variable LONGLEAF_CFG is used.')
     class_option(:load_path, :aliases => "-I",
         :desc => 'Specify comma seperated directories to add to the $LOAD_PATH, which can be used to specify additional paths from which to load preservation services.')
+    class_option(:system_config, :aliases => "-y",
+        :default => ENV['LONGLEAF_SYSTEM_CFG'],
+        :required => false,
+        :desc => 'Absolute path to the longleaf system configuration used for this command. By default, the value of the environment variable LONGLEAF_SYSTEM_CFG is used.')
     # Logging/output options
     class_option(:failure_only,
         :type => :boolean,
@@ -48,8 +52,8 @@ module Longleaf
     def register
       setup_logger(options)
       
-      config_path = options[:config]
-      app_config_manager = load_application_config(options[:config])
+      app_config_manager = load_application_config(options)
+      
       file_selector = create_file_selector(options[:file], nil, app_config_manager)
       if options[:checksums]
         checksums = options[:checksums]
@@ -79,8 +83,7 @@ module Longleaf
     def deregister
       setup_logger(options)
       
-      config_path = options[:config]
-      app_config_manager = load_application_config(options[:config])
+      app_config_manager = load_application_config(options)
       file_selector = create_file_selector(options[:file], nil, app_config_manager)
       
       command = DeregisterCommand.new(app_config_manager)
@@ -102,7 +105,7 @@ module Longleaf
       setup_logger(options)
       
       extend_load_path(options[:load_path])
-      app_config_manager = load_application_config(options[:config])
+      app_config_manager = load_application_config(options)
       file_selector = create_file_selector(options[:file], options[:location], app_config_manager)
       
       command = PreserveCommand.new(app_config_manager)
@@ -129,10 +132,26 @@ module Longleaf
     def validate_metadata
       setup_logger(options)
       
-      app_config_manager = load_application_config(options[:config])
+      app_config_manager = load_application_config(options)
       file_selector = create_file_selector(options[:file], options[:location], app_config_manager)
       
       exit Longleaf::ValidateMetadataCommand.new(app_config_manager).execute(file_selector: file_selector)
+    end
+    
+    desc "setup_index", "Sets up the structure of the metadata index, if one is configured using the system configuration file provided using the --system_config option. Some index types may require additional steps to be taken by an administrator before hand, such as creating users and databases."
+    def setup_index
+      setup_logger(options)
+      
+      app_config_manager = load_application_config(options)
+      
+      if app_config_manager.index_manager.using_index?
+        app_config_manager.index_manager.setup_index
+        logger.success("Setup of index complete")
+        exit 0
+      else
+        logger.failure("No index configured, unable to perform setup.")
+        exit 1
+      end
     end
     
     no_commands do
@@ -143,9 +162,10 @@ module Longleaf
             options[:log_datetime])
       end
       
-      def load_application_config(config_path)
+      def load_application_config(options)
         begin
-          app_manager = ApplicationConfigDeserializer.deserialize(config_path)
+          app_manager = ApplicationConfigDeserializer.deserialize(options[:config],
+              options[:system_config])
         rescue ConfigurationError => err
           logger.failure("Failed to load application configuration due to the following issue:\n#{err.message}")
           exit 1

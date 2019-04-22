@@ -45,6 +45,15 @@ module Longleaf
       end
     end
     
+    # List definitions for services which are applicable to the given criteria
+    # @param location [String] name of the locations to lookup
+    # @param event [String] name of the preservation event taking place
+    # @return [Array] List of service definitions which match the provided criteria
+    def list_service_definitions(location: nil, event: nil)
+      names = list_services(location: location, event: event)
+      names.map { |name| @definition_manager.services[name] }
+    end
+    
     # Determines if a service is applicable for a specific preservation event
     # @param service_name [String] name of the service being evaluated
     # @param event [String] name of the event to check against

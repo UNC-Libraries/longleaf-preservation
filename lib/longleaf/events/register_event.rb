@@ -52,10 +52,8 @@ module Longleaf
       
         populate_services
       
-        # persist the metadata out to file
-        MetadataSerializer::write(metadata: md_rec,
-            file_path: @file_rec.metadata_path,
-            digest_algs: @file_rec.storage_location.metadata_digests)
+        # persist the metadata
+        @app_manager.md_manager.persist(@file_rec)
         
         record_success(EventNames::REGISTER, @file_rec.path)
       rescue RegistrationError => err

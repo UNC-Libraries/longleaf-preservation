@@ -3,7 +3,7 @@ require 'longleaf/models/file_record'
 FactoryBot.define do
   factory(:file_record, class: Longleaf::FileRecord) do
     storage_location { build(:storage_location) }
-    file_path { '/metadata/path/file' }
+    file_path { '/file/path/file' }
     metadata_record { nil }
     
     initialize_with { new(file_path, storage_location, metadata_record) }

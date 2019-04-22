@@ -59,9 +59,8 @@ module Longleaf
       ensure
         # persist the metadata out to file if any services were executed
         if service_performed
-          MetadataSerializer::write(metadata: @file_rec.metadata_record,
-              file_path: @file_rec.metadata_path,
-              digest_algs: storage_loc.metadata_digests)
+          # persist the metadata
+          @app_manager.md_manager.persist(@file_rec)
         end
       end
       
