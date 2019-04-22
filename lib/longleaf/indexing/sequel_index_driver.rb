@@ -3,6 +3,7 @@ require 'digest/md5'
 require 'longleaf/events/event_names'
 require 'longleaf/version'
 require 'longleaf/models/system_config_fields'
+require 'longleaf/logging'
 
 module Longleaf
   # Driver for interacting with RDBM based metadata index using the Sequel ORM gem.
@@ -13,6 +14,7 @@ module Longleaf
   # See the Sequel documentation for details about accepted connection parameters:
   # https://github.com/jeremyevans/sequel/blob/master/doc/opening_databases.rdoc
   class SequelIndexDriver
+    include Longleaf::Logging
     INDEX_DB_NAME ||= 'longleaf_metadata_index'
     PRESERVE_TBL ||= "preserve_service_times".to_sym
     INDEX_STATE_TBL ||= "index_state".to_sym
@@ -118,6 +120,21 @@ module Longleaf
       
       # Return the lowest service execution time
       service_times.min
+    end
+    
+    # Remove an entry from the index
+    # @param remove_me The record to remove from the index. May be a FileRecord or a String.
+    def remove(remove_me)
+      if remove_me.is_a?(FileRecord)
+        path = remove_me.path
+      else
+        path = remove_me
+      end
+      
+      result = preserve_tbl.where(file_path: path).delete
+      if result == 0
+        logger.warn("Could not remove #{path} from the index, path was not present.")
+      end
     end
     
     # Initialize the index's database using the provided configuration

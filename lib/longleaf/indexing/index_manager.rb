@@ -27,6 +27,12 @@ module Longleaf
       @index_driver.index(file_rec)
     end
     
+    # Remove an entry from the index
+    # @param remove_me The record to remove from the index
+    def remove(remove_me)
+      @index_driver.remove(remove_me)
+    end
+    
     # @return true if the index should be reindexed
     def index_stale?
       @index_driver.is_stale?

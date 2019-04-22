@@ -26,5 +26,10 @@ module Longleaf
     def metadata_present?
       File.exist?(metadata_path)
     end
+    
+    def ==(other_obj)
+      return false unless other_obj.is_a?(FileRecord)
+      path == other_obj.path
+    end
   end
 end

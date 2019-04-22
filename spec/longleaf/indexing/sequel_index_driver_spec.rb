@@ -218,6 +218,43 @@ describe Longleaf::SequelIndexDriver do
     end
   end
   
+  describe '.remove' do
+    before do
+      driver.setup_index
+    end
+    
+    let(:storage_loc) { build(:storage_location, name: 'loc1',  path: path_dir, metadata_path: md_dir) }
+    
+    context 'path that is not indexed' do
+      it 'indexes with current timestamp' do
+        expect { driver.remove('/wacky/path') }.to output(/Could not remove .* from the index, path was not present/).to_stderr
+      end
+    end
+    
+    context 'service which has previously run' do
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", Time.now) }
+      let!(:file_rec2) { create_index_file_rec(storage_loc, "serv1", Time.now) }
+      
+      context 'remove by file record' do
+        it 'indexes with null timestamp' do
+          driver.remove(file_rec1)
+        
+          expect(get_timestamp_from_index(file_rec1)).to be_nil
+          # Ensure that no other records were impacted
+          expect(get_timestamp_from_index(file_rec2)).to_not be_nil
+        end
+      end
+      
+      context 'remove by file path' do
+        it 'indexes with null timestamp' do
+          driver.remove(file_rec1.path)
+        
+          expect(get_timestamp_from_index(file_rec1)).to be_nil
+        end
+      end
+    end
+  end
+  
   describe '.paths_with_stale_services' do
     before do
       driver.setup_index
