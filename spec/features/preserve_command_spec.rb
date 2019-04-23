@@ -388,7 +388,8 @@ describe 'preserve', :type => :aruba do
   def update_timestamp(file_path, config_path, service_name, timestamp: Time.now)
     md_path = get_metadata_path(file_path, config_path)
     md_rec = Longleaf::MetadataDeserializer.deserialize(file_path: md_path)
-    md_rec.service(service_name).timestamp = Longleaf::ServiceDateHelper.formatted_timestamp(timestamp)
+    service = md_rec.service(service_name) || md_rec.add_service(service_name)
+    service.timestamp = Longleaf::ServiceDateHelper.formatted_timestamp(timestamp)
     Longleaf::MetadataSerializer.write(metadata: md_rec, file_path: md_path)
   end
 end

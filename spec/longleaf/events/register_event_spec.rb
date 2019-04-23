@@ -74,8 +74,6 @@ describe Longleaf::RegisterEvent do
 
         expect(md_rec.file_size).to eq 7
         expect { Time.iso8601(md_rec.last_modified) }.to_not raise_error
-        
-        expect(md_rec.list_services).to include('serv1')
       end
       
       it 'raises RegistrationError for already registered file' do
@@ -150,7 +148,6 @@ describe Longleaf::RegisterEvent do
         md_rec = load_metadata_record(file_path)
 
         expect { Time.iso8601(md_rec.registered) }.to_not raise_error
-        expect(md_rec.list_services).to include('serv1')
         
         expect(md_rec.checksums).to include('md5' => 'digestvalue',
             'sha1' => 'shadigest')
