@@ -30,14 +30,16 @@ module Longleaf
       self
     end
     
-    def with_service(name, timestamp: ServiceDateHelper::formatted_timestamp, run_needed: false, properties: nil)
-      timestamp = timestamp.kind_of?(Time) ? ServiceDateHelper::formatted_timestamp(timestamp) : timestamp
+    def with_service(name, timestamp: ServiceDateHelper::formatted_timestamp, run_needed: false, properties: nil,
+          failure_timestamp: nil)
+      timestamp = format_timestamp(timestamp)
+      failure_timestamp = format_timestamp(failure_timestamp) unless failure_timestamp.nil?
       
       @services[name] = ServiceRecord.new(
           properties: properties.nil? ? Hash.new : nil,
           timestamp: timestamp,
           run_needed: run_needed)
-      
+      @services[name].failure_timestamp = failure_timestamp
       self
     end
     
@@ -79,6 +81,11 @@ module Longleaf
       file_rec.metadata_record = md_rec
       
       md_path
+    end
+    
+    private
+    def format_timestamp(timestamp)
+      timestamp.kind_of?(Time) ? ServiceDateHelper::formatted_timestamp(timestamp) : timestamp
     end
   end
 end

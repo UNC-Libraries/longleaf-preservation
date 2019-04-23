@@ -3,6 +3,7 @@ module Longleaf
   class ServiceRecord
     attr_reader :properties
     attr_accessor :stale_replicas, :timestamp, :run_needed
+    attr_accessor :failure_timestamp
     
     # @param properties [Hash] initial properties for this service record
     # @param stale_replicas [Boolean] whether there are any stale replicas from this service

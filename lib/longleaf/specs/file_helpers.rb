@@ -18,15 +18,22 @@ module Longleaf
       end
     end
     
-    def create_test_file(dir: nil, name: 'test_file', content: 'content')
+    def create_test_file(dir: nil, name: nil, content: 'content')
       FileHelpers.create_test_file(dir: dir, name: name, content: content)
     end
     
-    def self.create_test_file(dir: nil, name: 'test_file', content: 'content')
-      file = Tempfile.create(name, dir)
-      file << content
-      file.close
-      return file.path
+    def self.create_test_file(dir: nil, name: nil, content: 'content')
+      if dir.nil? || name.nil?
+        name = 'test_file' if name.nil?
+        file = Tempfile.create(name, dir)
+        file << content
+        file.close
+        return file.path
+      else
+        path = File.join(dir, name)
+        File.open(path, 'w') { |f| f.write(content) }
+        path
+      end
     end
     
     def create_work_class(lib_dir, class_name, file_name, module_name = nil, is_applicable: true, init_body: "", perform: "")

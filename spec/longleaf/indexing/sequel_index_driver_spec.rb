@@ -227,7 +227,8 @@ describe Longleaf::SequelIndexDriver do
     
     context 'path that is not indexed' do
       it 'indexes with current timestamp' do
-        expect { driver.remove('/wacky/path') }.to output(/Could not remove .* from the index, path was not present/).to_stderr
+        expect(driver.logger).to receive(:warn).with(/Could not remove .* from the index, path was not present/)
+        driver.remove('/wacky/path')
       end
     end
     
@@ -381,6 +382,61 @@ describe Longleaf::SequelIndexDriver do
         it 'returns only the first two results, ordered by staleness' do
           results = driver.paths_with_stale_services(selector, Time.now.utc)
           expect(results).to eq [file_rec2.path, file_rec3.path]
+        end
+      end
+    end
+    
+    context 'file selector for storage location' do
+      let(:file_path) { create_test_file(dir: path_dir) }
+      let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_loc) }
+      let(:selector) { build(:file_selector,
+              storage_locations: ['loc1'],
+              app_config: app_config) }
+    
+      context 'file record with actively failed service' do
+        before do
+          MetadataBuilder.new(file_path: file_path)
+              .with_service("serv1",
+                  timestamp: Time.now.utc - SECONDS_IN_DAY * 10,
+                  failure_timestamp: Time.now.utc + 60)
+              .register_to(file_rec)
+          driver.index(file_rec)
+        end
+              
+        it 'returns no file paths' do
+          results = driver.paths_with_stale_services(selector, Time.now.utc)
+          expect(results).to be_empty
+        end
+      end
+    
+      context 'file record with expired failed service but no services needed' do
+        before do
+          MetadataBuilder.new(file_path: file_path)
+              .with_service("serv1",
+                  failure_timestamp: Time.now.utc - 60)
+              .register_to(file_rec)
+          driver.index(file_rec)
+        end
+              
+        it 'returns no file paths' do
+          results = driver.paths_with_stale_services(selector, Time.now.utc)
+          expect(results).to be_empty
+        end
+      end
+      
+      context 'file record with expired failed service and services needed' do
+        before do
+          MetadataBuilder.new(file_path: file_path)
+              .with_service("serv1",
+                  timestamp: Time.now.utc - SECONDS_IN_DAY * 10,
+                  failure_timestamp: Time.now.utc - 100)
+              .register_to(file_rec)
+          driver.index(file_rec)
+        end
+              
+        it 'returns the file path' do
+          results = driver.paths_with_stale_services(selector, Time.now.utc)
+          expect(results).to containing_exactly(file_path)
         end
       end
     end

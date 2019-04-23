@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'longleaf/models/metadata_record'
 require 'longleaf/models/md_fields'
+require 'time'
 
 describe Longleaf::MetadataRecord do
   MDF ||= Longleaf::MDFields
@@ -180,6 +181,29 @@ describe Longleaf::MetadataRecord do
         record.update_service_as_performed('serv1')
         expect(record.service('serv1').timestamp).to_not be_nil
         expect(record.service('serv1').timestamp).to_not eq past_timestamp
+      end
+    end
+  end
+  
+  describe '.update_service_as_failed' do
+    context 'with no run information' do
+      let(:record) { build(:metadata_record) }
+    
+      it 'sets failure timestamp' do
+        record.update_service_as_failed('serv1')
+        expect(Time.iso8601(record.service('serv1').failure_timestamp)).to be_within(1).of (Time.now)
+      end
+    end
+    
+    context 'metadata record with previous timestamp' do
+      let(:past_timestamp) { Longleaf::ServiceDateHelper.formatted_timestamp(Time.now - 1) }
+      let(:serv_rec) { build(:service_record, timestamp: past_timestamp)}
+      let(:record) { build(:metadata_record, services: { 'serv1' => serv_rec } ) }
+      
+      it 'set failure timestamp and does not affect other details' do
+        record.update_service_as_failed('serv1')
+        expect(Time.iso8601(record.service('serv1').failure_timestamp)).to be_within(1).of (Time.now)
+        expect(record.service('serv1').timestamp).to eq past_timestamp
       end
     end
   end

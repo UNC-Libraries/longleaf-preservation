@@ -64,15 +64,16 @@ module Longleaf
           location: storage_loc.name)
       
       first_timestamp = SequelIndexDriver.first_service_execution_timestamp(expected_services, md_rec)
+      delay_until_timestamp = SequelIndexDriver.delay_until_timestamp(md_rec)
       
       if @adapter == :mysql || @adapter == :mysql2
         # Reformat the date to meet mysql's requirements
         formatted = first_timestamp.nil? ? nil : DateTime.iso8601(first_timestamp).strftime('%Y-%m-%d %H:%M:%S')
         preserve_tbl.on_duplicate_key_update(:service_time)
-            .insert(file_path: file_path, service_time: formatted)
+            .insert(file_path: file_path, service_time: formatted, delay_until_time: delay_until_timestamp)
       else
         preserve_tbl.insert_conflict(target: :file_path, update: {service_time: first_timestamp})
-            .insert(file_path: file_path, service_time: first_timestamp)
+            .insert(file_path: file_path, service_time: first_timestamp, delay_until_time: delay_until_timestamp)
       end
     end
     
@@ -122,6 +123,16 @@ module Longleaf
       service_times.min
     end
     
+    # @return The first failure timestamp for any service, or nil if there were none.
+    def self.delay_until_timestamp(md_rec)
+      md_rec.list_services.each do |service_name|
+        service_rec = md_rec.service(service_name)
+        return service_rec.failure_timestamp unless service_rec.failure_timestamp.nil?
+      end
+      # return lowest possible date
+      return ServiceDateHelper.formatted_timestamp(Time.new(0))
+    end
+    
     # Remove an entry from the index
     # @param remove_me The record to remove from the index. May be a FileRecord or a String.
     def remove(remove_me)
@@ -146,11 +157,13 @@ module Longleaf
         db_conn.create_table!(PRESERVE_TBL) do
           String :file_path, primary_key: true, size: 768
           DateTime :service_time, null: true
+          DateTime :delay_until_time
         end
       else
         db_conn.create_table!(PRESERVE_TBL) do
           String :file_path, primary_key: true, text: true
           DateTime :service_time, null: true
+          DateTime :delay_until_time
         end
       end
   
@@ -162,7 +175,7 @@ module Longleaf
         db_conn.run("CREATE INDEX service_times_file_path_text_index ON preserve_service_times (file_path collate nocase)")
       end
       
-      # Create table for tracking 
+      # Create table for tracking the state of the index
       db_conn.create_table!(INDEX_STATE_TBL) do
         String :config_md5
         DateTime :last_reindexed
@@ -196,9 +209,15 @@ module Longleaf
       end
       
       # retrieve and return a page of results
-      add_path_restrictions(@preserve_dataset, file_selector)
+      ds = add_path_restrictions(@preserve_dataset, file_selector)
           .where { service_time <= stale_datetime }
-          .select_map(:file_path)
+      # add filter to restrict results to paths which are not currently being delayed due to errors
+      if @adapter == :sqlite || @adapter == :amalgalite
+        ds = ds.where { delay_until_time <= Time.now.utc.iso8601 }
+      else
+        ds = ds.where{ delay_until_time <= Sequel.function(:NOW) }
+      end  
+      ds.select_map(:file_path)
     end
     
     # Retrieves a page of paths for registered files.
