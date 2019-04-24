@@ -35,7 +35,7 @@ module Longleaf
           raise DeregistrationError.new("Unable to deregister '#{@file_rec.path}', it is already deregistered.")
         end
         
-        md_rec.deregistered = Time.now.utc.iso8601
+        md_rec.deregistered = Time.now.utc.iso8601(3)
         
         # persist the metadata
         @app_manager.md_manager.persist(@file_rec)

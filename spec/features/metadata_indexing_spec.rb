@@ -21,6 +21,10 @@ describe 'metadata indexing', :type => :aruba do
   
   let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb') }
 
+  before :all do
+    Sequel.default_timezone = :utc
+  end
+
   after do
     FileUtils.rm_rf([md_dir, path_dir, lib_dir])
     FileUtils.rm(db_file)
@@ -54,7 +58,7 @@ describe 'metadata indexing', :type => :aruba do
       it 'successfully runs and adds entry to index' do
         expect(last_command_started).to have_exit_status(0)
         
-        expect(get_timestamp_from_index(file_path)).to be_within(60).of (Time.now)
+        expect(get_timestamp_from_index(file_path)).to be_within(60).of (Time.now.utc)
       end
     end
     
@@ -70,7 +74,7 @@ describe 'metadata indexing', :type => :aruba do
         expect(last_command_started).to have_exit_status(0)
         second_timestamp = get_timestamp_from_index(file_path)
         expect(second_timestamp).to_not eq @first_timestamp
-        expect(second_timestamp).to be_within(60).of (Time.now)
+        expect(second_timestamp).to be_within(60).of (Time.now.utc)
       end
     end
     

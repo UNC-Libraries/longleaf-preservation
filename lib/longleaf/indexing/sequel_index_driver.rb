@@ -29,6 +29,7 @@ module Longleaf
     #    If a hash is provided, it used as the parameters for the database connection.
     # @param page_size [Integer] number of results to retrieve per query when getting candidates
     def initialize(app_config, adapter, conn_details, page_size: nil)
+      Sequel.default_timezone = :utc
       @app_config = app_config
       @adapter = adapter
       @conn_details = conn_details
@@ -63,16 +64,19 @@ module Longleaf
       expected_services = service_manager.list_service_definitions(
           location: storage_loc.name)
       
-      first_timestamp = SequelIndexDriver.first_service_execution_timestamp(expected_services, md_rec)
-      delay_until_timestamp = SequelIndexDriver.delay_until_timestamp(md_rec)
+      first_timestamp = first_service_execution_timestamp(expected_services, md_rec)
+      delay_until_timestamp = delay_until_timestamp(md_rec)
+
+      first_timestamp = convert_iso8601_to_timestamp(first_timestamp)
+      delay_until_timestamp = convert_iso8601_to_timestamp(delay_until_timestamp)
       
       if @adapter == :mysql || @adapter == :mysql2
-        # Reformat the date to meet mysql's requirements
-        formatted = first_timestamp.nil? ? nil : DateTime.iso8601(first_timestamp).strftime('%Y-%m-%d %H:%M:%S')
         preserve_tbl.on_duplicate_key_update(:service_time)
-            .insert(file_path: file_path, service_time: formatted, delay_until_time: delay_until_timestamp)
+            .insert(file_path: file_path, service_time: first_timestamp, delay_until_time: delay_until_timestamp)
       else
-        preserve_tbl.insert_conflict(target: :file_path, update: {service_time: first_timestamp})
+        preserve_tbl.insert_conflict(target: :file_path, update: {
+                service_time: first_timestamp,
+                delay_until_time: delay_until_timestamp})
             .insert(file_path: file_path, service_time: first_timestamp, delay_until_time: delay_until_timestamp)
       end
     end
@@ -84,7 +88,7 @@ module Longleaf
     # @return The timestamp of the earliest service execution time for the file described by md_rec, in iso8601 format.
     #    Returns nil if no services are expected all services have already run and do not have a next occurrence, or
     #    the file is deregistered.
-    def self.first_service_execution_timestamp(expected_services, md_rec)
+    def first_service_execution_timestamp(expected_services, md_rec)
       current_time = Time.now.utc.iso8601(3)
       if md_rec.deregistered?
         return nil
@@ -118,19 +122,18 @@ module Longleaf
           next
         end
       end
-      
       # Return the lowest service execution time
       service_times.min
     end
     
     # @return The first failure timestamp for any service, or nil if there were none.
-    def self.delay_until_timestamp(md_rec)
+    def delay_until_timestamp(md_rec)
       md_rec.list_services.each do |service_name|
         service_rec = md_rec.service(service_name)
         return service_rec.failure_timestamp unless service_rec.failure_timestamp.nil?
       end
       # return lowest possible date
-      return ServiceDateHelper.formatted_timestamp(Time.new(0))
+      return minimum_timestamp
     end
     
     # Remove an entry from the index
@@ -156,14 +159,14 @@ module Longleaf
         # mysql does not support 'text' fields as primary keys
         db_conn.create_table!(PRESERVE_TBL) do
           String :file_path, primary_key: true, size: 768
-          DateTime :service_time, null: true
-          DateTime :delay_until_time
+          column :service_time, 'timestamp(3)', { :null => true }
+          column :delay_until_time, 'timestamp(3)'
         end
       else
         db_conn.create_table!(PRESERVE_TBL) do
           String :file_path, primary_key: true, text: true
-          DateTime :service_time, null: true
-          DateTime :delay_until_time
+          column :service_time, 'timestamp(3)', { :null => true }
+          column :delay_until_time, 'timestamp(3)'
         end
       end
   
@@ -191,7 +194,7 @@ module Longleaf
     def update_index_state
       db_conn[INDEX_STATE_TBL].insert(
           config_md5: @config_md5,
-          last_reindexed: DateTime.now,
+          last_reindexed: Time.now.utc,
           longleaf_version: Longleaf::VERSION)
     end
     
@@ -211,13 +214,8 @@ module Longleaf
       # retrieve and return a page of results
       ds = add_path_restrictions(@preserve_dataset, file_selector)
           .where { service_time <= stale_datetime }
-      # add filter to restrict results to paths which are not currently being delayed due to errors
-      if @adapter == :sqlite || @adapter == :amalgalite
-        ds = ds.where { delay_until_time <= Time.now.utc.iso8601 }
-      else
-        ds = ds.where{ delay_until_time <= Sequel.function(:NOW) }
-      end  
-      ds.select_map(:file_path)
+          .where { delay_until_time < stale_datetime }
+          .select_map(:file_path)
     end
     
     # Retrieves a page of paths for registered files.
@@ -251,6 +249,18 @@ module Longleaf
       # Reformat all selected paths into LIKE partial string matches
       path_conds = file_selector.target_paths.map { |path| path.end_with?('/') ? path + '%' : path }
       dataset.where(Sequel.like(:file_path, *path_conds))
+    end
+    
+    def convert_iso8601_to_timestamp(iso8601)
+      return nil if iso8601.nil?
+      Time.iso8601(iso8601).strftime('%Y-%m-%d %H:%M:%S.%3N')
+    end
+    
+    def minimum_timestamp
+      if @min_timestamp.nil?
+        @min_timestamp = ServiceDateHelper.formatted_timestamp(Time.at(0).utc)
+      end
+      @min_timestamp
     end
   end
 end

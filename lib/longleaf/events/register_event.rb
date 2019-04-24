@@ -38,7 +38,7 @@ module Longleaf
         end
       
         # create metadata record
-        md_rec = MetadataRecord.new(registered: Time.now.utc.iso8601)
+        md_rec = MetadataRecord.new(registered: Time.now.utc.iso8601(3))
         @file_rec.metadata_record = md_rec
       
         # retain significant details from former record
@@ -68,7 +68,7 @@ module Longleaf
       md_rec = @file_rec.metadata_record
       
       # Set file properties
-      md_rec.last_modified = File.mtime(@file_rec.path).utc.iso8601
+      md_rec.last_modified = File.mtime(@file_rec.path).utc.iso8601(3)
       md_rec.file_size = File.size(@file_rec.path)
     end
     
