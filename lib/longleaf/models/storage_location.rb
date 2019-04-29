@@ -39,7 +39,26 @@ module Longleaf
       raise ArgumentError.new("Provided file path is not contained by storage location #{@name}: #{file_path}") \
           unless file_path.start_with?(@path)
 
-      file_path.sub(/^#{@path}/, metadata_path) + MetadataSerializer::metadata_suffix
+      md_path = file_path.sub(/^#{@path}/, @metadata_path)
+      # If the file_path is to a file, then add metadata suffix.
+      if md_path.end_with?('/')
+        md_path
+      else
+        md_path + MetadataSerializer::metadata_suffix
+      end
+    end
+    
+    # Get the metadata path for the provided file path located in this storage location.
+    # @param md_path [String] metadata file path
+    # @raise [ArgumentError] if the md_path is not in this storage location
+    # @return [String] the path for the file associated with this metadata
+    def get_path_from_metadata_path(md_path)
+      raise ArgumentError.new("A file_path parameter is required") if md_path.nil? || md_path.empty?
+      raise ArgumentError.new("Provided metadata path is not contained by storage location #{@name}: #{md_path}") \
+          unless md_path&.start_with?(@metadata_path)
+
+      file_path = md_path.sub(/^#{@metadata_path}/, @path)
+      file_path.sub(/#{MetadataSerializer::metadata_suffix}$/, '')
     end
     
     # Checks that the path and metadata path defined in this location are available

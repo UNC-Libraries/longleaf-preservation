@@ -41,11 +41,24 @@ module Longleaf
       nil
     end
     
+    # Get the {StorageLocation} object which should contain the given metadata path
+    # @return [Longleaf::StorageLocation] location containing the given metadata path
+    #    or nil if the path is not contained by a registered location.
+    def get_location_by_metadata_path(md_path)
+      raise ArgumentError.new("Metadata path parameter is required") if md_path.nil? || md_path.empty?
+      @locations.each do |name, location|
+        return location if md_path.start_with?(location.metadata_path) 
+      end
+      
+      nil
+    end
+    
     # Raises a {StorageLocationUnavailableError} if the given path is not in a known storage location,
     #    or if it is not within the expected location if provided
     # @param path [String] file path
     # @param expected_loc [String] name of the storage location which path should be contained by
     # @raise [StorageLocationUnavailableError] if the path is not in a known/expected storage location
+    # @return [StorageLocation] the storage location which contains path, if it was within one.
     def verify_path_in_location(path, expected_loc = nil)
       location = get_location_by_path(path)
       if location.nil?
@@ -53,6 +66,7 @@ module Longleaf
       elsif !expected_loc.nil? && expected_loc != location.name
         raise StorageLocationUnavailableError.new("Path #{path} is not contained by storage location #{expected_loc}.")
       end
+      location
     end
   end
 end

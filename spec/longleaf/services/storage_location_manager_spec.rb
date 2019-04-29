@@ -139,6 +139,43 @@ describe Longleaf::StorageLocationManager do
     end
   end
   
+  describe '.get_location_by_metadata_path' do
+    context 'with no locations' do
+      let(:config) { ConfigBuilder.new.with_locations.get }
+      let(:manager) { build(:storage_location_manager, config: config) }
+      
+      it { expect(manager.get_location_by_metadata_path('s_loc')).to be_nil }
+    end
+    
+    context 'with multiple locations' do
+      let(:config) { ConfigBuilder.new.with_locations
+          .with_location(name: 'loc1', path: '/file/path1/', md_path: '/metadata/path1/')
+          .with_location(name: 'loc2', path: '/file/path2/', md_path: '/metadata/path2/')
+          .get }
+      let(:manager) { build(:storage_location_manager, config: config) }
+      
+      it 'returns nil for md file not in a registered storage location' do
+        expect(manager.get_location_by_metadata_path('/unknown/loc/file.txt')).to be_nil
+      end
+      
+      it 'returns nil for a md file in a parent directory of a storage location' do
+        expect(manager.get_location_by_metadata_path('/metadata/file.txt')).to be_nil
+      end
+      
+      it 'returns location for file in loc1' do
+        result = manager.get_location_by_metadata_path('/metadata/path1/file.txt')
+        
+        expect(result.name).to eq 'loc1'
+      end
+      
+      it 'returns location for file in loc2' do
+        result = manager.get_location_by_metadata_path('/metadata/path2/file.txt')
+        
+        expect(result.name).to eq 'loc2'
+      end
+    end
+  end
+  
   describe '.verify_path_in_location' do
     context 'with one location' do
       let(:config) { ConfigBuilder.new.with_locations
