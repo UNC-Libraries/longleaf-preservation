@@ -73,7 +73,7 @@ describe 'deregister', :type => :aruba do
 
       it 'outputs failure to find storage location' do
         expect(last_command_started).to have_output(
-          /FAILURE deregister: Cannot deregister .*, file is not registered./)
+          /FAILURE deregister: File #{file_path} is not registered./)
         expect(last_command_started).to have_exit_status(1)
       end
     end
@@ -137,7 +137,7 @@ describe 'deregister', :type => :aruba do
             expect(last_command_started).to have_output(/SUCCESS deregister #{file_path}/)
             expect(file_deregistered?(file_path, md_dir)).to be true
             expect(last_command_started).to have_output(
-                /FAILURE deregister: Cannot deregister #{file_path2}, file is not registered/)
+                /FAILURE deregister: File #{file_path2} is not registered./)
             expect(file_deregistered?(file_path2, md_dir)).to be false
             expect(last_command_started).to have_exit_status(2)
           end

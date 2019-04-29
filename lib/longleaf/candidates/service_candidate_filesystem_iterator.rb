@@ -25,28 +25,24 @@ module Longleaf
     # or nil if there are no more candidates.
     def next_candidate
       loop do
-        begin
-          next_path = @file_selector.next_path
-          return nil if next_path.nil?
-          
-          logger.debug("Evaluating candidate #{next_path}")
-          storage_loc = @app_config.location_manager.get_location_by_path(next_path)
-          file_rec = FileRecord.new(next_path, storage_loc)
-      
-          # Skip over unregistered files
-          if !file_rec.metadata_present?
-            logger.debug("Ignoring unregistered file #{next_path}")
-            next
-          end
-          
-          file_rec.metadata_record = MetadataDeserializer.deserialize(file_path: file_rec.metadata_path,
-              digest_algs: storage_loc.metadata_digests)
-      
-          # Return the file record if it needs any services run
-          return file_rec if needs_run?(file_rec)
-        rescue InvalidStoragePathError => e
-          logger.warn("Skipping candidate file: #{e.message}")
+        next_path = @file_selector.next_path
+        return nil if next_path.nil?
+        
+        logger.debug("Evaluating candidate #{next_path}")
+        storage_loc = @app_config.location_manager.get_location_by_path(next_path)
+        file_rec = FileRecord.new(next_path, storage_loc)
+    
+        # Skip over unregistered files
+        if !file_rec.metadata_present?
+          logger.debug("Ignoring unregistered file #{next_path}")
+          next
         end
+        
+        file_rec.metadata_record = MetadataDeserializer.deserialize(file_path: file_rec.metadata_path,
+            digest_algs: storage_loc.metadata_digests)
+    
+        # Return the file record if it needs any services run
+        return file_rec if needs_run?(file_rec)
       end
     end
     

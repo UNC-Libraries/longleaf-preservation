@@ -37,7 +37,7 @@ module Longleaf
             record_failure(err.message)
           end
         end
-      rescue InvalidStoragePathError, StorageLocationUnavailableError => err
+      rescue RegistrationError, InvalidStoragePathError, StorageLocationUnavailableError => err
         record_failure(err.message)
       rescue => err
         record_failure("Encountered error while validating metadata files", error: err)

@@ -8,6 +8,7 @@ require 'longleaf/commands/validate_metadata_command'
 require 'longleaf/commands/register_command'
 require 'longleaf/commands/preserve_command'
 require 'longleaf/candidates/file_selector'
+require 'longleaf/candidates/registered_file_selector'
 
 module Longleaf
   # Main commandline interface setup for Longleaf using Thor.
@@ -84,7 +85,7 @@ module Longleaf
       setup_logger(options)
       
       app_config_manager = load_application_config(options)
-      file_selector = create_file_selector(options[:file], nil, app_config_manager)
+      file_selector = create_registered_selector(options[:file], nil, app_config_manager)
       
       command = DeregisterCommand.new(app_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force])
@@ -106,7 +107,7 @@ module Longleaf
       
       extend_load_path(options[:load_path])
       app_config_manager = load_application_config(options)
-      file_selector = create_file_selector(options[:file], options[:location], app_config_manager)
+      file_selector = create_registered_selector(options[:file], options[:location], app_config_manager)
       
       command = PreserveCommand.new(app_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force])
@@ -133,7 +134,7 @@ module Longleaf
       setup_logger(options)
       
       app_config_manager = load_application_config(options)
-      file_selector = create_file_selector(options[:file], options[:location], app_config_manager)
+      file_selector = create_registered_selector(options[:file], options[:location], app_config_manager)
       
       exit Longleaf::ValidateMetadataCommand.new(app_config_manager).execute(file_selector: file_selector)
     end
@@ -172,16 +173,20 @@ module Longleaf
         end
       end
       
-      def create_file_selector(file_paths, storage_locations, app_config_manager)
+      def create_file_selector(file_paths, storage_locations, app_config_manager, selector_class: FileSelector)
         file_paths = file_paths&.split(/\s*,\s*/)
         storage_locations = storage_locations&.split(/\s*,\s*/)
         
         begin
-          FileSelector.new(file_paths: file_paths, storage_locations: storage_locations, app_config: app_config_manager)
+          selector_class.new(file_paths: file_paths, storage_locations: storage_locations, app_config: app_config_manager)
         rescue ArgumentError => e
           logger.failure(e.message)
           exit 1
         end
+      end
+      
+      def create_registered_selector(file_paths, storage_locations, app_config_manager)
+        create_file_selector(file_paths, storage_locations, app_config_manager, selector_class: RegisteredFileSelector)
       end
       
       def extend_load_path(load_paths)

@@ -46,7 +46,7 @@ describe 'validate_metadata', :type => :aruba do
 
       it 'outputs failure to find storage location' do
         expect(last_command_started).to have_output(
-          /FAILURE: Cannot validate metadata for .*, file is not registered/)
+          /FAILURE: File #{file_path} is not registered/)
         expect(last_command_started).to have_exit_status(1)
       end
     end
