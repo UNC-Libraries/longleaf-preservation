@@ -96,10 +96,17 @@ module Longleaf
     
     # Writes the configuration from this builder into a temporary file
     # @return the file path of the config file
-    def write_to_yaml_file
-      Tempfile.open('config') do |f|
-        f.write(@config.to_yaml)
-        return f.path
+    def write_to_yaml_file(dest_path = nil)
+      if dest_path.nil?
+        Tempfile.open('config') do |f|
+          f.write(@config.to_yaml)
+          return f.path
+        end
+      else
+        File.open(dest_path, 'w') do |f|
+          f.write(@config.to_yaml)
+        end
+        dest_path
       end
     end
   end

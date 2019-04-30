@@ -156,6 +156,18 @@ module Longleaf
       end
     end
     
+    desc "reindex", "Perform a full reindex of file metadata stored within the configured storage locations."
+    method_option(:if_stale,
+        :type => :boolean, 
+        :default => false,
+        :desc => 'Only perform the reindex if the index is known to be stale, generally after an config file change.')
+    def reindex
+      setup_logger(options)
+      app_config_manager = load_application_config(options)
+      
+      exit Longleaf::ReindexCommand.new(app_config_manager).execute(only_if_stale: options[:if_stale])
+    end
+    
     no_commands do
       def setup_logger(options)
         initialize_logger(options[:failure_only],

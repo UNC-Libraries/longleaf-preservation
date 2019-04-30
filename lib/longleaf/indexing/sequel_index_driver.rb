@@ -151,6 +151,11 @@ module Longleaf
       end
     end
     
+    # Remove all entries from the index
+    def clear_index
+      preserve_tbl.delete
+    end
+    
     # Initialize the index's database using the provided configuration
     def setup_index
       # Create the table for tracking when files will need preservation services run on them.
@@ -192,7 +197,9 @@ module Longleaf
     # Updates the state information for the index to indicate that the index has been refreshed
     # or is in sync with the application's configuration.
     def update_index_state
-      db_conn[INDEX_STATE_TBL].insert(
+      index_state_tbl = db_conn[INDEX_STATE_TBL]
+      index_state_tbl.delete
+      index_state_tbl.insert(
           config_md5: @config_md5,
           last_reindexed: Time.now.utc,
           longleaf_version: Longleaf::VERSION)
