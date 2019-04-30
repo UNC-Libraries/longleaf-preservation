@@ -70,7 +70,11 @@ module Longleaf
         
         verify_digests(file_path, contents, digest_algs)
         
-        YAML.load(contents)
+        begin
+          YAML.load(contents)
+        rescue => err
+          raise Longleaf::MetadataError.new("Failed to parse metadata file #{file_path}: #{err.message}")
+        end
       end
     end
     
