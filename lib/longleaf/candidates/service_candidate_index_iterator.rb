@@ -25,37 +25,33 @@ module Longleaf
     # @return [FileRecord] file record of the next candidate with services needing to be run,
     #    or nil if there are no more candidates.
     def next_candidate
-      # Get the next page of results if the previous page has been processed
-      if @result_set.nil? || @result_set.empty?
-        if @force
-          @result_set = @index_manager.registered_paths(@file_selector)
-        else
-          case(@event)
-          when EventNames::PRESERVE
-            @result_set = @index_manager.paths_with_stale_services(@file_selector, @stale_datetime)
-          when EventNames::CLEANUP
-            # TODO
-          end
-        end
-        logger.debug("Retrieve result set with #{@result_set&.length} entries")
-      end
+      file_rec = nil
+      # loop until a candidate with metadata is retrieved
+      loop do
+        # Get the next page of results if the previous page has been processed
+        fetch_next_page if @result_set.nil? || @result_set.empty?
       
-      next_path = @result_set.shift
-      return nil if next_path.nil?
+        # Retrieve the next possible candidate path from the page
+        next_path = @result_set.shift
+        # given that the page was just retrieved, getting a nil path indicates that the retrieved page of
+        # candidates is empty and there are no more candidates to iterate at this time.
+        return nil if next_path.nil?
       
-      logger.debug("Retrieved candidate #{next_path}")
-      storage_loc = @app_config.location_manager.get_location_by_path(next_path)
-      file_rec = FileRecord.new(next_path, storage_loc)
+        logger.debug("Retrieved candidate #{next_path}")
+        storage_loc = @app_config.location_manager.get_location_by_path(next_path)
+        file_rec = FileRecord.new(next_path, storage_loc)
   
-      # Skip over unregistered files
-      if !file_rec.metadata_present?
-        logger.warn("Encountered #{next_path} in index, but path is not registered. Clearing out of synch entry.")
-        @index_manager.remove(file_rec)
-        return next_candidate
+        # Keep seeking until a registered candidate is found, according to the file system.
+        if file_rec.metadata_present?
+          break
+        else
+          logger.warn("Encountered #{next_path} in index, but path is not registered. Clearing out of synch entry.")
+          @index_manager.remove(file_rec)
+        end
       end
       
       file_rec.metadata_record = MetadataDeserializer.deserialize(file_path: file_rec.metadata_path,
-          digest_algs: storage_loc.metadata_digests)
+          digest_algs: file_rec.storage_location.metadata_digests)
       
       file_rec
     end
@@ -69,6 +65,21 @@ module Longleaf
         
         file_rec = next_candidate
       end
+    end
+    
+    private
+    def fetch_next_page
+      if @force
+        @result_set = @index_manager.registered_paths(@file_selector)
+      else
+        case(@event)
+        when EventNames::PRESERVE
+          @result_set = @index_manager.paths_with_stale_services(@file_selector, @stale_datetime)
+        when EventNames::CLEANUP
+          # TODO
+        end
+      end
+      logger.debug("Retrieve result set with #{@result_set&.length} entries")
     end
   end
 end

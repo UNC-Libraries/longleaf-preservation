@@ -104,21 +104,25 @@ describe 'metadata indexing', :type => :aruba do
       before do
         run_simple("longleaf register -c #{config_path} -f #{file_path} -y #{sys_config_path}", fail_on_error: false)
         run_simple("longleaf register -c #{config_path} -f #{file_path2} -y #{sys_config_path}", fail_on_error: false)
-        @first_timestamp1 = get_timestamp_from_index(file_path)
         @first_timestamp2 = get_timestamp_from_index(file_path2)
         run_simple("longleaf preserve -c #{config_path} -s loc1 -y #{sys_config_path} -I #{lib_dir}", fail_on_error: false)
       end
     
       it 'partially successfully runs, setting delay on the failed file but not the other' do
-        # The timestamp should go to nil since the only service is set to run once
         expect(last_command_started).to have_output(/FAILURE preserve\[serv1\] #{file_path}/)
         expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path2}/)
         expect(last_command_started).to have_exit_status(2)
         row1 = get_row_from_index(file_path)
-        expect(row1[:service_time]).to_not eq @first_timestamp1
+        # Next execution time must still be set to roughly the current time
+        expect(row1[:service_time]).to be_within(5).of (Time.now.utc)
+        # Delay must be set for failed file
         expect(row1[:delay_until_time]).to be_within(60).of (Time.now.utc)
+        
         row2 = get_row_from_index(file_path2)
-        expect(row2[:service_time]).to_not eq @first_timestamp2
+        # The timestamp should change to nil since the only service is set to run once
+        expect(@first_timestamp2).to_not be_nil
+        expect(row2[:service_time]).to be_nil
+        # No delay should be set for successful file
         expect(row2[:delay_until_time]).to_not be_within(60).of (Time.now.utc)
       end
     end

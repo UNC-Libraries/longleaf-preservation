@@ -71,7 +71,7 @@ module Longleaf
       delay_until_timestamp = convert_iso8601_to_timestamp(delay_until_timestamp)
       
       if @adapter == :mysql || @adapter == :mysql2
-        preserve_tbl.on_duplicate_key_update(:service_time)
+        preserve_tbl.on_duplicate_key_update
             .insert(file_path: file_path, service_time: first_timestamp, delay_until_time: delay_until_timestamp)
       else
         preserve_tbl.insert_conflict(target: :file_path, update: {
