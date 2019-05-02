@@ -55,6 +55,16 @@ module Longleaf
       service_rec
     end
     
+    # Updates details of service record as if the service had encountered a
+    # failure during execution.
+    # @param service_name [String] name of the service run
+    # @return [ServiceRecord] the service record updated
+    def update_service_as_failed(service_name)
+      service_rec = service(service_name) || add_service(service_name)
+      service_rec.failure_timestamp = ServiceDateHelper.formatted_timestamp
+      service_rec
+    end
+    
     # @param name [String] name identifier of the service to retrieve
     # @return [ServiceRecord] the ServiceRecord for the service identified by name, or nil
     def service(name)

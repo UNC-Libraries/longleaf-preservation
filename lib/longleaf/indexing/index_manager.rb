@@ -27,6 +27,12 @@ module Longleaf
       @index_driver.index(file_rec)
     end
     
+    # Remove an entry from the index
+    # @param remove_me The record to remove from the index
+    def remove(remove_me)
+      @index_driver.remove(remove_me)
+    end
+    
     # @return true if the index should be reindexed
     def index_stale?
       @index_driver.is_stale?
@@ -35,6 +41,23 @@ module Longleaf
     # Setup initial structure of index implementation
     def setup_index
       @index_driver.setup_index
+    end
+    
+    # Retrieves a set of which have one or more services which need to run.
+    #
+    # @param file_selector [FileSelector] selector for paths to search for files
+    # @param stale_datetime [DateTime] find file_paths with services needing to be run before this value
+    # @return [Array] array of file paths that need one or more services run, in ascending order by
+    #    timestamp.
+    def paths_with_stale_services(file_selector, stale_datetime)
+      @index_driver.paths_with_stale_services(file_selector, stale_datetime)
+    end
+    
+    # Retrieves a page of paths for registered files.
+    # @param file_selector [FileSelector] selector for what paths to search for files
+    # @return [Array] array of file paths that are registered
+    def registered_paths(file_selector)
+      @index_driver.registered_paths(file_selector)
     end
     
     private
@@ -48,11 +71,16 @@ module Longleaf
       
       case(adapter)
       when :postgres, :mysql, :mysql2, :sqlite, :amalgalite
+        page_size = index_conf[SYS_FIELDS::MD_INDEX_PAGE_SIZE]&.to_int
+        
         connection = index_conf[SYS_FIELDS::MD_INDEX_CONNECTION]
         raise ConfigurationError.new("Must specify connection details for index adapter of type '#{adapter}'") if connection.nil?
         
         require 'longleaf/indexing/sequel_index_driver'
-        @index_driver = SequelIndexDriver.new(@app_config_manager, adapter, connection)
+        @index_driver = SequelIndexDriver.new(@app_config_manager,
+            adapter,
+            connection,
+            page_size: page_size)
       else
         raise ConfigurationError.new("Unknown index adapter '#{adapter}' specified.") if adapter.nil?
       end

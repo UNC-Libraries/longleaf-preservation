@@ -10,6 +10,7 @@ require 'fileutils'
 require 'tmpdir'
 require 'tempfile'
 require 'sequel'
+require 'date'
 
 describe Longleaf::SequelIndexDriver do
   include Longleaf::FileHelpers
@@ -80,8 +81,6 @@ describe Longleaf::SequelIndexDriver do
     end
     
     let(:storage_loc) { build(:storage_location, name: 'loc1',  path: path_dir, metadata_path: md_dir) }
-    let(:file_path) { create_test_file(dir: path_dir, name: 'test_file') }
-    let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_loc) }
     
     context 'location with no services' do
       let(:config_path) { ConfigBuilder.new
@@ -92,28 +91,22 @@ describe Longleaf::SequelIndexDriver do
       
       let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
       
-      before do
-        MetadataBuilder.new(file_path: file_path)
-            .with_service("some_serv")
-            .register_to(file_rec)
-      end
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "some_serv", days_from_now) }
       
       it 'indexes with null timestamp' do
-        driver.index(file_rec)
+        driver.index(file_rec1)
         
-        expect(get_timestamp_from_index(file_rec)).to be nil
+        expect(get_timestamp_from_index(file_rec1)).to be nil
       end
     end
     
     context 'file with no previous service runs' do
-      before do
-        MetadataBuilder.new(file_path: file_path).register_to(file_rec)
-      end
+      let!(:file_rec1) { create_index_file_rec(storage_loc) }
       
       it 'indexes with current timestamp' do
-        driver.index(file_rec)
+        driver.index(file_rec1)
         
-        expect(get_timestamp_from_index(file_rec)).to be_within(5).of Time.now
+        expect(get_timestamp_from_index(file_rec1)).to be_within(5).of days_from_now(0)
       end
     end
     
@@ -125,45 +118,32 @@ describe Longleaf::SequelIndexDriver do
           .write_to_yaml_file }
       let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
   
-      before do
-        MetadataBuilder.new(file_path: file_path)
-            .with_service("serv1")
-            .register_to(file_rec)
-      end
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now) }
       
       it 'indexes with null timestamp' do
-        driver.index(file_rec)
+        driver.index(file_rec1)
         
-        expect(get_timestamp_from_index(file_rec)).to be nil
+        expect(get_timestamp_from_index(file_rec1)).to be nil
       end
     end
     
     context 'previously run service with frequency' do
-      before do
-        MetadataBuilder.new(file_path: file_path)
-            .with_service("serv1")
-            .register_to(file_rec)
-      end
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now) }
       
       it 'indexes with timestamp one day in the future' do
-        driver.index(file_rec)
+        driver.index(file_rec1)
         
-        expect(get_timestamp_from_index(file_rec)).to be_within(5).of (Time.now + SECONDS_IN_DAY)
+        expect(get_timestamp_from_index(file_rec1)).to be_within(5).of days_from_now(1)
       end
     end
     
     context 'service run 10 days ago, with frequency' do
-      before do
-        MetadataBuilder.new(file_path: file_path)
-            .with_service("serv1",
-                timestamp: Longleaf::ServiceDateHelper::formatted_timestamp(Time.now - SECONDS_IN_DAY * 10))
-            .register_to(file_rec)
-      end
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(-10)) }
       
       it 'indexes with timestamp 9 days in the past' do
-        driver.index(file_rec)
+        driver.index(file_rec1)
         
-        expect(get_timestamp_from_index(file_rec)).to be_within(5).of (Time.now - SECONDS_IN_DAY * 9)
+        expect(get_timestamp_from_index(file_rec1)).to be_within(5).of days_from_now(-9)
       end
     end
     
@@ -177,6 +157,8 @@ describe Longleaf::SequelIndexDriver do
       
       let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
       
+      let(:file_path) { create_test_file(dir: path_dir) }
+      let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_loc) }
       before do
         MetadataBuilder.new(file_path: file_path)
             .with_service("serv1")
@@ -187,7 +169,7 @@ describe Longleaf::SequelIndexDriver do
       it 'indexes with timestamp of the earliest service time (2 days in the future)' do
         driver.index(file_rec)
         
-        expect(get_timestamp_from_index(file_rec)).to be_within(5).of (Time.now + SECONDS_IN_DAY * 2)
+        expect(get_timestamp_from_index(file_rec)).to be_within(5).of days_from_now(2)
       end
     end
     
@@ -201,10 +183,12 @@ describe Longleaf::SequelIndexDriver do
       
       let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
       
+      let(:file_path) { create_test_file(dir: path_dir) }
+      let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_loc) }
       before do
         MetadataBuilder.new(file_path: file_path)
             .with_service("serv1",
-                timestamp: Longleaf::ServiceDateHelper::formatted_timestamp(Time.now - SECONDS_IN_DAY * 10))
+                timestamp: days_from_now(-10))
             .with_service("serv2")
             .register_to(file_rec)
       end
@@ -212,11 +196,13 @@ describe Longleaf::SequelIndexDriver do
       it 'indexes with timestamp of the earliest service time (2 days in the future)' do
         driver.index(file_rec)
         
-        expect(get_timestamp_from_index(file_rec)).to be_within(5).of (Time.now + SECONDS_IN_DAY * 2)
+        expect(get_timestamp_from_index(file_rec)).to be_within(5).of days_from_now(2)
       end
     end
     
-    context 'deregistered file' do  
+    context 'deregistered file' do
+      let(:file_path) { create_test_file(dir: path_dir) }
+      let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_loc) }
       before do
         MetadataBuilder.new(file_path: file_path)
             .with_service("serv1")
@@ -232,6 +218,285 @@ describe Longleaf::SequelIndexDriver do
     end
   end
   
+  describe '.remove' do
+    before do
+      driver.setup_index
+    end
+    
+    let(:storage_loc) { build(:storage_location, name: 'loc1',  path: path_dir, metadata_path: md_dir) }
+    
+    context 'path that is not indexed' do
+      it 'indexes with current timestamp' do
+        expect(driver.logger).to receive(:warn).with(/Could not remove .* from the index, path was not present/)
+        driver.remove('/wacky/path')
+      end
+    end
+    
+    context 'service which has previously run' do
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now) }
+      let!(:file_rec2) { create_index_file_rec(storage_loc, "serv1", days_from_now) }
+      
+      context 'remove by file record' do
+        it 'indexes with null timestamp' do
+          driver.remove(file_rec1)
+        
+          expect(get_timestamp_from_index(file_rec1)).to be_nil
+          # Ensure that no other records were impacted
+          expect(get_timestamp_from_index(file_rec2)).to_not be_nil
+        end
+      end
+      
+      context 'remove by file path' do
+        it 'indexes with null timestamp' do
+          driver.remove(file_rec1.path)
+        
+          expect(get_timestamp_from_index(file_rec1)).to be_nil
+        end
+      end
+    end
+  end
+  
+  describe '.paths_with_stale_services' do
+    before do
+      driver.setup_index
+    end
+    
+    let(:storage_loc) { build(:storage_location, name: 'loc1',  path: path_dir, metadata_path: md_dir) }
+    
+    context 'no file paths registered' do
+      let(:selector) { build(:file_selector,
+              storage_locations: ['loc1'],
+              app_config: app_config) }
+      
+      it 'returns no file paths' do
+        results = driver.paths_with_stale_services(selector, days_from_now)
+        expect(results).to be_empty
+      end
+    end
+    
+    context 'no file paths with services needed' do
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(2)) }
+      
+      let(:selector) { build(:file_selector,
+              storage_locations: ['loc1'],
+              app_config: app_config) }
+      
+      it 'returns no file paths' do
+        results = driver.paths_with_stale_services(selector, days_from_now)
+        expect(results).to be_empty
+      end
+    end
+    
+    context 'one file path needing services' do
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1") }
+      
+      context 'file selector for storage location' do
+        let(:selector) { build(:file_selector, 
+                storage_locations: ['loc1'],
+                app_config: app_config) }
+        
+        it 'returns the file needing services' do
+          results = driver.paths_with_stale_services(selector, days_from_now(2))
+          expect(results).to contain_exactly(file_rec1.path)
+        end
+      end
+    end
+    
+    context 'multiple files needing services' do
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(-2)) }
+      let!(:file_rec2) { create_index_file_rec(storage_loc, "serv1", days_from_now(-10)) }
+      
+      context 'file selector for exact path' do
+        let(:selector) { build(:file_selector,
+                file_paths: [file_rec1.path],
+                app_config: app_config) }
+        
+        it 'returns the matching file path' do
+          results = driver.paths_with_stale_services(selector, days_from_now)
+          expect(results).to eq [file_rec1.path]
+        end
+      end
+      
+      context 'file selector for directory path' do
+        let(:selector) { build(:file_selector,
+                file_paths: [path_dir],
+                app_config: app_config) }
+        
+        it 'returns two file paths, with path2 first since its services are more stale' do
+          results = driver.paths_with_stale_services(selector, days_from_now)
+          expect(results).to eq [file_rec2.path, file_rec1.path]
+        end
+      end
+      
+      context 'file selector for storage location path' do
+        let(:selector) { build(:file_selector,
+                storage_locations: ['loc1'],
+                app_config: app_config) }
+        
+        it 'returns two file paths, with path2 first since its services are more stale' do
+          results = driver.paths_with_stale_services(selector, days_from_now)
+          expect(results).to eq [file_rec2.path, file_rec1.path]
+        end
+      end
+      
+      context 'file selector for empty path' do
+        let(:sub_dir) { FileUtils.mkdir(File.join(path_dir, 'sub_dir'))[0] }
+        
+        let(:selector) { build(:file_selector,
+                file_paths: [sub_dir],
+                app_config: app_config) }
+        
+        it 'returns no file paths' do
+          results = driver.paths_with_stale_services(selector, days_from_now)
+          expect(results).to be_empty
+        end
+      end
+    end
+    
+    context 'multiple files with no services needed' do
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(2)) }
+      let!(:file_rec2) { create_index_file_rec(storage_loc, "serv1", days_from_now(1)) }
+      
+      let(:selector) { build(:file_selector,
+              storage_locations: ['loc1'],
+              app_config: app_config) }
+              
+      it 'returns no file paths' do
+        results = driver.paths_with_stale_services(selector, days_from_now)
+        expect(results).to be_empty
+      end
+    end
+    
+    context 'driver with page size set to 2' do
+      let(:driver) { Longleaf::SequelIndexDriver.new(app_config, :amalgalite, conn_details, page_size: 2) }
+      
+      context 'three files which need services' do
+        let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(-2)) }
+        let!(:file_rec2) { create_index_file_rec(storage_loc, "serv1", days_from_now(-10)) }
+        let!(:file_rec3) { create_index_file_rec(storage_loc, "serv1", days_from_now(-8)) }
+      
+        let(:selector) { build(:file_selector,
+                storage_locations: ['loc1'],
+                app_config: app_config) }
+              
+        it 'returns only the first two results, ordered by staleness' do
+          results = driver.paths_with_stale_services(selector, days_from_now)
+          expect(results).to eq [file_rec2.path, file_rec3.path]
+        end
+      end
+    end
+    
+    context 'file selector for storage location' do
+      let(:file_path) { create_test_file(dir: path_dir) }
+      let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_loc) }
+      let(:selector) { build(:file_selector,
+              storage_locations: ['loc1'],
+              app_config: app_config) }
+    
+      context 'file record with actively failed service' do
+        before do
+          MetadataBuilder.new(file_path: file_path)
+              .with_service("serv1",
+                  timestamp: days_from_now(-10),
+                  failure_timestamp: days_from_now(1))
+              .register_to(file_rec)
+          driver.index(file_rec)
+        end
+              
+        it 'returns no file paths' do
+          results = driver.paths_with_stale_services(selector, days_from_now)
+          expect(results).to be_empty
+        end
+      end
+    
+      context 'file record with expired failed service but no services needed' do
+        before do
+          MetadataBuilder.new(file_path: file_path)
+              .with_service("serv1",
+                  failure_timestamp: days_from_now(-1))
+              .register_to(file_rec)
+          driver.index(file_rec)
+        end
+              
+        it 'returns no file paths' do
+          results = driver.paths_with_stale_services(selector, days_from_now)
+          expect(results).to be_empty
+        end
+      end
+      
+      context 'file record with expired failed service and services needed' do
+        before do
+          MetadataBuilder.new(file_path: file_path)
+              .with_service("serv1",
+                  timestamp: days_from_now(-10),
+                  failure_timestamp: days_from_now(-1))
+              .register_to(file_rec)
+          driver.index(file_rec)
+        end
+              
+        it 'returns the file path' do
+          results = driver.paths_with_stale_services(selector, days_from_now)
+          expect(results).to containing_exactly(file_path)
+        end
+      end
+    end
+  end
+  
+  describe '.registered_paths' do
+    before do
+      driver.setup_index
+    end
+    
+    let(:storage_loc) { build(:storage_location, name: 'loc1',  path: path_dir, metadata_path: md_dir) }
+    
+    context 'no file paths registered' do
+      let(:selector) { build(:file_selector,
+              storage_locations: ['loc1'],
+              app_config: app_config) }
+      
+      it 'returns no file paths' do
+        results = driver.registered_paths(selector)
+        expect(results).to be_empty
+      end
+    end
+    
+    context 'multiple registered, needing services and not needing services' do
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(-2)) }
+      let!(:file_rec2) { create_index_file_rec(storage_loc, "serv1", days_from_now(10)) }
+      
+      context 'file selector for exact path' do
+        let(:selector) { build(:file_selector,
+                file_paths: [file_rec1.path],
+                app_config: app_config) }
+        
+        it 'returns the matching file path' do
+          results = driver.registered_paths(selector)
+          expect(results).to containing_exactly(file_rec1.path)
+        end
+      end
+      
+      context 'file selector for storage location path' do
+        let(:selector) { build(:file_selector,
+                storage_locations: ['loc1'],
+                app_config: app_config) }
+        
+        it 'returns both file paths' do
+          results = driver.registered_paths(selector)
+          expect(results).to containing_exactly(file_rec1.path, file_rec2.path)
+        end
+        
+        context 'with page size of 1' do
+          let(:driver) { Longleaf::SequelIndexDriver.new(app_config, :amalgalite, conn_details, page_size: 1) }
+        
+          it 'returns the matching file path' do
+            results = driver.registered_paths(selector)
+            expect(results).to containing_exactly(file_rec1.path)
+          end
+        end
+      end
+    end
+  end
+  
   def db_conn
     @conn = Sequel.connect(conn_details) if @conn.nil?
     @conn
@@ -240,6 +505,24 @@ describe Longleaf::SequelIndexDriver do
   def get_timestamp_from_index(file_rec)
     result = db_conn[Longleaf::SequelIndexDriver::PRESERVE_TBL].where(file_path: file_rec.path).select(:service_time).first
   
-    result[:service_time]
+    result.nil? ? nil : result[:service_time]
+  end
+  
+  def days_from_now(offset = 0)
+    Time.now.utc + SECONDS_IN_DAY * offset
+  end
+  
+  def create_index_file_rec(storage_loc, with_service = nil, with_timestamp = nil)
+    file_path = create_test_file(dir: storage_loc.path)
+    file_rec = build(:file_record, file_path: file_path, storage_location: storage_loc)
+    
+    md_builder = MetadataBuilder.new(file_path: file_path)
+    unless with_service.nil?
+      md_builder.with_service(with_service, timestamp: with_timestamp)
+    end
+    md_builder.register_to(file_rec)
+    
+    driver.index(file_rec)
+    file_rec
   end
 end

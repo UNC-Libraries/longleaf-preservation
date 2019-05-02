@@ -100,7 +100,7 @@ describe Longleaf::PreserveEvent do
       end
       
       context 'service has run previously' do
-        let(:service_rec) { build(:service_record, timestamp: Longleaf::ServiceDateHelper.formatted_timestamp(Time.now - 1)) }
+        let(:service_rec) { build(:service_record, timestamp: Longleaf::ServiceDateHelper.formatted_timestamp(Time.now.utc - 1)) }
         let(:md_rec) { build(:metadata_record, services: { 'serv1' => service_rec } ) }
         let(:file_rec) { build(:file_record, file_path: file_path,
             storage_location: storage_loc, metadata_record: md_rec) }

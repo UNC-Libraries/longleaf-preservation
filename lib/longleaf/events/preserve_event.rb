@@ -30,7 +30,7 @@ module Longleaf
       
       logger.info("Performing preserve event on #{@file_rec.path}")
       
-      service_performed = false
+      service_attempted = false
       begin
         # get the list of services applicable to this location and event
         service_manager.list_services(location: storage_loc.name, event: EventNames::PRESERVE).each do |service_name|
@@ -42,23 +42,25 @@ module Longleaf
           
           begin
             logger.info("Performing preserve service #{service_name} for #{@file_rec.path}")
+            service_attempted = true
             # execute the service
             service_manager.perform_service(service_name, @file_rec, EventNames::PRESERVE)
             
             # record the outcome
             @file_rec.metadata_record.update_service_as_performed(service_name)
-            service_performed = true
             record_success(EventNames::PRESERVE, f_path, nil, service_name)
           rescue PreservationServiceError => e
+            @file_rec.metadata_record.update_service_as_failed(service_name)
             record_failure(EventNames::PRESERVE, f_path, e.message, service_name)
           rescue StandardError => e
+            @file_rec.metadata_record.update_service_as_failed(service_name)
             record_failure(EventNames::PRESERVE, f_path, nil, service_name, error: e)
             return return_status
           end
         end
       ensure
         # persist the metadata out to file if any services were executed
-        if service_performed
+        if service_attempted
           # persist the metadata
           @app_manager.md_manager.persist(@file_rec)
         end

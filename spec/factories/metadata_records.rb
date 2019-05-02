@@ -8,7 +8,7 @@ FactoryBot.define do
     initialize_with { new(attributes) }
     
     trait :timestamp_now do
-      timestamp { Time.now.iso8601 }
+      timestamp { Time.now.iso8601(3) }
     end
   end
   

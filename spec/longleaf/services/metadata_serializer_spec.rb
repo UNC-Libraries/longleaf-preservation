@@ -50,7 +50,7 @@ describe Longleaf::MetadataSerializer do
         expect(md.dig(MDF::SERVICES, :service_1, MDF::SERVICE_TIMESTAMP)).to eq '2018-01-01T01:00:00.000Z'
         expect(md.dig(MDF::SERVICES, :service_1, 'service_prop')).to eq 'value'
         
-        expect(md.dig(MDF::SERVICES, :service_2)).to be_empty
+        expect(md[MDF::SERVICES].key?(:service_2)).to be false
       end
       
       context 'with digest sha1 algorithm' do
@@ -59,7 +59,7 @@ describe Longleaf::MetadataSerializer do
           digest_path = "#{dest_file.path}.sha1"
 
           expect(File.exist?(digest_path)).to be true
-          expect(IO.read(digest_path)).to eq '6753092318f5945c374e14105d53f958b13598f1'
+          expect(IO.read(digest_path)).to eq '4f33fb12b92a6c2f5b24c51a32368f296ccdb844'
         end
       end
       
@@ -70,10 +70,10 @@ describe Longleaf::MetadataSerializer do
           digest_path_sha512 = "#{dest_file.path}.sha512"
 
           expect(File.exist?(digest_path_md5)).to be true
-          expect(IO.read(digest_path_md5)).to eq '88f5a63b344a63a071b71850df2aca88'
+          expect(IO.read(digest_path_md5)).to eq '51ffda2dbfdbc7f1dabee110f12cdcf1'
           
           expect(File.exist?(digest_path_sha512)).to be true
-          expect(IO.read(digest_path_sha512)).to eq 'c63b348c6cf9ff222ae728879dfa3905d7762126055fc421e1c75c7ca9aa16bc93177034054794338d727a428252befffb7a9ecd410e7da0edff2e4ec09ace83'
+          expect(IO.read(digest_path_sha512)).to eq 'c84a0e05e64082e8fb06162dac465b150a9bfcec440927ef66b8876968ce79a43c10b2ac894f040c2351f861f3427f50e4e37b1a5a072e84e9aa0fabc5a8b845'
         end
       end
     end
@@ -95,7 +95,7 @@ describe Longleaf::MetadataSerializer do
         md = YAML.load_file(nested_dest_path)
         
         expect(md.dig(MDF::DATA, MDF::REGISTERED_TIMESTAMP)).to eq '2018-01-01T00:00:00.000Z'
-        expect(md.dig(MDF::SERVICES, :service_1)).to be_empty
+        expect(md[MDF::SERVICES].key?(:service_1)).to be false
       end
     end
     

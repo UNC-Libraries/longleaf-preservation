@@ -65,7 +65,7 @@ module Longleaf
         service[MDF::STALE_REPLICAS] = service.stale_replicas if service.stale_replicas
         service[MDF::SERVICE_TIMESTAMP] = service.timestamp unless service.timestamp.nil?
         service[MDF::RUN_NEEDED] = service.run_needed if service.run_needed
-        services[name] = service.properties
+        services[name] = service.properties unless service.properties.empty?
       end
       
       props[MDF::SERVICES] = services

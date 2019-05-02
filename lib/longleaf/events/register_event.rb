@@ -38,7 +38,7 @@ module Longleaf
         end
       
         # create metadata record
-        md_rec = MetadataRecord.new(registered: Time.now.utc.iso8601)
+        md_rec = MetadataRecord.new(registered: Time.now.utc.iso8601(3))
         @file_rec.metadata_record = md_rec
       
         # retain significant details from former record
@@ -49,8 +49,6 @@ module Longleaf
         populate_file_properties
       
         md_rec.checksums.merge!(@checksums) unless @checksums.nil?
-      
-        populate_services
       
         # persist the metadata
         @app_manager.md_manager.persist(@file_rec)
@@ -70,18 +68,8 @@ module Longleaf
       md_rec = @file_rec.metadata_record
       
       # Set file properties
-      md_rec.last_modified = File.mtime(@file_rec.path).utc.iso8601
+      md_rec.last_modified = File.mtime(@file_rec.path).utc.iso8601(3)
       md_rec.file_size = File.size(@file_rec.path)
-    end
-    
-    def populate_services
-      md_rec = @file_rec.metadata_record
-      
-      service_manager = @app_manager.service_manager
-      service_names = service_manager.list_services(location: @file_rec.storage_location.name)
-      
-      # Add service section
-      service_names.each { |serv_name| md_rec.add_service(serv_name) }
     end
     
     # Copy a subset of properties from an existing metadata record to the new record

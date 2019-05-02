@@ -18,13 +18,14 @@ module Longleaf
       end
     end
     
-    def create_test_file(dir: nil, name: 'test_file', content: 'content')
+    def create_test_file(dir: nil, name: nil, content: 'content')
       FileHelpers.create_test_file(dir: dir, name: name, content: content)
     end
     
-    def self.create_test_file(dir: nil, name: 'test_file', content: 'content')
-      if dir.nil?
-        file = Tempfile.create(name)
+    def self.create_test_file(dir: nil, name: nil, content: 'content')
+      if dir.nil? || name.nil?
+        name = 'test_file' if name.nil?
+        file = Tempfile.create(name, dir)
         file << content
         file.close
         return file.path

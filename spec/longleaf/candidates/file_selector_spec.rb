@@ -212,7 +212,7 @@ describe Longleaf::FileSelector do
               app_config: app_config) }
       
       it 'returns storage location path' do
-        expect(selector.target_paths).to contain_exactly(dir_path)
+        expect(selector.target_paths).to contain_exactly(dir_path + '/')
       end
     end
     

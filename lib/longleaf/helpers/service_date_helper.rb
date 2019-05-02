@@ -45,7 +45,7 @@ module Longleaf
     # @param timestamp [Time] the time to format. Defaults to now.
     # @return [String] the time formatted as iso8601
     def self.formatted_timestamp(timestamp = Time.now)
-      timestamp.iso8601.to_s
+      timestamp.utc.iso8601(3).to_s
     end
   end
 end
