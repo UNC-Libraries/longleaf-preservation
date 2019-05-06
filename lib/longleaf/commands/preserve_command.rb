@@ -27,11 +27,15 @@ module Longleaf
         candidate_locator = ServiceCandidateLocator.new(@app_manager)
         candidate_it = candidate_locator.candidate_iterator(file_selector, EventNames::PRESERVE, force)
         candidate_it.each do |file_rec|
-          f_path = file_rec.path
+          begin
+            f_path = file_rec.path
           
-          logger.debug("Selected candidate #{file_rec.path} for a preserve event")
-          preserve_event = PreserveEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager)
-          track_status(preserve_event.perform)
+            logger.debug("Selected candidate #{file_rec.path} for a preserve event")
+            preserve_event = PreserveEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager)
+            track_status(preserve_event.perform)
+          rescue InvalidStoragePathError => e
+            record_failure(EventNames::PRESERVE, nil, e.message)
+          end
         end
       rescue LongleafError => e
         record_failure(EventNames::PRESERVE, nil, e.message)

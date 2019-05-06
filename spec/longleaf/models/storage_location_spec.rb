@@ -111,6 +111,43 @@ describe Longleaf::StorageLocation do
       it { expect(location.get_metadata_path_for('/file/path/sub/myfile.txt'))
           .to eq '/metadata/path/sub/myfile.txt-llmd.yaml'}
     end
+    
+    context 'directory file_path' do
+      it { expect(location.get_metadata_path_for('/file/path/file/path/subdir/'))
+          .to eq '/metadata/path/file/path/subdir/'}
+    end
+  end
+  
+  describe '.get_path_from_metadata_path' do
+    let(:location) { build(:storage_location) }
+    
+    context 'nil file_path' do
+      it { expect { location.get_path_from_metadata_path(nil) }.to raise_error(ArgumentError) }
+    end
+    
+    context 'empty file_path' do
+      it { expect { location.get_path_from_metadata_path('') }.to raise_error(ArgumentError) }
+    end
+    
+    context 'path not in storage location' do
+      it { expect { location.get_path_from_metadata_path('/some/other/path/file') }.to raise_error(ArgumentError,
+          /Provided metadata path is not contained by storage location/) }
+    end
+    
+    context 'valid path' do
+      it { expect(location.get_path_from_metadata_path('/metadata/path/sub/myfile.txt-llmd.yaml'))
+          .to eq '/file/path/sub/myfile.txt'}
+    end
+    
+    context 'path containing repeated path' do
+      it { expect(location.get_path_from_metadata_path('/metadata/path/file/path/myfile.txt-llmd.yaml'))
+          .to eq '/file/path/file/path/myfile.txt'}
+    end
+    
+    context 'directory file_path' do
+      it { expect(location.get_path_from_metadata_path('/metadata/path/file/path/subdir/'))
+          .to eq '/file/path/file/path/subdir/'}
+    end
   end
   
   describe '.available?' do

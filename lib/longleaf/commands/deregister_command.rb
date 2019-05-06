@@ -38,7 +38,7 @@ module Longleaf
           event = DeregisterEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager)
           track_status(event.perform)
         end
-      rescue DeregistrationError, InvalidStoragePathError, StorageLocationUnavailableError => err
+      rescue RegistrationError, DeregistrationError, InvalidStoragePathError, StorageLocationUnavailableError => err
         record_failure(EventNames::DEREGISTER, nil, err.message)
       rescue => err
         record_failure(EventNames::DEREGISTER, error: err)

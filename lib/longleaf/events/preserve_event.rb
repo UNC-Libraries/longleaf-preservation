@@ -30,8 +30,15 @@ module Longleaf
       
       logger.info("Performing preserve event on #{@file_rec.path}")
       
-      service_attempted = false
+      needs_persist = false
       begin
+        if !File.exist?(f_path)
+          # Need to persist metadata to avoid repeating processing of this file too soon.
+          needs_persist = true
+          record_failure(EventNames::PRESERVE, f_path, "File is registered but missing.")
+          return return_status
+        end
+        
         # get the list of services applicable to this location and event
         service_manager.list_services(location: storage_loc.name, event: EventNames::PRESERVE).each do |service_name|
           # Skip over this service if it does not need to be run, unless force flag active
@@ -42,7 +49,7 @@ module Longleaf
           
           begin
             logger.info("Performing preserve service #{service_name} for #{@file_rec.path}")
-            service_attempted = true
+            needs_persist = true
             # execute the service
             service_manager.perform_service(service_name, @file_rec, EventNames::PRESERVE)
             
@@ -60,7 +67,7 @@ module Longleaf
         end
       ensure
         # persist the metadata out to file if any services were executed
-        if service_attempted
+        if needs_persist
           # persist the metadata
           @app_manager.md_manager.persist(@file_rec)
         end

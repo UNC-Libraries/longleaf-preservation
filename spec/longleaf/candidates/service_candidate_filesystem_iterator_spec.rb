@@ -140,7 +140,7 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
             file_paths: [File.join(path_dir1, 'not_exist')],
             app_config: app_config) }
         
-        it { expect(iterator.next_candidate).to be_nil }
+        it { expect { iterator.next_candidate }.to raise_error(Longleaf::InvalidStoragePathError, /does not exist/) }
       end
       
       context 'selecting multiple files where one does not exist' do
@@ -151,6 +151,7 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
         before { create_metadata(file_path1, nil, app_config) }
         
         it 'returns file which exists' do
+          expect { iterator.next_candidate }.to raise_error(Longleaf::InvalidStoragePathError, /not_exist does not exist/)
           expect(iterator.next_candidate).to be_file_record_for(file_path1)
           expect(iterator.next_candidate).to be_nil
         end

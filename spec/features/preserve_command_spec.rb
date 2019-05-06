@@ -102,7 +102,7 @@ describe 'preserve', :type => :aruba do
 
       it 'completes with no output' do
         expect(last_command_started).to_not have_output
-        expect(last_command_started).to have_exit_status(0)
+        expect(last_command_started).to have_exit_status(1)
       end
     end
 
@@ -275,6 +275,21 @@ describe 'preserve', :type => :aruba do
       it 'skips all files' do
         expect(last_command_started).to_not have_output
         expect(last_command_started).to have_exit_status(0)
+      end
+    end
+    
+    context 'registered file that no longer exists' do
+      before do
+        FileUtils.rm(file_path2)
+        
+        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
+      end
+        
+      it 'fails for the deleted file' do
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path1}/)
+        expect(last_command_started).to have_output(/FAILURE preserve #{file_path2}: File is registered but missing/)
+        expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path3}/)
+        expect(last_command_started).to have_exit_status(2)
       end
     end
   end

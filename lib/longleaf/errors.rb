@@ -17,7 +17,7 @@ module Longleaf
   # Error related to executing a preservation event
   class EventError < LongleafError; end
   
-  # Error while attempting to perform a registration event
+  # Error with the registration state of a file or while attempting to perform a registration event
   class RegistrationError < EventError; end
   
   # Error while attempting to perform a deregistration event
