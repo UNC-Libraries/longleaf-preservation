@@ -1,5 +1,4 @@
 require 'longleaf/services/service_manager'
-require 'longleaf/services/metadata_deserializer'
 require 'longleaf/events/event_names'
 require 'longleaf/errors'
 require 'longleaf/logging'
@@ -38,8 +37,7 @@ module Longleaf
           next
         end
         
-        file_rec.metadata_record = MetadataDeserializer.deserialize(file_path: file_rec.metadata_path,
-            digest_algs: storage_loc.metadata_digests)
+        @app_config.md_manager.load(file_rec)
     
         # Return the file record if it needs any services run
         return file_rec if needs_run?(file_rec)

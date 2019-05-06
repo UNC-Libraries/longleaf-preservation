@@ -30,8 +30,7 @@ module Longleaf
               raise MetadataError.new("Cannot validate metadata for #{f_path}, file is not registered.")
             end
           
-            MetadataDeserializer::deserialize(file_path: file_rec.metadata_path,
-                digest_algs: storage_location.metadata_digests)
+            @app_manager.md_manager.load(file_rec)
             record_success("Metadata for file passed validation: #{f_path}")
           rescue LongleafError => err
             record_failure(err.message)

@@ -50,8 +50,7 @@ module Longleaf
         end
       end
       
-      file_rec.metadata_record = MetadataDeserializer.deserialize(file_path: file_rec.metadata_path,
-          digest_algs: file_rec.storage_location.metadata_digests)
+      @app_config.md_manager.load(file_rec)
       
       file_rec
     end
