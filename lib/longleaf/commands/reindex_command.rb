@@ -74,7 +74,7 @@ module Longleaf
           record_success("Reindexed #{file_rec.path}")
           count += 1
         rescue LongleafError => err
-          record_failure(err.message)
+          record_failure("Failed to reindex #{file_rec.path}: #{err.message}")
           failures += 1
         end
       end

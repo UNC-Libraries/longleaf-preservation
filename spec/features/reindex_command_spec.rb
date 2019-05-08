@@ -182,7 +182,7 @@ describe 'reindex command', :type => :aruba do
         
         it 'reindexes two of the files, fails one' do
           expect(last_command_started).to have_output(/SUCCESS: Reindexed #{file_rec1.path}/)
-          expect(last_command_started).to have_output(/FAILURE: Failed to parse metadata file #{file_rec2.metadata_path}/)
+          expect(last_command_started).to have_output(/FAILURE: Failed to reindex #{file_rec2.path}: Failed to parse metadata file #{file_rec2.metadata_path}/)
           expect(last_command_started).to have_output(/SUCCESS: Reindexed #{file_rec3.path}/)
           expect(last_command_started).to have_output(/SUCCESS: Completed reindexing, 2 successful, 1 failed/)
           expect(last_command_started).to have_exit_status(2)
