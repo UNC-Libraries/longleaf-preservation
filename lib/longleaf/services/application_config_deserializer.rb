@@ -1,10 +1,12 @@
 require 'longleaf/services/application_config_validator'
 require 'longleaf/services/application_config_manager'
 require 'digest/md5'
+require 'pathname'
 
 module Longleaf
   # Deserializer for application configuration files
   class ApplicationConfigDeserializer
+    AF ||= Longleaf::AppFields
     
     # Deserializes a valid application configuration file as a ApplicationConfigManager option
     # @param serv_config_path [String] file path to the service and storage mapping configuration file
@@ -24,6 +26,7 @@ module Longleaf
       
       config_md5 = Digest::MD5.hexdigest(content)
     
+      make_paths_absolute(serv_config_path, config)
       Longleaf::ApplicationConfigValidator.validate(config)
       Longleaf::ApplicationConfigManager.new(config, sys_config, config_md5)
     end
@@ -56,6 +59,29 @@ module Longleaf
         YAML.load(content)
       rescue => err
         raise Longleaf::ConfigurationError.new(err)
+      end
+    end
+    
+    def self.make_paths_absolute(config_path, config)
+      base_pathname = Pathname.new(config_path).parent
+      
+      config[AF::LOCATIONS].each do |name, properties|
+        properties[AF::LOCATION_PATH] = absolution(base_pathname, properties[AF::LOCATION_PATH])
+        
+        properties[AF::METADATA_PATH] = absolution(base_pathname, properties[AF::METADATA_PATH])
+      end
+    end
+    
+    def self.absolution(base_pathname, file_path)
+      if file_path.nil?
+        nil
+      else
+        path = Pathname.new(file_path)
+        if path.absolute?
+          path = path.expand_path.to_s
+        else
+          path = (base_pathname + path).to_s
+        end
       end
     end
   end
