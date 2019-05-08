@@ -19,6 +19,7 @@ module Longleaf
     PRESERVE_TBL ||= "preserve_service_times".to_sym
     INDEX_STATE_TBL ||= "index_state".to_sym
     DEFAULT_PAGE_SIZE ||= 1000
+    TIMESTAMP_FORMAT ||= '%Y-%m-%d %H:%M:%S.%3N'
    
     # Initialize the index driver
     #
@@ -69,15 +70,24 @@ module Longleaf
 
       first_timestamp = convert_iso8601_to_timestamp(first_timestamp)
       delay_until_timestamp = convert_iso8601_to_timestamp(delay_until_timestamp)
+      now_stamp = Time.now.utc.strftime(TIMESTAMP_FORMAT)
       
       if @adapter == :mysql || @adapter == :mysql2
         preserve_tbl.on_duplicate_key_update
-            .insert(file_path: file_path, service_time: first_timestamp, delay_until_time: delay_until_timestamp)
-      else
-        preserve_tbl.insert_conflict(target: :file_path, update: {
+            .insert(file_path: file_path,
                 service_time: first_timestamp,
-                delay_until_time: delay_until_timestamp})
-            .insert(file_path: file_path, service_time: first_timestamp, delay_until_time: delay_until_timestamp)
+                delay_until_time: delay_until_timestamp,
+                updated: now_stamp)
+      else
+        preserve_tbl.insert_conflict(target: :file_path,
+            update: {
+                service_time: first_timestamp,
+                delay_until_time: delay_until_timestamp,
+                updated: now_stamp } )
+            .insert(file_path: file_path,
+                service_time: first_timestamp,
+                delay_until_time: delay_until_timestamp,
+                updated: now_stamp)
       end
     end
     
@@ -152,8 +162,15 @@ module Longleaf
     end
     
     # Remove all entries from the index
-    def clear_index
-      preserve_tbl.delete
+    # @param older_than [Time] Optional. If provided, only entries that have not been indexed
+    #    since before the provided time will be deleted.
+    def clear_index(older_than = nil)
+      if older_than.nil?
+        preserve_tbl.delete
+      else
+        older_than_timestamp = older_than.utc.strftime(TIMESTAMP_FORMAT)
+        preserve_tbl.where { updated < older_than_timestamp }.delete
+      end
     end
     
     # Initialize the index's database using the provided configuration
@@ -166,12 +183,14 @@ module Longleaf
           String :file_path, primary_key: true, size: 768
           column :service_time, 'timestamp(3)', { :null => true }
           column :delay_until_time, 'timestamp(3)'
+          column :updated, 'timestamp(3)'
         end
       else
         db_conn.create_table!(PRESERVE_TBL) do
           String :file_path, primary_key: true, text: true
           column :service_time, 'timestamp(3)', { :null => true }
           column :delay_until_time, 'timestamp(3)'
+          column :updated, 'timestamp(3)'
         end
       end
   
@@ -229,16 +248,27 @@ module Longleaf
     # @param file_selector [FileSelector] selector for what paths to search for files
     # @return [Array] array of file paths that are registered
     def registered_paths(file_selector)
-      if @registered_dataset.nil?
-        @registered_dataset = db_conn
-            .from(PRESERVE_TBL)
-            .limit(@page_size)
-            .order(Sequel.asc(:service_time))
-      end
-      
       # retrieve and return a page of results
-      add_path_restrictions(@registered_dataset, file_selector)
+      add_path_restrictions(registered_dataset, file_selector)
           .select_map(:file_path)
+    end
+    
+    # Calls the provided block once per each registered file path registered.
+    # Must be passed a block.
+    # @param file_selector [FileSelector] selector for what paths to search for files
+    # @param older_than [Time] Optional. If provided, only files that have not been
+    #    indexed since before this timestamp will be returned.
+    def each_registered_path(file_selector, older_than: nil, &block)
+      dataset = add_path_restrictions(registered_dataset, file_selector)
+          .select(:file_path)
+      if !older_than.nil?
+        older_than_timestamp = older_than.utc.strftime(TIMESTAMP_FORMAT)
+        dataset = dataset.where { updated < older_than_timestamp }
+      end
+      # Yield to the provided block once per row return
+      dataset.paged_each(:rows_per_fetch => @page_size) do |row|
+        block.call(row[:file_path])
+      end
     end
     
     private
@@ -260,7 +290,7 @@ module Longleaf
     
     def convert_iso8601_to_timestamp(iso8601)
       return nil if iso8601.nil?
-      Time.iso8601(iso8601).strftime('%Y-%m-%d %H:%M:%S.%3N')
+      Time.iso8601(iso8601).strftime(TIMESTAMP_FORMAT)
     end
     
     def minimum_timestamp
@@ -268,6 +298,16 @@ module Longleaf
         @min_timestamp = ServiceDateHelper.formatted_timestamp(Time.at(0).utc)
       end
       @min_timestamp
+    end
+    
+    def registered_dataset
+      if @registered_dataset.nil?
+        @registered_dataset = db_conn
+            .from(PRESERVE_TBL)
+            .limit(@page_size)
+            .order(Sequel.asc(:service_time))
+      end
+      @registered_dataset
     end
   end
 end

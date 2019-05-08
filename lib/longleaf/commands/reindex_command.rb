@@ -30,11 +30,18 @@ module Longleaf
       logger.info('Performing full reindex')
       results = nil
       begin
-        # all previous values from the index
-        @index_manager.clear_index
+        start_time = Time.now.utc
+        
+        selector = all_storage_locations_selector
         
         # Repopulate the index
-        results = index_all_storage_locations
+        results = index_all(selector)
+        
+        # List and then clear all files which were not reindexed
+        @index_manager.each_registered_path(selector, older_than: start_time) do |file_path|
+          logger.warn("Clearing '#{file_path}' from index, file is no longer present.")
+        end
+        @index_manager.clear_index(start_time)
         
         # Update the state of the index to indicate it has been reindexed
         @index_manager.update_index_state
@@ -52,12 +59,10 @@ module Longleaf
     end
     
     private
-    def index_all_storage_locations
+    def index_all(selector)
       count = 0
       failures = 0
-      storage_loc_names = @app_manager.location_manager.locations.keys
       
-      selector = RegisteredFileSelector.new(storage_locations: storage_loc_names, app_config: @app_manager)
       selector.each do |file_path|
         begin
           storage_loc = @app_manager.location_manager.get_location_by_path(file_path)
@@ -74,6 +79,12 @@ module Longleaf
         end
       end
       {'success' => count, 'fail' => failures}
+    end
+    
+    def all_storage_locations_selector
+      storage_loc_names = @app_manager.location_manager.locations.keys
+      
+      RegisteredFileSelector.new(storage_locations: storage_loc_names, app_config: @app_manager)
     end
   end
 end

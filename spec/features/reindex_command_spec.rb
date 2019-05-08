@@ -199,6 +199,7 @@ describe 'reindex command', :type => :aruba do
         it 'cleans up the removed file from index' do
           expect(last_command_started).to have_output(/SUCCESS: Reindexed #{file_rec1.path}/)
           expect(last_command_started).to_not have_output(/SUCCESS: Reindexed #{file_rec2.path}/)
+          expect(last_command_started).to have_output(/Clearing '#{file_rec2.path}' from index, file is no longer present/)
           expect(last_command_started).to have_output(/SUCCESS: Reindexed #{file_rec3.path}/)
           expect(last_command_started).to have_output(/SUCCESS: Completed reindexing, 2 successful/)
           expect(last_command_started).to have_exit_status(0)
