@@ -579,7 +579,7 @@ describe Longleaf::SequelIndexDriver do
       end
       
       context 'with older_than time, one entry older than timestamp' do
-        it 'clears all entries from index' do
+        it 'clears the entry which has not been updated' do
           timestamp = Time.now
           sleep(0.1)
           driver.index(file_rec2)
