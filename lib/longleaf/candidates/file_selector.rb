@@ -80,6 +80,17 @@ module Longleaf
       end
     end
     
+    # Iterate through the file paths for this selector and execute the provided block with each.
+    # A block is required.
+    def each
+      file_path = next_path
+      until file_path.nil?
+        yield file_path
+        
+        file_path = next_path
+      end
+    end
+    
     # return [Array] a list of all storage locations being targeted by this selector
     def storage_locations
       # Determine what storage_locations are represented by the given file paths

@@ -497,6 +497,102 @@ describe Longleaf::SequelIndexDriver do
     end
   end
   
+  describe '.each_registered_path' do
+    before do
+      driver.setup_index
+    end
+    
+    let(:result) { Array.new }
+    let(:storage_loc) { build(:storage_location, name: 'loc1',  path: path_dir, metadata_path: md_dir) }
+    
+    let(:selector) { build(:file_selector,
+            storage_locations: ['loc1'],
+            app_config: app_config) }
+    
+    context 'no file paths registered' do
+      it 'returns no file paths' do
+        driver.each_registered_path(selector) { |file_path| result << file_path }
+        expect(result).to be_empty
+      end
+    end
+    
+    context 'multiple files indexed' do
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(-2)) }
+      let!(:file_rec2) { create_index_file_rec(storage_loc, "serv1", days_from_now(10)) }
+      
+      context 'no additional flags' do
+        it 'returns each entry' do
+          driver.each_registered_path(selector) { |file_path| result << file_path }
+          expect(result).to eq [file_rec1.path, file_rec2.path]
+        end
+      end
+      
+      context 'with older_than time in the future' do
+        it 'clears all entries from index' do
+          timestamp = Time.now.utc + 60
+          driver.each_registered_path(selector, older_than: timestamp) { |file_path| result << file_path }
+          expect(result).to eq [file_rec1.path, file_rec2.path]
+        end
+      end
+      
+      context 'with older_than time greater than index time of one entry' do
+        it 'clears all entries from index' do
+          timestamp = Time.now.utc
+          sleep(0.01)
+          driver.index(file_rec2)
+
+          driver.each_registered_path(selector, older_than: timestamp) { |file_path| result << file_path }
+          expect(result).to eq [file_rec1.path]
+        end
+      end
+    end
+  end
+  
+  describe '.clear_index' do
+    before do
+      driver.setup_index
+    end
+    
+    let(:storage_loc) { build(:storage_location, name: 'loc1',  path: path_dir, metadata_path: md_dir) }
+    
+    context 'multiple files indexed' do
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(-2)) }
+      let!(:file_rec2) { create_index_file_rec(storage_loc, "serv1", days_from_now(10)) }
+      
+      context 'without older_than time' do
+        it 'clears all entries from index' do
+          driver.clear_index
+          
+          expect(get_timestamp_from_index(file_rec1)).to be_nil
+          expect(get_timestamp_from_index(file_rec2)).to be_nil
+        end
+      end
+      
+      context 'with older_than time, all entries older' do
+        it 'clears all entries from index' do
+          timestamp = Time.now + 60
+          driver.clear_index(timestamp)
+          
+          expect(get_timestamp_from_index(file_rec1)).to be_nil
+          expect(get_timestamp_from_index(file_rec2)).to be_nil
+        end
+      end
+      
+      context 'with older_than time, one entry older than timestamp' do
+        it 'clears the entry which has not been updated' do
+          timestamp = Time.now
+          sleep(0.1)
+          driver.index(file_rec2)
+          
+          driver.clear_index(timestamp)
+          
+          expect(get_timestamp_from_index(file_rec1)).to be_nil
+          expect(get_timestamp_from_index(file_rec2)).to_not be_nil
+        end
+      end
+    end
+  end
+  
   def db_conn
     @conn = Sequel.connect(conn_details) if @conn.nil?
     @conn

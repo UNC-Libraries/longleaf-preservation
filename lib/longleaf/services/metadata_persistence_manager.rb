@@ -32,6 +32,16 @@ module Longleaf
         @index_manager.index(file_rec)
       end
     end
+    
+    # Load the metadata record for the provided file record
+    # @param file_rec [FileRecord] file record
+    # @return [MetadataRecord] the metadata record for the file record
+    def load(file_rec)
+      md_rec = MetadataDeserializer.deserialize(file_path: file_rec.metadata_path,
+                  digest_algs: file_rec.storage_location.metadata_digests)
+      file_rec.metadata_record = md_rec
+      md_rec
+    end
   end
 end
     

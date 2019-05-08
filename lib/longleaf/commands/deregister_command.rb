@@ -3,7 +3,6 @@ require 'longleaf/events/deregister_event'
 require 'longleaf/models/file_record'
 require 'longleaf/events/event_names'
 require 'longleaf/events/event_status_tracking'
-require 'longleaf/services/metadata_deserializer'
 
 module Longleaf
   # Command for deregistering files with longleaf
@@ -32,8 +31,7 @@ module Longleaf
             raise DeregistrationError.new("Cannot deregister #{f_path}, file is not registered.")
           end
           
-          file_rec.metadata_record = MetadataDeserializer.deserialize(file_path: file_rec.metadata_path,
-              digest_algs: storage_location.metadata_digests)
+          @app_manager.md_manager.load(file_rec)
           
           event = DeregisterEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager)
           track_status(event.perform)

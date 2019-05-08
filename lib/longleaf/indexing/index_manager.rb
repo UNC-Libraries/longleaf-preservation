@@ -33,6 +33,10 @@ module Longleaf
       @index_driver.remove(remove_me)
     end
     
+    def clear_index(older_than = nil)
+      @index_driver.clear_index(older_than)
+    end
+    
     # @return true if the index should be reindexed
     def index_stale?
       @index_driver.is_stale?
@@ -41,6 +45,10 @@ module Longleaf
     # Setup initial structure of index implementation
     def setup_index
       @index_driver.setup_index
+    end
+    
+    def update_index_state
+      @index_driver.update_index_state
     end
     
     # Retrieves a set of which have one or more services which need to run.
@@ -58,6 +66,10 @@ module Longleaf
     # @return [Array] array of file paths that are registered
     def registered_paths(file_selector)
       @index_driver.registered_paths(file_selector)
+    end
+    
+    def each_registered_path(file_selector, older_than: nil, &block)
+      @index_driver.each_registered_path(file_selector, older_than: older_than, &block)
     end
     
     private

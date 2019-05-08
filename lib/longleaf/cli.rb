@@ -6,6 +6,7 @@ require 'longleaf/commands/deregister_command'
 require 'longleaf/commands/validate_config_command'
 require 'longleaf/commands/validate_metadata_command'
 require 'longleaf/commands/register_command'
+require 'longleaf/commands/reindex_command'
 require 'longleaf/commands/preserve_command'
 require 'longleaf/candidates/file_selector'
 require 'longleaf/candidates/registered_file_selector'
@@ -153,6 +154,18 @@ module Longleaf
         logger.failure("No index configured, unable to perform setup.")
         exit 1
       end
+    end
+    
+    desc "reindex", "Perform a full reindex of file metadata stored within the configured storage locations."
+    method_option(:if_stale,
+        :type => :boolean, 
+        :default => false,
+        :desc => 'Only perform the reindex if the index is known to be stale, generally after an config file change.')
+    def reindex
+      setup_logger(options)
+      app_config_manager = load_application_config(options)
+      
+      exit Longleaf::ReindexCommand.new(app_config_manager).execute(only_if_stale: options[:if_stale])
     end
     
     no_commands do

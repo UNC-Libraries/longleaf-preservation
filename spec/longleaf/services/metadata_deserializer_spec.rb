@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'longleaf/specs/file_helpers'
 require 'longleaf/services/metadata_deserializer'
 require 'longleaf/models/metadata_record'
 require 'longleaf/errors'
@@ -7,6 +8,7 @@ require 'yaml'
 require 'tempfile'
 
 describe Longleaf::MetadataDeserializer do
+  include Longleaf::FileHelpers
   MDF ||= Longleaf::MDFields
   
   describe '.deserialize' do
@@ -74,9 +76,9 @@ describe Longleaf::MetadataDeserializer do
     end
 
     context 'with empty file' do
-      let(:empty_file) { Tempfile.new('empty') }
+      let(:md_file) { create_test_file(name: 'empty') }
       
-      it { expect { Longleaf::MetadataDeserializer.deserialize(file_path: empty_file.path) }.to raise_error(Longleaf::MetadataError) }
+      it { expect { Longleaf::MetadataDeserializer.deserialize(file_path: md_file) }.to raise_error(Longleaf::MetadataError) }
     end
     
     context 'with non-existent file' do
@@ -87,6 +89,12 @@ describe Longleaf::MetadataDeserializer do
         expect { Longleaf::MetadataDeserializer.deserialize(file_path: invalid_file) } \
             .to raise_error(Errno::ENOENT)
       end
+    end
+    
+    context 'with invalid file' do
+      let(:md_file) { create_test_file(content: 'busted : yml : file') }
+      
+      it { expect { Longleaf::MetadataDeserializer.deserialize(file_path: md_file) }.to raise_error(Longleaf::MetadataError) }
     end
   end
 end
