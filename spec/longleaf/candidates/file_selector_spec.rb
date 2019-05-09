@@ -52,6 +52,20 @@ describe Longleaf::FileSelector do
       end
     end
     
+    context 'with a relative file path' do
+      let(:file_path) { create_test_file(dir: path_dir1) }
+      # Producing a relative path from the current working dir to where the file is actually
+      let(:relative_path) { Pathname.new(file_path).relative_path_from(Pathname.new(Dir.pwd))}
+      let(:selector) { build(:file_selector, 
+              file_paths: [relative_path],
+              app_config: app_config) }
+      
+      it 'returns one path' do
+        expect(selector.next_path).to eq file_path
+        expect(selector.next_path).to be_nil
+      end
+    end
+    
     context 'with multiple file path' do
       let(:file_path1) { Tempfile.new('file1', path_dir1).path }
       let(:file_path2) { Tempfile.new('file2', path_dir1).path }
