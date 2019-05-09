@@ -3,11 +3,13 @@ require 'longleaf/services/application_config_deserializer'
 require 'longleaf/errors'
 require 'longleaf/specs/config_builder'
 require 'longleaf/specs/system_config_builder'
+require 'longleaf/specs/file_helpers'
 require 'fileutils'
 require 'tmpdir'
 require 'tempfile'
 
 describe Longleaf::ApplicationConfigDeserializer do
+  include Longleaf::FileHelpers
   AppDeserializer ||= Longleaf::ApplicationConfigDeserializer
   ConfigBuilder ||= Longleaf::ConfigBuilder
   SysConfigBuilder ||= Longleaf::SystemConfigBuilder
@@ -46,6 +48,57 @@ describe Longleaf::ApplicationConfigDeserializer do
           .write_to_yaml_file }
       
           it { expect { AppDeserializer::deserialize(config_path) }.to raise_error(Longleaf::ConfigurationError) }
+    end
+    
+    context 'with relative locations' do
+      let!(:config_path) { ConfigBuilder.new
+          .with_service(name: 'serv1')
+          .with_location(name: 'loc1', path: 'fpath', md_path: 'metadata')
+          .map_services('loc1', 'serv1')
+          .write_to_yaml_file }
+      let(:config_dir) { Pathname.new(config_path).parent.to_s }
+      let(:md_dir) { make_test_dir(parent: config_dir, name: 'metadata') }
+      let(:path_dir) { make_test_dir(parent: config_dir, name: 'fpath') }
+      
+      after do
+        FileUtils.rmdir([md_dir, path_dir])
+      end
+      
+      it 'returns location loc1 with absolute paths based off location of config' do
+        result = AppDeserializer::deserialize(config_path)
+        expect(result.location_manager).to_not be_nil
+        
+        loc = result.location_manager.locations['loc1']
+        
+        expect(loc.path).to eq path_dir + '/'
+        expect(loc.metadata_path).to eq md_dir + '/'
+      end
+    end
+    
+    context 'with path modifiers in locations' do
+      let(:md_pathname) { Pathname.new(make_test_dir(name: 'metadata')) }
+      let(:path_pathname) { Pathname.new(make_test_dir(name: 'path')) }
+      let(:modified_path) { File.join(path_pathname.parent, "./subdir/..", path_pathname.basename) }
+      let(:modified_md) { File.join(path_pathname.parent, "./another/..", md_pathname.basename) }
+      let!(:config_path) { ConfigBuilder.new
+          .with_service(name: 'serv1')
+          .with_location(name: 'loc1', path: modified_path, md_path: modified_md)
+          .map_services('loc1', 'serv1')
+          .write_to_yaml_file }
+      
+      after do
+        FileUtils.rmdir([md_pathname, path_pathname])
+      end
+      
+      it 'returns location loc1 with absolute paths and no modifiers' do
+        result = AppDeserializer::deserialize(config_path)
+        expect(result.location_manager).to_not be_nil
+        
+        loc = result.location_manager.locations['loc1']
+        
+        expect(loc.path).to eq path_pathname.to_s + '/'
+        expect(loc.metadata_path).to eq md_pathname.to_s + '/'
+      end
     end
     
     context 'minimal service configuration' do
