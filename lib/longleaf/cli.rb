@@ -42,7 +42,7 @@ module Longleaf
     desc "register", "Register files with Longleaf"
     method_option(:file, :aliases => "-f", 
         :required => true,
-        :desc => 'File or files to register. Paths must be absolute. If multiple files are provided, they must be comma separated.')
+        :desc => 'File or files to register. If multiple files are provided, they must be comma separated.')
     method_option(:force,
         :type => :boolean, 
         :default => false,
@@ -76,7 +76,7 @@ module Longleaf
     desc "deregister", "Deregister files with Longleaf"
     method_option(:file, :aliases => "-f", 
         :required => true,
-        :desc => 'File or files to deregister. Paths must be absolute. If multiple files are provided, they must be comma separated.')
+        :desc => 'File or files to deregister. If multiple files are provided, they must be comma separated.')
     method_option(:force,
         :type => :boolean, 
         :default => false,
@@ -95,7 +95,7 @@ module Longleaf
     desc "preserve", "Perform preservation services on files with Longleaf"
     method_option(:file, :aliases => "-f", 
         :required => false,
-        :desc => 'File or files to preserve. Paths must be absolute. If multiple files are provided, they must be comma separated.')
+        :desc => 'File or files to preserve. If multiple files are provided, they must be comma separated.')
     method_option(:location, :aliases => "-s",
         :required => false,
         :desc => 'Name or comma separated names of storage locations to preserve.')
@@ -126,7 +126,7 @@ module Longleaf
     desc "validate_metadata", "Validate metadata files."
     method_option(:file, :aliases => "-f", 
         :required => false,
-        :desc => 'File or files of which to validate the metadata. Paths must be absolute. If multiple files are provided, they must be comma separated.')
+        :desc => 'File or files of which to validate the metadata. If multiple files are provided, they must be comma separated.')
     method_option(:location, :aliases => "-s",
         :required => false,
         :desc => 'Name or comma separated names of storage locations to validate.')

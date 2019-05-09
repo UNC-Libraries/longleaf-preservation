@@ -103,5 +103,17 @@ RSpec.shared_examples 'file_selector.target_paths' do |class_sym|
         expect(selector.target_paths).to contain_exactly(path_dir1 + '/')
       end
     end
+    
+    context 'from relative file paths' do
+      let(:dir_path) { make_test_dir(parent: path_dir1, name: 'nested') }
+      let(:relative_path) { Pathname.new(dir_path).relative_path_from(Pathname.new(Dir.pwd))}
+      let(:selector) { build(class_sym, 
+              file_paths: [relative_path],
+              app_config: app_config) }
+    
+      it 'returns absolute path to selected directory' do
+        expect(selector.target_paths).to contain_exactly(dir_path + '/')
+      end
+    end
   end
 end
