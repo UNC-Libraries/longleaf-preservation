@@ -77,6 +77,14 @@ module Longleaf
               :aliases => "-s",
               :required => false,
               :desc => 'Name or comma separated names of storage locations to perform this operation over.' })
+
+
+    # Commands
+    map %w[--version] => :__print_version
+    desc "--version", "Prints the Longleaf version number."
+    def __print_version
+      puts "longleaf version #{Longleaf::VERSION}"
+    end
     
     desc "register", "Register files with Longleaf"
     method_option(:file, :aliases => "-f", 
