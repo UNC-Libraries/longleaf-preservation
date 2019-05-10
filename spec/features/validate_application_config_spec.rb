@@ -192,11 +192,22 @@ describe 'validate_config', :type => :aruba do
         .with_mappings
         .write_to_yaml_file }
     
-    before do
-      run_simple("longleaf validate_config -c #{config_path} -I #{lib_dir}", fail_on_error: false)
+    context 'with -c option' do
+      before do
+        run_simple("longleaf validate_config -c #{config_path} -I #{lib_dir}", fail_on_error: false)
+      end
+    
+      it { expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/) }
     end
     
-    it { expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/) }
+    context 'with config from environment' do
+      before do
+        append_environment_variable('LONGLEAF_CFG', config_path)
+        run_simple("longleaf validate_config -I #{lib_dir}", fail_on_error: false)
+      end
+    
+      it { expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/) }
+    end
   end
   
   context 'valid service mapping' do
