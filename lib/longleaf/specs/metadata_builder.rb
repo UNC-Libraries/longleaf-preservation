@@ -12,7 +12,7 @@ module Longleaf
       @services = Hash.new
       
       unless file_path.nil?
-        @last_modified = File.mtime(file_path)
+        @last_modified = File.mtime(file_path).utc.iso8601(3)
         @file_size = File.size(file_path)
       end
       
