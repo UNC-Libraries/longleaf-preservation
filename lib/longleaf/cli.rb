@@ -37,7 +37,7 @@ module Longleaf
               :aliases => "-c",
               :default => ENV['LONGLEAF_CFG'],
               :required => false,
-              :desc => 'Absolute path to the application configuration used for this command. By default, the value of the environment variable LONGLEAF_CFG is used. A config path is required for most commands.' })
+              :desc => 'Path to the application configuration used for this command. By default, the value of the environment variable LONGLEAF_CFG is used. A config path is required for most commands.' })
     add_shared_option(
         :load_path, :common, {
               :aliases => "-I",
@@ -47,7 +47,7 @@ module Longleaf
               :aliases => "-y",
               :default => ENV['LONGLEAF_SYSTEM_CFG'],
               :required => false,
-              :desc => 'Absolute path to the longleaf system configuration used for this command. By default, the value of the environment variable LONGLEAF_SYSTEM_CFG is used.' })
+              :desc => 'Path to the longleaf system configuration used for this command. By default, the value of the environment variable LONGLEAF_SYSTEM_CFG is used.' })
 
     # Logging options
     add_shared_option(
