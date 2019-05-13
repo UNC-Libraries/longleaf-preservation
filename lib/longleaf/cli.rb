@@ -87,9 +87,7 @@ module Longleaf
     end
     
     desc "register", "Register files with Longleaf"
-    method_option(:file, :aliases => "-f", 
-        :required => true,
-        :desc => 'File or files to register. If multiple files are provided, they must be comma separated.')
+    shared_options_group(:file_selection)
     method_option(:force,
         :type => :boolean, 
         :default => false,
@@ -105,7 +103,7 @@ module Longleaf
       
       app_config_manager = load_application_config(options)
       
-      file_selector = create_file_selector(options[:file], nil, app_config_manager)
+      file_selector = create_file_selector(options, app_config_manager)
       if options[:checksums]
         checksums = options[:checksums]
         # validate checksum list format, must a comma delimited list of prefix:checksums
@@ -123,9 +121,7 @@ module Longleaf
     end
     
     desc "deregister", "Deregister files with Longleaf"
-    method_option(:file, :aliases => "-f", 
-        :required => true,
-        :desc => 'File or files to deregister. If multiple files are provided, they must be comma separated.')
+    shared_options_group(:file_selection)
     method_option(:force,
         :type => :boolean, 
         :default => false,
@@ -137,7 +133,7 @@ module Longleaf
       setup_logger(options)
       
       app_config_manager = load_application_config(options)
-      file_selector = create_registered_selector(options[:file], nil, app_config_manager)
+      file_selector = create_registered_selector(options, app_config_manager)
       
       command = DeregisterCommand.new(app_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force])
@@ -156,7 +152,7 @@ module Longleaf
       
       extend_load_path(options[:load_path])
       app_config_manager = load_application_config(options)
-      file_selector = create_registered_selector(options[:file], options[:location], app_config_manager)
+      file_selector = create_registered_selector(options, app_config_manager)
       
       command = PreserveCommand.new(app_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force])
@@ -182,7 +178,7 @@ module Longleaf
       setup_logger(options)
       
       app_config_manager = load_application_config(options)
-      file_selector = create_registered_selector(options[:file], options[:location], app_config_manager)
+      file_selector = create_registered_selector(options, app_config_manager)
       
       exit Longleaf::ValidateMetadataCommand.new(app_config_manager).execute(file_selector: file_selector)
     end
@@ -243,9 +239,9 @@ module Longleaf
         end
       end
       
-      def create_file_selector(file_paths, storage_locations, app_config_manager, selector_class: FileSelector)
-        file_paths = file_paths&.split(/\s*,\s*/)
-        storage_locations = storage_locations&.split(/\s*,\s*/)
+      def create_file_selector(options, app_config_manager, selector_class: FileSelector)
+        file_paths = options[:file]&.split(/\s*,\s*/)
+        storage_locations = options[:location]&.split(/\s*,\s*/)
         
         begin
           selector_class.new(file_paths: file_paths, storage_locations: storage_locations, app_config: app_config_manager)
@@ -255,8 +251,8 @@ module Longleaf
         end
       end
       
-      def create_registered_selector(file_paths, storage_locations, app_config_manager)
-        create_file_selector(file_paths, storage_locations, app_config_manager, selector_class: RegisteredFileSelector)
+      def create_registered_selector(options, app_config_manager)
+        create_file_selector(options, app_config_manager, selector_class: RegisteredFileSelector)
       end
       
       def extend_load_path(load_paths)

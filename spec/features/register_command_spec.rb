@@ -158,6 +158,22 @@ describe 'register', :type => :aruba do
       end
     end
     
+    context 'register multiple files by storage location' do
+      let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
+      
+      before do
+        run_simple("longleaf register -c #{config_path} -s 'loc1' --log-level 'DEBUG'")
+      end
+
+      it 'registers both files' do
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
+        expect(metadata_created(file_path, md_dir)).to be true
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
+        expect(metadata_created(file_path2, md_dir)).to be true
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+    
     context 'register directory of files' do
       let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
       
