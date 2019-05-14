@@ -1,6 +1,7 @@
 require 'sequel'
 require 'digest/md5'
 require 'longleaf/events/event_names'
+require 'longleaf/candidates/file_selector'
 require 'longleaf/version'
 require 'longleaf/models/system_config_fields'
 require 'longleaf/logging'
@@ -75,16 +76,19 @@ module Longleaf
       if @adapter == :mysql || @adapter == :mysql2
         preserve_tbl.on_duplicate_key_update
             .insert(file_path: file_path,
+                storage_location: storage_loc.name,
                 service_time: first_timestamp,
                 delay_until_time: delay_until_timestamp,
                 updated: now_stamp)
       else
         preserve_tbl.insert_conflict(target: :file_path,
             update: {
+                storage_location: storage_loc.name,
                 service_time: first_timestamp,
                 delay_until_time: delay_until_timestamp,
                 updated: now_stamp } )
             .insert(file_path: file_path,
+                storage_location: storage_loc.name,
                 service_time: first_timestamp,
                 delay_until_time: delay_until_timestamp,
                 updated: now_stamp)
@@ -181,6 +185,7 @@ module Longleaf
         # mysql does not support 'text' fields as primary keys
         db_conn.create_table!(PRESERVE_TBL) do
           String :file_path, primary_key: true, size: 768
+          column :storage_location, 'varchar(128)'
           column :service_time, 'timestamp(3)', { :null => true }
           column :delay_until_time, 'timestamp(3)'
           column :updated, 'timestamp(3)'
@@ -188,6 +193,7 @@ module Longleaf
       else
         db_conn.create_table!(PRESERVE_TBL) do
           String :file_path, primary_key: true, text: true
+          column :storage_location, 'varchar(128)'
           column :service_time, 'timestamp(3)', { :null => true }
           column :delay_until_time, 'timestamp(3)'
           column :updated, 'timestamp(3)'
@@ -201,6 +207,7 @@ module Longleaf
       when :sqlite, :amalgalite
         db_conn.run("CREATE INDEX service_times_file_path_text_index ON preserve_service_times (file_path collate nocase)")
       end
+      db_conn.run("CREATE INDEX service_times_storage_location_index ON preserve_service_times (storage_location)")
       
       # Create table for tracking the state of the index
       db_conn.create_table!(INDEX_STATE_TBL) do
@@ -283,9 +290,13 @@ module Longleaf
     end
     
     def add_path_restrictions(dataset, file_selector)
-      # Reformat all selected paths into LIKE partial string matches
-      path_conds = file_selector.target_paths.map { |path| path.end_with?('/') ? path + '%' : path }
-      dataset.where(Sequel.like(:file_path, *path_conds))
+      if file_selector.specificity == FileSelector::SPECIFICITY_STORAGE_LOCATION
+        dataset.where(storage_location: file_selector.storage_locations)
+      else
+        # Reformat all selected paths into LIKE partial string matches
+        path_conds = file_selector.target_paths.map { |path| path.end_with?('/') ? path + '%' : path }
+        dataset.where(Sequel.like(:file_path, *path_conds))
+      end
     end
     
     def convert_iso8601_to_timestamp(iso8601)

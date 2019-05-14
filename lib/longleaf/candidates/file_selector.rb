@@ -4,6 +4,10 @@ module Longleaf
   # Selects and allows for iteration over files which match a provided set of selection criteria
   class FileSelector
     include Longleaf::Logging
+    SPECIFICITY_PATH = 'path'
+    SPECIFICITY_STORAGE_LOCATION = 'storage_location'
+    
+    attr_reader :specificity
     
     # May only provide either file_paths or storage_locations
     def initialize(file_paths: nil, storage_locations: nil, app_config:)
@@ -33,7 +37,10 @@ module Longleaf
       # The set of storage locations to select file paths from
       @storage_locations = storage_locations
       # Validate that the selected storage locations are known
-      unless @storage_locations.nil?
+      if @storage_locations.nil?
+        @specificity = SPECIFICITY_PATH
+      else
+        @specificity = SPECIFICITY_STORAGE_LOCATION
         locations = @app_config.location_manager.locations
         @storage_locations.each do |loc_name|
           unless locations.key?(loc_name)
