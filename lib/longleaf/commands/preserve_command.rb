@@ -22,6 +22,8 @@ module Longleaf
     # @param force [Boolean] force flag
     # @return [Integer] status code
     def execute(file_selector:, force: false)
+      start_time = Time.now
+      logger.info('Performing preserve command')
       begin
         # Perform preserve events on each of the file paths provided
         candidate_locator = ServiceCandidateLocator.new(@app_manager)
@@ -43,6 +45,7 @@ module Longleaf
         record_failure(EventNames::PRESERVE, error: err)
       end
       
+      logger.info("Completed preserve command in #{Time.now - start_time}s")
       return_status
     end
   end

@@ -16,6 +16,8 @@ module Longleaf
     # @param file_selector [FileSelector] selector for files to register
     # @return [Integer] status code
     def execute(file_selector:)
+      start_time = Time.now
+      logger.info('Performing validate metadata command')
       begin
         # Perform metadata validation on each of the file paths provided
         loop do
@@ -42,6 +44,7 @@ module Longleaf
         record_failure("Encountered error while validating metadata files", error: err)
       end
       
+      logger.info("Completed validate metadata command in #{Time.now - start_time}s")
       return_status
     end
   end

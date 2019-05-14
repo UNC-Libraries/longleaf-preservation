@@ -12,6 +12,8 @@ module Longleaf
     
     # Execute the validate command on the specified configuration yml file
     def execute
+      start_time = Time.now
+      logger.info('Performing validate configuration command')
       begin
         app_config_manager = Longleaf::ApplicationConfigDeserializer.deserialize(@config_path)
         
@@ -29,6 +31,7 @@ module Longleaf
         record_failure("Failed to validate application configuration", error: err)
       end
       
+      logger.info("Completed validate configuration command in #{Time.now - start_time}s")
       return_status
     end
     

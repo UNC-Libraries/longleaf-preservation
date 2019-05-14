@@ -27,6 +27,7 @@ module Longleaf
         return return_status
       end
       
+      start_time = Time.now
       logger.info('Performing full reindex')
       results = nil
       begin
@@ -55,6 +56,7 @@ module Longleaf
         record_success("Completed reindexing, #{results['success']} successful.")
       end
       
+      logger.info("Completed full reindex in #{Time.now - start_time}s")
       return_status
     end
     
