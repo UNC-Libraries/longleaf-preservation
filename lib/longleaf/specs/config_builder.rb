@@ -98,16 +98,16 @@ module Longleaf
     # @return the file path of the config file
     def write_to_yaml_file(dest_path = nil)
       if dest_path.nil?
-        Tempfile.open('config') do |f|
-          f.write(@config.to_yaml)
-          return f.path
-        end
-      else
-        File.open(dest_path, 'w') do |f|
-          f.write(@config.to_yaml)
-        end
-        dest_path
+        file = Tempfile.new('config')
+        file.close
+        dest_path = file.path
+        # deleting temp file but reusing file name. This is to avoid premature garbage collection.
+        file.unlink
       end
+      File.open(dest_path, 'w') do |f|
+        f.write(@config.to_yaml)
+      end
+      dest_path
     end
   end
 end

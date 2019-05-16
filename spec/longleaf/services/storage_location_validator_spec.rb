@@ -1,13 +1,23 @@
 require 'spec_helper'
+require 'longleaf/specs/file_helpers'
 require 'longleaf/services/storage_location_validator'
 require 'longleaf/errors'
 require 'longleaf/specs/config_builder'
+require 'fileutils'
 
 describe Longleaf::StorageLocationValidator do
+  include Longleaf::FileHelpers
   AF ||= Longleaf::AppFields
   ConfigBuilder ||= Longleaf::ConfigBuilder
   
   let(:validator) { Longleaf::StorageLocationValidator }
+  
+  let(:path_dir1) { Dir.mktmpdir('path') }
+  let(:md_dir1) { Dir.mktmpdir('metadata') }
+  
+  after do
+    FileUtils.rm_rf([md_dir1, path_dir1])
+  end
   
   describe '#validate_config' do
     
@@ -32,14 +42,14 @@ describe Longleaf::StorageLocationValidator do
     end
     
     context 'with location missing path' do
-      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', path: nil).get }
+      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', path: nil, md_path: md_dir1).get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /'path' property: Path must not be empty/) }
     end
     
     context 'with location missing metadata path' do
-      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', md_path: nil).get }
+      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', path: path_dir1, md_path: nil).get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /'metadata_path' property: Path must not be empty/) }
@@ -60,7 +70,7 @@ describe Longleaf::StorageLocationValidator do
     end
     
     context 'with location with non-absolute metadata_path' do
-      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', md_path: 'md_path/').get }
+      let(:config) { ConfigBuilder.new.with_locations.with_location(name: 'loc1', path: path_dir1, md_path: 'md_path/').get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
           /'metadata_path' property: Path must be absolute/) }
@@ -76,7 +86,7 @@ describe Longleaf::StorageLocationValidator do
     
     context 'with location path contained by metadata_path' do
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location(name: 'loc1', path: '/file/path/', md_path: '/file/path/')
+          .with_location(name: 'loc1', path: path_dir1, md_path: path_dir1)
           .get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
@@ -84,9 +94,12 @@ describe Longleaf::StorageLocationValidator do
     end
     
     context 'with location path contained by another location path' do
+      let(:path_dir2) { make_test_dir(parent: path_dir1, name: 'loc2') + '/' }
+      let(:md_dir2) { make_test_dir(name: 'md_loc2')  + '/' }
+      
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location(name: 'loc1', path: '/path/loc1/', md_path: '/md/loc1/')
-          .with_location(name: 'loc2', path: '/path/loc1/loc2', md_path: '/md/loc2/')
+          .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
+          .with_location(name: 'loc2', path: path_dir2, md_path: md_dir2)
           .get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
@@ -94,9 +107,12 @@ describe Longleaf::StorageLocationValidator do
     end
     
     context 'with location path contained by another location path without trailing slash' do
+      let(:path_dir2) { make_test_dir(parent: path_dir1, name: 'loc2')}
+      let(:md_dir2) { make_test_dir(name: 'md_loc2') }
+      
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location(name: 'loc1', path: '/path/loc1', md_path: '/md/loc1/')
-          .with_location(name: 'loc2', path: '/path/loc1/loc2', md_path: '/md/loc2/')
+          .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
+          .with_location(name: 'loc2', path: path_dir2, md_path: md_dir2)
           .get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
@@ -104,10 +120,13 @@ describe Longleaf::StorageLocationValidator do
     end
     
     # Ensuring problem is caught in either direction
-    context 'with location path containing by another location path' do
+    context 'with location path contained by another location path' do
+      let(:path_dir2) { make_test_dir(parent: path_dir1, name: 'loc2')}
+      let(:md_dir2) { make_test_dir(name: 'md_loc2') }
+      
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location(name: 'loc1', path: '/path/loc2/loc1', md_path: '/md/loc1/')
-          .with_location(name: 'loc2', path: '/path/loc2/', md_path: '/md/loc2/')
+          .with_location(name: 'loc1', path: path_dir2, md_path: md_dir2)
+          .with_location(name: 'loc2', path: path_dir1, md_path: md_dir1)
           .get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
@@ -115,9 +134,12 @@ describe Longleaf::StorageLocationValidator do
     end
     
     context 'with location path contained by another location metadata_path' do
+      let(:path_dir2) { make_test_dir(name: 'loc2')}
+      let(:md_dir2) { make_test_dir(parent: md_dir1, name: 'md_loc2') }
+      
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location(name: 'loc1', path: '/path/loc1/', md_path: '/md/loc1/')
-          .with_location(name: 'loc2', path: '/md/loc1/loc2', md_path: '/md/loc2/')
+          .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
+          .with_location(name: 'loc2', path: path_dir2, md_path: md_dir2)
           .get }
 
       it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
@@ -134,18 +156,43 @@ describe Longleaf::StorageLocationValidator do
     
     context 'with valid location' do
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location(name: 'loc1').get }
+          .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1).get }
 
       it { expect { validator::validate_config(config) }.to_not raise_error }
     end
     
     context 'with multiple valid locations' do
+      let(:path_dir2) { make_test_dir(name: 'loc2')}
+      let(:md_dir2) { make_test_dir(name: 'md_loc2') }
+      
       let(:config) { ConfigBuilder.new.with_locations
-          .with_location(name: 'loc1', path: '/path/loc1/', md_path: '/md/loc1/')
-          .with_location(name: 'loc2', path: '/path/loc2/', md_path: '/md/loc2/')
+          .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
+          .with_location(name: 'loc2', path: path_dir2, md_path: md_dir2)
           .get }
 
       it { expect { validator::validate_config(config) }.to_not raise_error }
+    end
+    
+    context 'with path that does not exist' do
+      before do
+        FileUtils.rm_rf(path_dir1)
+      end
+      
+      let(:config) { ConfigBuilder.new.with_locations
+          .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1).get }
+
+      it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError, /Storage location 'loc1' specifies a 'path' directory which does not exist/) }
+    end
+    
+    context 'with metadata path that does not exist' do
+      before do
+        FileUtils.rm_rf(md_dir1)
+      end
+      
+      let(:config) { ConfigBuilder.new.with_locations
+          .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1).get }
+
+      it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError, /Storage location 'loc1' specifies a 'metadata_path' directory which does not exist/) }
     end
   end
 end

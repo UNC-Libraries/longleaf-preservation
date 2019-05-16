@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'longleaf/specs/file_helpers'
 require 'longleaf/events/preserve_event'
 require 'longleaf/services/service_manager'
+require 'longleaf/services/metadata_deserializer'
 require 'longleaf/helpers/service_date_helper'
 require 'longleaf/errors'
 require 'longleaf/specs/config_builder'
@@ -96,6 +97,17 @@ describe Longleaf::PreserveEvent do
         
         it 'registers the service as having failed' do
           perform_and_verify_no_change(event, md_path, expected_status: 1)
+        end
+      end
+      
+      context 'service raises StorageLocationUnavailableError' do
+        before do
+          allow(service_manager).to receive(:service_needed?) { true }
+          allow(service_manager).to receive(:perform_service).and_raise(Longleaf::StorageLocationUnavailableError.new)
+        end
+        
+        it 'throws the error' do
+          expect { event.perform }.to raise_error(Longleaf::StorageLocationUnavailableError)
         end
       end
       

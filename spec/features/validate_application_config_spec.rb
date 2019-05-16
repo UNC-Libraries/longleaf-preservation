@@ -81,7 +81,7 @@ describe 'validate_config', :type => :aruba do
     
     it 'outputs path does not exist configuration error' do
       expect(last_command_started).to have_output(/Application configuration invalid/)
-      expect(last_command_started).to have_output(/Path does not exist or is not a directory/)
+      expect(last_command_started).to have_output(/Storage location 'loc1' specifies a 'path' directory which does not exist/)
       expect(last_command_started).to have_exit_status(1)
     end
   end
