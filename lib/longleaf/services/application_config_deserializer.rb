@@ -9,26 +9,18 @@ module Longleaf
     AF ||= Longleaf::AppFields
     
     # Deserializes a valid application configuration file as a ApplicationConfigManager option
-    # @param serv_config_path [String] file path to the service and storage mapping configuration file
-    # @param sys_config_path [String] file path to the system configuration file
+    # @param config_path [String] file path to the service and storage mapping configuration file
     # @param format [String] encoding format of the config file
     # return [ApplicationConfigManager] manager for the loaded configuration
-    def self.deserialize(serv_config_path, sys_config_path = nil, format: 'yaml')
-      if sys_config_path.nil?
-        sys_config = nil
-      else
-        sys_content = load_config_file(sys_config_path)
-        sys_config = load(sys_content, format)
-      end
-      
-      content = load_config_file(serv_config_path)
+    def self.deserialize(config_path, format: 'yaml')
+      content = load_config_file(config_path)
       config = load(content, format)
       
       config_md5 = Digest::MD5.hexdigest(content)
     
-      make_paths_absolute(serv_config_path, config)
+      make_paths_absolute(config_path, config)
       Longleaf::ApplicationConfigValidator.validate(config)
-      Longleaf::ApplicationConfigManager.new(config, sys_config, config_md5)
+      Longleaf::ApplicationConfigManager.new(config, config_md5)
     end
     
     private

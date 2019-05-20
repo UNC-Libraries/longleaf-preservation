@@ -89,6 +89,12 @@ module Longleaf
       self
     end
     
+    # Add a system config section to the config
+    def with_system(sys_config)
+      @config[AF::SYSTEM] = sys_config
+      self
+    end
+    
     # @return the constructed configuration
     def get
       @config

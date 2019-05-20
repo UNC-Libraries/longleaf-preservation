@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'longleaf/candidates/service_candidate_index_iterator'
+require 'longleaf/services/metadata_deserializer'
 require 'longleaf/specs/config_builder'
 require 'longleaf/specs/metadata_builder'
 require 'longleaf/specs/system_config_builder'
@@ -24,15 +25,17 @@ describe Longleaf::ServiceCandidateIndexIterator do
     FileUtils.rm(db_file)
   end
   
+  let(:sys_config) { SysConfigBuilder.new
+      .with_index('amalgalite', "amalgalite://#{db_file}")
+      .get }
   let(:config) { ConfigBuilder.new
       .with_service(name: 'serv1', frequency: '1 days')
       .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
       .map_services(['loc1'], ['serv1'])
+      .with_system(sys_config)
       .get }
-  let(:sys_config) { SysConfigBuilder.new
-      .with_index('amalgalite', "amalgalite://#{db_file}")
-      .get }
-  let(:app_config) { build(:application_config_manager, config: config, sys_config: sys_config) }
+  
+  let(:app_config) { build(:application_config_manager, config: config) }
 
   let(:file_selector) { build(:file_selector,
       storage_locations: ['loc1'],

@@ -4,6 +4,7 @@ module Longleaf
     LOCATIONS = 'locations'
     SERVICES = 'services'
     SERVICE_MAPPINGS = 'service_mappings'
+    SYSTEM = 'system'
     
     LOCATION_PATH = 'path'
     METADATA_PATH = 'metadata_path'

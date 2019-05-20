@@ -144,29 +144,26 @@ describe Longleaf::ApplicationConfigDeserializer do
       end
       
       context 'with index config' do
-        let(:sys_config_path) { SysConfigBuilder.new
+        let(:sys_config) { SysConfigBuilder.new
             .with_index('amalgalite', 'amalgalite://tmp/db')
+            .get }
+        let!(:config_path) { ConfigBuilder.new
+            .with_services
+            .with_service(name: 'serv1')
+            .with_locations
+            .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+            .map_services('loc1', 'serv1')
+            .with_system(sys_config)
             .write_to_yaml_file }
             
         it {
-          result = AppDeserializer::deserialize(config_path, sys_config_path)
+          result = AppDeserializer::deserialize(config_path)
           expect(result.service_manager).to_not be_nil
           expect(result.location_manager).to_not be_nil
           expect(result.config_md5).to eq config_md5
           expect(result.index_manager).to be_kind_of(Longleaf::IndexManager)
           expect(result.index_manager.using_index?).to be true
         }
-      end
-      
-      context 'invalid system config file contents' do
-        let(:sys_config_path) {
-          Tempfile.open('config') do |f|
-            f.write('bad : yaml : time')
-            return f.path
-          end
-        }
-    
-        it { expect { AppDeserializer::deserialize(config_path, sys_config_path) }.to raise_error(Longleaf::ConfigurationError) }
       end
     end
   end
