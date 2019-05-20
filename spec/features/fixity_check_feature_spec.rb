@@ -60,7 +60,7 @@ describe 'fixity check service', :type => :aruba do
         run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
       end
     
-      it 'exits with failure' do
+      it 'exits with success' do
         expect(last_command_started).to have_output(/Application configuration passed validation/)
         expect(last_command_started).to have_exit_status(0)
       end
