@@ -23,14 +23,5 @@ module Longleaf
     def get
       @config
     end
-    
-    # Writes the configuration from this builder into a temporary file
-    # @return the file path of the config file
-    def write_to_yaml_file
-      Tempfile.open('sys_config') do |f|
-        f.write(@config.to_yaml)
-        return f.path
-      end
-    end
   end
 end

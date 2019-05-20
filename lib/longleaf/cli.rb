@@ -42,12 +42,15 @@ module Longleaf
         :load_path, :common, {
               :aliases => "-I",
               :desc => 'Specify comma seperated directories to add to the $LOAD_PATH, which can be used to specify additional paths from which to load preservation services.' })
+<<<<<<< HEAD
     add_shared_option(
         :system_config, :common, {
               :aliases => "-y",
               :default => ENV['LONGLEAF_SYSTEM_CFG'],
               :required => false,
               :desc => 'Path to the longleaf system configuration used for this command. By default, the value of the environment variable LONGLEAF_SYSTEM_CFG is used.' })
+=======
+>>>>>>> System configuration is now a field of the app config. Removed the -y option
 
     # Logging options
     add_shared_option(
@@ -225,8 +228,7 @@ module Longleaf
       
       def load_application_config(options)
         begin
-          app_manager = ApplicationConfigDeserializer.deserialize(options[:config],
-              options[:system_config])
+          app_manager = ApplicationConfigDeserializer.deserialize(options[:config])
         rescue ConfigurationError => err
           logger.failure("Failed to load application configuration due to the following issue:\n#{err.message}")
           exit 1

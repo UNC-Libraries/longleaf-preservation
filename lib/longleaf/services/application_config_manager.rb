@@ -7,6 +7,7 @@ require_relative 'service_mapping_manager'
 require_relative 'service_manager'
 require_relative 'metadata_persistence_manager'
 require 'longleaf/indexing/index_manager'
+require 'longleaf/models/app_fields'
 
 module Longleaf
   # Manager which loads and provides access to the configuration of the application
@@ -17,18 +18,19 @@ module Longleaf
     attr_reader :index_manager
     attr_reader :md_manager
     
-    def initialize(serv_config, sys_config, config_md5 = nil)
+    def initialize(config, config_md5 = nil)
       @config_md5 = config_md5
       
-      @location_manager = Longleaf::StorageLocationManager.new(serv_config)
+      @location_manager = Longleaf::StorageLocationManager.new(config)
       
-      definition_manager = Longleaf::ServiceDefinitionManager.new(serv_config)
-      mapping_manager = Longleaf::ServiceMappingManager.new(serv_config)
+      definition_manager = Longleaf::ServiceDefinitionManager.new(config)
+      mapping_manager = Longleaf::ServiceMappingManager.new(config)
       @service_manager = Longleaf::ServiceManager.new(
           definition_manager: definition_manager,
           mapping_manager: mapping_manager,
           app_manager: self)
       
+      sys_config = config[AppFields::SYSTEM]
       @index_manager = IndexManager.new(sys_config, self)
       @md_manager = MetadataPersistenceManager.new(@index_manager)
     end

@@ -27,9 +27,9 @@ describe 'reindex command', :type => :aruba do
   
   let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb') }
 
-  let(:sys_config_path) { SysConfigBuilder.new
+  let(:sys_config) { SysConfigBuilder.new
       .with_index('amalgalite', "amalgalite://#{db_file}")
-      .write_to_yaml_file }
+      .get }
 
   before :all do
     Sequel.default_timezone = :utc
@@ -41,28 +41,37 @@ describe 'reindex command', :type => :aruba do
     $LOAD_PATH.delete(lib_dir)
   end
   
-  context 'one storage location with service' do
+  context 'no index configured' do
     let(:config_path) { ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: work_script_file, frequency: "1 minute")
         .map_services('loc1', 'serv1')
         .write_to_yaml_file(config_file) }
     
-    let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path, sys_config_path) }
+    let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
+
+    before do
+      run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
+    end
+
+    it 'exits with failure' do
+      expect(last_command_started).to have_output(/Cannot perform reindex, no index is configured/)
+      expect(last_command_started).to have_exit_status(1)
+    end
+  end
+  
+  context 'one storage location with service' do
+    let(:config_path) { ConfigBuilder.new
+        .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+        .with_service(name: 'serv1', work_script: work_script_file, frequency: "1 minute")
+        .map_services('loc1', 'serv1')
+        .with_system(sys_config)
+        .write_to_yaml_file(config_file) }
+    
+    let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
     let(:index_manager) { app_config.index_manager }
     
     let(:storage_loc) { app_config.location_manager.locations['loc1'] }
-
-    context 'no index configured' do
-      before do
-        run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
-      end
-
-      it 'exits with failure' do
-        expect(last_command_started).to have_output(/Cannot perform reindex, no index is configured/)
-        expect(last_command_started).to have_exit_status(1)
-      end
-    end
     
     context 'no registered files' do
       before do
@@ -72,7 +81,7 @@ describe 'reindex command', :type => :aruba do
       context 'reindex' do
         before do
           @last_reindexed = get_index_state[:last_reindexed]
-          run_simple("longleaf reindex -c #{config_path} -y #{sys_config_path}", fail_on_error: false)
+          run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
         end
         
         it 'succeeds but indexes nothing' do
@@ -92,7 +101,7 @@ describe 'reindex command', :type => :aruba do
       context 'full reindex' do
         before do
           @last_reindexed = get_index_state[:last_reindexed]
-          run_simple("longleaf reindex -c #{config_path} -y #{sys_config_path}", fail_on_error: false)
+          run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
         end
         
         it 'reindexes the file' do
@@ -108,7 +117,7 @@ describe 'reindex command', :type => :aruba do
       
       context 'with if_stale flag, non-stale index' do
         before do
-          run_simple("longleaf reindex -c #{config_path} -y #{sys_config_path} --if_stale", fail_on_error: false)
+          run_simple("longleaf reindex -c #{config_path} --if_stale", fail_on_error: false)
         end
         
         it 'completes with no action taken' do
@@ -123,9 +132,10 @@ describe 'reindex command', :type => :aruba do
               .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
               .with_service(name: 'serv1', work_script: work_script_file, frequency: "1 day")
               .map_services('loc1', 'serv1')
+              .with_system(sys_config)
               .write_to_yaml_file(config_path)
           
-          run_simple("longleaf reindex -c #{config_path} -y #{sys_config_path} --if_stale", fail_on_error: false)
+          run_simple("longleaf reindex -c #{config_path} --if_stale", fail_on_error: false)
         end
         
         it 'reindexes the file' do
@@ -138,7 +148,7 @@ describe 'reindex command', :type => :aruba do
         
         context 'reindex again with if_stale' do
           before do
-            run_simple("longleaf reindex -c #{config_path} -y #{sys_config_path} --if_stale", fail_on_error: false)
+            run_simple("longleaf reindex -c #{config_path} --if_stale", fail_on_error: false)
           end
           
           it 'completes with no action taken' do
@@ -161,7 +171,7 @@ describe 'reindex command', :type => :aruba do
       
       context 'normal reindex' do
         before do
-          run_simple("longleaf reindex -c #{config_path} -y #{sys_config_path}", fail_on_error: false)
+          run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
         end
       
         it 'reindexes the files' do
@@ -177,7 +187,7 @@ describe 'reindex command', :type => :aruba do
         before do
           File.open(file_rec2.metadata_path, 'a'){|f| f.write("busted")}
           
-          run_simple("longleaf reindex -c #{config_path} -y #{sys_config_path}", fail_on_error: false)
+          run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
         end
         
         it 'reindexes two of the files, fails one' do
@@ -193,7 +203,7 @@ describe 'reindex command', :type => :aruba do
         before do
           FileUtils.rm([file_rec2.path, file_rec2.metadata_path])
           
-          run_simple("longleaf reindex -c #{config_path} -y #{sys_config_path}", fail_on_error: false)
+          run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
         end
         
         it 'cleans up the removed file from index' do
@@ -217,7 +227,7 @@ describe 'reindex command', :type => :aruba do
       
       before do
         index_manager.setup_index
-        run_simple("longleaf reindex -c #{config_path} -y #{sys_config_path}", fail_on_error: false)
+        run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
       end
       
       it 'indexes the files' do
@@ -245,9 +255,10 @@ describe 'reindex command', :type => :aruba do
         .with_service(name: 'serv1', work_script: work_script_file, frequency: "1 minute")
         .map_services('loc1', 'serv1')
         .map_services('loc2', 'serv1')
+        .with_system(sys_config)
         .write_to_yaml_file(config_file) }
     
-    let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path, sys_config_path) }
+    let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
     let(:index_manager) { app_config.index_manager }
     
     let(:storage_loc1) { app_config.location_manager.locations['loc1'] }
@@ -262,7 +273,7 @@ describe 'reindex command', :type => :aruba do
       let!(:file_rec2) { create_file_rec(storage_loc2, 'serv1', days_from_now) }
       
       before do
-        run_simple("longleaf reindex -c #{config_path} -y #{sys_config_path}", fail_on_error: false)
+        run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
       end
       
       it 'reindexes files in both locations' do
