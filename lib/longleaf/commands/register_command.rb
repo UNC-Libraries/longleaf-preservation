@@ -20,7 +20,7 @@ module Longleaf
     # @return [Integer] status code
     def execute(file_selector:, force: false, checksums: nil)
       start_time = Time.now
-      logger.info('Performing deregister command')
+      logger.info('Performing register command')
       begin
         # Perform register events on each of the file paths provided
         loop do
