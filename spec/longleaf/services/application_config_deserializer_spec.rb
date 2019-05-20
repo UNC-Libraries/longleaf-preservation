@@ -57,8 +57,8 @@ describe Longleaf::ApplicationConfigDeserializer do
           .map_services('loc1', 'serv1')
           .write_to_yaml_file }
       let(:config_dir) { Pathname.new(config_path).parent.to_s }
-      let(:md_dir) { make_test_dir(parent: config_dir, name: 'metadata') }
-      let(:path_dir) { make_test_dir(parent: config_dir, name: 'fpath') }
+      let!(:md_dir) { make_test_dir(parent: config_dir, name: 'metadata') }
+      let!(:path_dir) { make_test_dir(parent: config_dir, name: 'fpath') }
       
       after do
         FileUtils.rmdir([md_dir, path_dir])

@@ -59,6 +59,8 @@ module Longleaf
           rescue PreservationServiceError => e
             @file_rec.metadata_record.update_service_as_failed(service_name)
             record_failure(EventNames::PRESERVE, f_path, e.message, service_name)
+          rescue StorageLocationUnavailableError => e
+            raise e
           rescue StandardError => e
             @file_rec.metadata_record.update_service_as_failed(service_name)
             record_failure(EventNames::PRESERVE, f_path, nil, service_name, error: e)

@@ -41,6 +41,8 @@ module Longleaf
       assert("Storage location '#{name}' must specify a '#{path_prop}' property", !path.nil? && !path.empty?)
       assert("Storage location '#{name}' must specify an absolute path for property '#{path_prop}'",
           Pathname.new(path).absolute? && !path.include?('/..'))
+      assert("Storage location '#{name}' specifies a '#{path_prop}' directory which does not exist", Dir.exist?(path))
+      
       # Ensure paths have trailing slash to avoid matching on partial directory names
       path += '/' unless path.end_with?('/')
       # Verify that the (metadata_)path property's value is not inside of another storage location or vice versa

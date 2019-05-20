@@ -161,8 +161,8 @@ module Longleaf
         begin
           destination.available?
         rescue StorageLocationUnavailableError => e
-          raise StorageLocationUnavailableError.new("Cannot replicate #{file_rec.path} to destination" \
-              + " storage location #{destination.name}, it is unavailable.") unless destination.available?
+          raise StorageLocationUnavailableError.new("Cannot replicate #{file_rec.path} to destination #{destination.name}: " \
+              + e.message)
         end
       elsif destination.start_with?("/")
         raise StorageLocationUnavailableError.new("Cannot replicate #{file_rec.path} to destination" \
