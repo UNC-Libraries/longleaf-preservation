@@ -19,6 +19,8 @@ module Longleaf
     # @param checksums [Array] array of checksums
     # @return [Integer] status code
     def execute(file_selector:, force: false, checksums: nil)
+      start_time = Time.now
+      logger.info('Performing register command')
       begin
         # Perform register events on each of the file paths provided
         loop do
@@ -39,6 +41,7 @@ module Longleaf
         record_failure(EventNames::REGISTER, error: err)
       end
       
+      logger.info("Completed register command in #{Time.now - start_time}s")
       return_status
     end
   end

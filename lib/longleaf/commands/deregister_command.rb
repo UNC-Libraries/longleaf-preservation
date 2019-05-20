@@ -18,6 +18,8 @@ module Longleaf
     # @param force [Boolean] force flag
     # @return [Integer] status code
     def execute(file_selector:, force: false)
+      start_time = Time.now
+      logger.info('Performing deregister command')
       begin
         # Perform deregister events on each of the file paths provided
         loop do
@@ -42,6 +44,7 @@ module Longleaf
         record_failure(EventNames::DEREGISTER, error: err)
       end
       
+      logger.info("Completed deregister command in #{Time.now - start_time}s")
       return_status
     end
   end

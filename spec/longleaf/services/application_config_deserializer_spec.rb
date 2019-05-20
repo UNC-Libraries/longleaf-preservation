@@ -129,6 +129,20 @@ describe Longleaf::ApplicationConfigDeserializer do
         }
       end
       
+      context 'with relative config file location' do
+        let(:relative_config_path) { Pathname.new(config_path).relative_path_from(Pathname.new(Dir.pwd)) }
+      
+        it "resolves config path and loads correctly" do
+          result = AppDeserializer::deserialize(relative_config_path)
+          
+          expect(result.service_manager).to_not be_nil
+          expect(result.location_manager).to_not be_nil
+          expect(result.config_md5).to eq config_md5
+          expect(result.index_manager).to be_kind_of(Longleaf::IndexManager)
+          expect(result.index_manager.using_index?).to be false
+        end
+      end
+      
       context 'with index config' do
         let(:sys_config_path) { SysConfigBuilder.new
             .with_index('amalgalite', 'amalgalite://tmp/db')
