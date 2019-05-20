@@ -31,14 +31,14 @@ module Longleaf
         raise PreservationServiceError.new("File does not exist: #{file_path}")
       end
       
-      last_modified = File.mtime(file_rec.path).utc.iso8601(3)
-      if last_modified != md_rec.last_modified
-        raise PreservationServiceError.new("Last modified timestamp for #{file_path} does not match the expected value: registered = #{md_rec.last_modified}, actual = #{last_modified}")
-      end
-      
       file_size = File.size(file_rec.path)
       if file_size != md_rec.file_size
         raise PreservationServiceError.new("File size for #{file_path} does not match the expected value: registered = #{md_rec.file_size} bytes, actual = #{file_size} bytes")
+      end
+      
+      last_modified = File.mtime(file_rec.path).utc.iso8601(3)
+      if last_modified != md_rec.last_modified
+        raise PreservationServiceError.new("Last modified timestamp for #{file_path} does not match the expected value: registered = #{md_rec.last_modified}, actual = #{last_modified}")
       end
     end
     
