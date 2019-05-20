@@ -42,6 +42,12 @@ describe Longleaf::FixityCheckService do
       it { expect(FixityCheckService.new(service_def, app_manager)).to be_a(FixityCheckService) }
     end
     
+    context 'valid algorithms configured as string' do
+      let(:service_def) { make_service_def('sha1') }
+      
+      it { expect(FixityCheckService.new(service_def, app_manager)).to be_a(FixityCheckService) }
+    end
+    
     context 'invalid algorithms configured' do
       let(:service_def) { make_service_def(['md5', 'indigestion']) }
       
@@ -244,7 +250,6 @@ describe Longleaf::FixityCheckService do
         
         it { expect { fixity_service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(Errno::ENOENT) }
       end
-        
     end
       
     context 'with all checksums configured' do

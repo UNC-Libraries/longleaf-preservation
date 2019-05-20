@@ -68,6 +68,7 @@ module Longleaf
       if replicate_to.nil? || replicate_to.empty?
         raise ArgumentError.new("Service #{service_def.name} must provide one or more replication destinations.")
       end
+      replicate_to = [replicate_to] if replicate_to.is_a?(String)
       
       loc_manager = app_manager.location_manager
       # Build list of destinations, translating to storage locations when relevant
