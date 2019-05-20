@@ -42,6 +42,8 @@ module Longleaf
         raise ArgumentError.new("FixityCheckService from definition #{service_def.name} requires a list of one or more digest algorithms")
       end
       
+      service_algs = [service_algs] if service_algs.is_a?(String)
+      
       # Store the list of digest algorithms to verify, using normalized algorithm names.
       @digest_algs = Set.new
       service_algs.each do |alg|
