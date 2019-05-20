@@ -86,6 +86,15 @@ describe Longleaf::RsyncReplicationService do
       end
     end
     
+    context 'destination as string' do
+      let(:service_def) { make_service_def('dest_loc') }
+      let(:service) { RsyncService.new(service_def, app_manager) }
+      
+      it "creates service without errors" do
+        expect(RsyncService.new(service_def, app_manager)).to be_a(RsyncService)
+      end
+    end
+    
     context 'no destinations' do
       let(:service_def) { make_service_def([]) }
       
@@ -187,6 +196,20 @@ describe Longleaf::RsyncReplicationService do
         
           expect(File.exist?(replica_path)).to be true
           expect(FileUtils.compare_file(original_file, replica_path)).to be true
+        end
+      end
+      
+      context 'with destination string' do
+        let(:service_def) { make_service_def('dest_loc') }
+        
+        it "replicates file to destination location" do
+          original_file = create_test_file(dir: path_src_dir)
+          file_rec = make_file_record(original_file, md_rec, "source_loc", app_manager)
+          
+          service.perform(file_rec, PRESERVE_EVENT)
+        
+          replica_path = File.join(path_dest_dir, File.basename(original_file))
+          expect(File.exist?(replica_path)).to be true
         end
       end
       
