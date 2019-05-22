@@ -55,7 +55,7 @@ module Longleaf
     end
     
     def self.make_paths_absolute(config_path, config)
-      base_pathname = Pathname.new(config_path).parent
+      base_pathname = Pathname.new(config_path).expand_path.parent
       
       config[AF::LOCATIONS].each do |name, properties|
         properties[AF::LOCATION_PATH] = absolution(base_pathname, properties[AF::LOCATION_PATH])
