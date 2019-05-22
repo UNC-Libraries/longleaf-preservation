@@ -73,6 +73,20 @@ describe Longleaf::ApplicationConfigDeserializer do
         expect(loc.path).to eq path_dir + '/'
         expect(loc.metadata_path).to eq md_dir + '/'
       end
+      
+      context 'with relative path to config file' do
+        let(:relative_config) { Pathname.new(config_path).relative_path_from(Pathname.new(Dir.pwd)) }
+        
+        it 'returns location loc1 with absolute paths based off location of config' do
+          result = AppDeserializer::deserialize(relative_config)
+          expect(result.location_manager).to_not be_nil
+        
+          loc = result.location_manager.locations['loc1']
+        
+          expect(loc.path).to eq path_dir + '/'
+          expect(loc.metadata_path).to eq md_dir + '/'
+        end
+      end
     end
     
     context 'with path modifiers in locations' do
