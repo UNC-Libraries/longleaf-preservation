@@ -6,10 +6,10 @@ FactoryBot.define do
     name { 's_loc' }
     path { '/file/path/' }
     metadata_path { '/metadata/path/' }
-    
+
     initialize_with { new(attributes) }
   end
-  
+
   factory(:storage_location_manager, class: Longleaf::StorageLocationManager) do
     config { {} }
 

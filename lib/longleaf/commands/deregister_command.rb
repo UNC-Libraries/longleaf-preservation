@@ -8,7 +8,7 @@ module Longleaf
   # Command for deregistering files with longleaf
   class DeregisterCommand
     include Longleaf::EventStatusTracking
-    
+
     def initialize(app_manager)
       @app_manager = app_manager
     end
@@ -25,16 +25,16 @@ module Longleaf
         loop do
           f_path = file_selector.next_path
           break if f_path.nil?
-          
+
           storage_location = @app_manager.location_manager.get_location_by_path(f_path)
-        
+
           file_rec = FileRecord.new(f_path, storage_location)
           unless file_rec.metadata_present?
             raise DeregistrationError.new("Cannot deregister #{f_path}, file is not registered.")
           end
-          
+
           @app_manager.md_manager.load(file_rec)
-          
+
           event = DeregisterEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager)
           track_status(event.perform)
         end
@@ -43,7 +43,7 @@ module Longleaf
       rescue => err
         record_failure(EventNames::DEREGISTER, error: err)
       end
-      
+
       logger.info("Completed deregister command in #{Time.now - start_time}s")
       return_status
     end

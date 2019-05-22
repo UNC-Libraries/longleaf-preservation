@@ -7,7 +7,7 @@ module Longleaf
     def initialize(app_config)
       @app_config = app_config
     end
-    
+
     # Get a iterator of the candidates matching the given FileSelector which need services run.
     # @param file_selector [FileSelector] selector identifying the files to pull candidates from.
     # @return an iterator

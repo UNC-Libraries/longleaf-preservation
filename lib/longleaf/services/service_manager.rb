@@ -6,7 +6,7 @@ module Longleaf
   class ServiceManager
     attr_reader :definition_manager
     attr_reader :mapping_manager
-    
+
     # @param definition_manager [ServiceDefinitionManager] the service definition manager
     # @param mapping_manager [ServiceMappingManager] the mapping of services to locations
     # @param app_manager [ApplicationConfigManager] manager for storage locations
@@ -19,7 +19,7 @@ module Longleaf
       @app_manager = app_manager
       @service_class_cache = ServiceClassCache.new(app_manager)
     end
-    
+
     # Return a service instance instance for provided service name.
     # @param service_name [String] name of the service
     # @return Preservation service class for the provided name
@@ -30,7 +30,7 @@ module Longleaf
       definition = @definition_manager.services[service_name]
       @service_class_cache.service_instance(definition)
     end
-    
+
     # List the names of services which are applicable to the given criteria
     # @param location [String] name of the locations to lookup
     # @param event [String] name of the preservation event taking place
@@ -39,12 +39,12 @@ module Longleaf
       service_names = @mapping_manager.list_services(location)
       if !event.nil?
         # Filter service names down by event
-        service_names.select{ |name| applicable_for_event?(name, event) }
+        service_names.select { |name| applicable_for_event?(name, event) }
       else
         service_names
       end
     end
-    
+
     # List definitions for services which are applicable to the given criteria
     # @param location [String] name of the locations to lookup
     # @param event [String] name of the preservation event taking place
@@ -53,7 +53,7 @@ module Longleaf
       names = list_services(location: location, event: event)
       names.map { |name| @definition_manager.services[name] }
     end
-    
+
     # Determines if a service is applicable for a specific preservation event
     # @param service_name [String] name of the service being evaluated
     # @param event [String] name of the event to check against
@@ -61,7 +61,7 @@ module Longleaf
     def applicable_for_event?(service_name, event)
       service(service_name).is_applicable?(event)
     end
-    
+
     # Determine if a service should run for a particular file based on the service's definition and
     # the file's service related metadata.
     # @param service_name [String] name of the service being evaluated
@@ -71,32 +71,32 @@ module Longleaf
       # If service not recorded for file, then it is needed
       present_services = md_rec.list_services
       return true unless present_services.include?(service_name)
-      
+
       service_rec = md_rec.service(service_name)
-      
+
       return true if service_rec.run_needed
       return true if service_rec.timestamp.nil?
-      
+
       definition = @definition_manager.services[service_name]
-      
+
       # Check if the amount of time defined in frequency has passed since the service timestamp
       frequency = definition.frequency
       unless frequency.nil?
         service_timestamp = service_rec.timestamp
         now = ServiceDateHelper.formatted_timestamp
-        
+
         return true if now > ServiceDateHelper.add_to_timestamp(service_timestamp, frequency)
       end
       false
     end
-    
+
     # Perform the specified service on the file record, in the context of the specified event
     # @param service_name [String] name of the service
     # @param file_rec [FileRecord] file record to perform service upon
     # @param event [String] name of the event service is being performed within.
     def perform_service(service_name, file_rec, event)
       definition = @definition_manager.services[service_name]
-      
+
       service = @service_class_cache.service_instance(definition)
       service.perform(file_rec, event)
     end

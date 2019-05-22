@@ -7,7 +7,7 @@ FactoryBot.define do
     event { 'preserve' }
     app_config { nil }
     force { false }
-    
+
     initialize_with { new(file_selector, event, app_config, force) }
   end
 end
@@ -18,7 +18,7 @@ FactoryBot.define do
     event { 'preserve' }
     app_config { nil }
     force { false }
-    
+
     initialize_with { new(file_selector, event, app_config, force) }
   end
 end

@@ -17,19 +17,19 @@ module Longleaf
     attr_reader :location_manager
     attr_reader :index_manager
     attr_reader :md_manager
-    
+
     def initialize(config, config_md5 = nil)
       @config_md5 = config_md5
-      
+
       @location_manager = Longleaf::StorageLocationManager.new(config)
-      
+
       definition_manager = Longleaf::ServiceDefinitionManager.new(config)
       mapping_manager = Longleaf::ServiceMappingManager.new(config)
       @service_manager = Longleaf::ServiceManager.new(
           definition_manager: definition_manager,
           mapping_manager: mapping_manager,
           app_manager: self)
-      
+
       sys_config = config[AppFields::SYSTEM]
       @index_manager = IndexManager.new(sys_config, self)
       @md_manager = MetadataPersistenceManager.new(@index_manager)

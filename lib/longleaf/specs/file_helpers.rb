@@ -7,7 +7,7 @@ module Longleaf
     def make_test_dir(parent: nil, name: 'dir')
       FileHelpers.make_test_dir(parent: parent, name: name)
     end
-    
+
     def self.make_test_dir(parent: nil, name: 'dir')
       if parent.nil?
         Dir.mktmpdir(name)
@@ -17,11 +17,11 @@ module Longleaf
         path
       end
     end
-    
+
     def create_test_file(dir: nil, name: nil, content: 'content')
       FileHelpers.create_test_file(dir: dir, name: name, content: content)
     end
-    
+
     def self.create_test_file(dir: nil, name: nil, content: 'content')
       if dir.nil? || name.nil?
         name = 'test_file' if name.nil?
@@ -35,11 +35,11 @@ module Longleaf
         path
       end
     end
-    
+
     def create_work_class(lib_dir, class_name, file_name, module_name = nil, is_applicable: true, init_body: "", perform: "")
       FileHelpers.create_work_class(lib_dir, class_name, file_name, module_name, is_applicable, init_body, perform)
     end
-    
+
     def self.create_work_class(lib_dir, class_name, file_name, module_name, is_applicable, init_body, perform)
       class_contents = %Q(
         class #{class_name}

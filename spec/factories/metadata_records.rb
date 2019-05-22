@@ -4,20 +4,20 @@ require 'longleaf/models/metadata_record'
 FactoryBot.define do
   factory(:service_record, class: Longleaf::ServiceRecord) do
     properties { {} }
-    
+
     initialize_with { new(attributes) }
-    
+
     trait :timestamp_now do
       timestamp { Time.now.iso8601(3) }
     end
   end
-  
+
   factory(:metadata_record, class: Longleaf::MetadataRecord) do
     properties { {} }
     services { {} }
-    
-    initialize_with { new(attributes) } 
-    
+
+    initialize_with { new(attributes) }
+
     trait :multiple_services do
       services {
         {

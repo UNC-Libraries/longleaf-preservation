@@ -12,11 +12,11 @@ module Longleaf
   class PreserveCommand
     include Longleaf::Logging
     include Longleaf::EventStatusTracking
-    
+
     def initialize(app_manager)
       @app_manager = app_manager
     end
-    
+
     # Execute the preserve command on the given parameters
     # @param file_selector [FileSelector] selector for files to preserve
     # @param force [Boolean] force flag
@@ -31,7 +31,7 @@ module Longleaf
         candidate_it.each do |file_rec|
           begin
             f_path = file_rec.path
-          
+
             logger.debug("Selected candidate #{file_rec.path} for a preserve event")
             preserve_event = PreserveEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager)
             track_status(preserve_event.perform)
@@ -44,7 +44,7 @@ module Longleaf
       rescue => err
         record_failure(EventNames::PRESERVE, error: err)
       end
-      
+
       logger.info("Completed preserve command in #{Time.now - start_time}s")
       return_status
     end

@@ -8,28 +8,28 @@ module Longleaf
   class PreserveEvent
     include Longleaf::Logging
     include Longleaf::EventStatusTracking
-    
+
     # @param file_rec [FileRecord] file record
     # @param app_manager [ApplicationConfigManager] the application configuration
     # @param force [boolean] if true, then services run regardless of whether they are flagged as needed
     def initialize(file_rec:, app_manager:, force: false)
       raise ArgumentError.new('Must provide a file_rec parameter') if file_rec.nil?
       raise ArgumentError.new('Must provide an ApplicationConfigManager') if app_manager.nil?
-      
+
       @app_manager = app_manager
       @file_rec = file_rec
       @force = force
     end
-    
+
     # Perform a preserve event on the given file, updating its metadata record if any services were executed.
     def perform
       storage_loc = @file_rec.storage_location
       service_manager = @app_manager.service_manager
       md_rec = @file_rec.metadata_record
       f_path = @file_rec.path
-      
+
       logger.info("Performing preserve event on #{@file_rec.path}")
-      
+
       needs_persist = false
       begin
         if !File.exist?(f_path)
@@ -38,7 +38,7 @@ module Longleaf
           record_failure(EventNames::PRESERVE, f_path, "File is registered but missing.")
           return return_status
         end
-        
+
         # get the list of services applicable to this location and event
         service_manager.list_services(location: storage_loc.name, event: EventNames::PRESERVE).each do |service_name|
           # Skip over this service if it does not need to be run, unless force flag active
@@ -46,13 +46,13 @@ module Longleaf
             logger.debug("Service #{service_name} not needed for file '#{@file_rec.path}', skipping")
             next
           end
-          
+
           begin
             logger.info("Performing preserve service #{service_name} for #{@file_rec.path}")
             needs_persist = true
             # execute the service
             service_manager.perform_service(service_name, @file_rec, EventNames::PRESERVE)
-            
+
             # record the outcome
             @file_rec.metadata_record.update_service_as_performed(service_name)
             record_success(EventNames::PRESERVE, f_path, nil, service_name)
@@ -74,7 +74,7 @@ module Longleaf
           @app_manager.md_manager.persist(@file_rec)
         end
       end
-      
+
       return_status
     end
   end

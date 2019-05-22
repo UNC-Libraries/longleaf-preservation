@@ -7,7 +7,7 @@ module Longleaf
   # Deserializer for application configuration files
   class ApplicationConfigDeserializer
     AF ||= Longleaf::AppFields
-    
+
     # Deserializes a valid application configuration file as a ApplicationConfigManager option
     # @param config_path [String] file path to the service and storage mapping configuration file
     # @param format [String] encoding format of the config file
@@ -15,14 +15,14 @@ module Longleaf
     def self.deserialize(config_path, format: 'yaml')
       content = load_config_file(config_path)
       config = load(content, format)
-      
+
       config_md5 = Digest::MD5.hexdigest(content)
-    
+
       make_paths_absolute(config_path, config)
       Longleaf::ApplicationConfigValidator.validate(config)
       Longleaf::ApplicationConfigManager.new(config, config_md5)
     end
-    
+
     private
     def self.load_config_file(config_path)
       begin
@@ -32,7 +32,7 @@ module Longleaf
             "Configuration file #{config_path} does not exist.")
       end
     end
-    
+
     # Deserialize a configuration file into a hash
     # @param config_path [String] file path to the application configuration file
     # @param format [String] encoding format of the config file
@@ -45,7 +45,7 @@ module Longleaf
         raise ArgumentError.new('Invalid deserialization format #{format} specified')
       end
     end
-    
+
     def self.from_yaml(content)
       begin
         YAML.load(content)
@@ -53,17 +53,17 @@ module Longleaf
         raise Longleaf::ConfigurationError.new(err)
       end
     end
-    
+
     def self.make_paths_absolute(config_path, config)
       base_pathname = Pathname.new(config_path).expand_path.parent
-      
+
       config[AF::LOCATIONS].each do |name, properties|
         properties[AF::LOCATION_PATH] = absolution(base_pathname, properties[AF::LOCATION_PATH])
-        
+
         properties[AF::METADATA_PATH] = absolution(base_pathname, properties[AF::METADATA_PATH])
       end
     end
-    
+
     def self.absolution(base_pathname, file_path)
       if file_path.nil?
         nil

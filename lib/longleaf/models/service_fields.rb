@@ -5,7 +5,7 @@ module Longleaf
     WORK_CLASS = 'work_class'
     FREQUENCY = 'frequency'
     DELAY = 'delay'
-    
+
     REPLICATE_TO = 'to'
     DIGEST_ALGORITHMS = 'algorithms'
   end

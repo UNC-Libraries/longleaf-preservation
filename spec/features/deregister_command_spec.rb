@@ -11,22 +11,24 @@ require 'fileutils'
 describe 'deregister', :type => :aruba do
   include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
-  
+
   let(:path_dir) { Dir.mktmpdir('path') }
   let(:md_dir) { Dir.mktmpdir('metadata') }
-  
+
   after do
     FileUtils.rm_rf([md_dir, path_dir])
   end
-  
+
   context 'with valid configuration' do
-    let!(:config_path) { ConfigBuilder.new
+    let!(:config_path) {
+      ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1')
         .map_services('loc1', 'serv1')
-        .write_to_yaml_file }
+        .write_to_yaml_file
+    }
     let(:file_path) { create_test_file(dir: path_dir) }
-    
+
     context 'empty file path' do
       before do
         run_simple("longleaf deregister -c #{config_path} -f ''", fail_on_error: false)
@@ -37,11 +39,11 @@ describe 'deregister', :type => :aruba do
         expect(last_command_started).to have_exit_status(1)
       end
     end
-    
+
     context 'file does not exist' do
       before do
         File.delete(file_path)
-      
+
         run_simple("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
@@ -51,11 +53,11 @@ describe 'deregister', :type => :aruba do
         expect(last_command_started).to have_exit_status(1)
       end
     end
-    
+
     context 'file not in a registered storage location' do
       before do
         test_file = create_test_file(name: 'not_in_path')
-        
+
         run_simple("longleaf deregister -c #{config_path} -f '#{test_file}'", fail_on_error: false)
       end
 
@@ -65,7 +67,7 @@ describe 'deregister', :type => :aruba do
         expect(last_command_started).to have_exit_status(1)
       end
     end
-    
+
     context 'file not registered' do
       before do
         run_simple("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
@@ -77,30 +79,30 @@ describe 'deregister', :type => :aruba do
         expect(last_command_started).to have_exit_status(1)
       end
     end
-    
+
     context 'file is registered' do
       before do
         run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
       end
-      
+
       context 'deregister file' do
         before do
           run_simple("longleaf deregister -c #{config_path} -f #{file_path}", fail_on_error: false)
         end
-        
+
         it 'deregisters the file' do
           expect(last_command_started).to have_output(/SUCCESS deregister #{file_path}/)
           expect(file_deregistered?(file_path, md_dir)).to be true
           expect(last_command_started).to have_exit_status(0)
         end
       end
-      
+
       context 'deregister file more than once' do
         before do
           run_simple("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
           run_simple("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
         end
-        
+
         it 'rejects registering file' do
           # File should be registered by first call
           expect(file_deregistered?(file_path, md_dir)).to be true
@@ -111,23 +113,23 @@ describe 'deregister', :type => :aruba do
           expect(last_command_started).to have_exit_status(1)
         end
       end
-      
+
       context 'deregister file more than once with force flag' do
         before do
           run_simple("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
           run_simple("longleaf deregister -c #{config_path} -f '#{file_path}' --force", fail_on_error: false)
         end
-        
+
         it 'deregisters the file' do
           expect(last_command_started).to have_output(/SUCCESS deregister #{file_path}/)
           expect(file_deregistered?(file_path, md_dir)).to be true
           expect(last_command_started).to have_exit_status(0)
         end
       end
-      
+
       context 'deregister multiple files' do
         let(:file_path2) { create_test_file(dir: path_dir, name: 'another_file') }
-      
+
         context 'only one file is registered' do
           before do
             run_simple("longleaf deregister -c #{config_path} -f '#{file_path},#{file_path2}'", fail_on_error: false)
@@ -142,11 +144,11 @@ describe 'deregister', :type => :aruba do
             expect(last_command_started).to have_exit_status(2)
           end
         end
-      
+
         context 'all files are registered' do
           before do
             run_simple("longleaf register -c #{config_path} -f #{file_path2}", fail_on_error: false)
-          
+
             run_simple("longleaf deregister -c #{config_path} -f '#{file_path},#{file_path2}'", fail_on_error: false)
           end
 
@@ -161,7 +163,7 @@ describe 'deregister', :type => :aruba do
       end
     end
   end
-  
+
   def file_deregistered?(file_path, md_dir)
     metadata_path = File.join(md_dir, File.basename(file_path) + Longleaf::MetadataSerializer::metadata_suffix)
     return false unless File.exist?(metadata_path)
