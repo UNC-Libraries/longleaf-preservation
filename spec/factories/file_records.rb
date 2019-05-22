@@ -5,7 +5,7 @@ FactoryBot.define do
     storage_location { build(:storage_location) }
     file_path { '/file/path/file' }
     metadata_record { nil }
-    
+
     initialize_with { new(file_path, storage_location, metadata_record) }
   end
 end

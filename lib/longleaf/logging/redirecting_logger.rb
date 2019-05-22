@@ -25,12 +25,12 @@ module Longleaf
           @stderr_log.formatter = proc do |severity, datetime, progname, msg|
             # Make sure the format ends with a newline
             @log_format = @log_format + "\n" unless @log_format.end_with?("\n")
-        
+
             formatted_date = @stderr_log.datetime_format.nil? ? datetime : datetime.strftime(datetime_format)
             @log_format % { :severity => severity, :datetime => formatted_date, :progname => progname, :msg => msg }
           end
         end
-      
+
         @stdout_log = Logger.new($stdout)
         @stdout_log.formatter = proc do |severity, datetime, progname, msg|
           "#{msg}\n"
@@ -41,34 +41,34 @@ module Longleaf
           @stdout_log.level = 'info'
         end
       end
-    
+
       def debug(progname = nil, &block)
         @stderr_log.debug(progname, &block)
       end
-    
+
       def info(progname = nil, &block)
         @stderr_log.info(progname, &block)
       end
-    
+
       def warn(progname = nil, &block)
         @stderr_log.warn(progname, &block)
       end
-    
+
       def error(progname = nil, &block)
         @stderr_log.error(progname, &block)
       end
-    
+
       def fatal(progname = nil, &block)
         @stderr_log.fatal(progname, &block)
       end
-    
+
       def unknown(progname = nil, &block)
         @stderr_log.unknown(progname, &block)
       end
-    
+
       # Logs a success message to STDOUT, as well as STDERR at info level.
-      # 
-      # @param [String] eventOrMessage name of the preservation event which succeeded, 
+      #
+      # @param [String] eventOrMessage name of the preservation event which succeeded,
       #    or the message to output if it is the only parameter. Required.
       # @param file_name [String] file name which is the subject of this message.
       # @param message [String] descriptive message to accompany this output
@@ -76,10 +76,10 @@ module Longleaf
       def success(eventOrMessage, file_name = nil, message = nil, service = nil)
         outcome('SUCCESS', eventOrMessage, file_name, message, service)
       end
-    
+
       # Logs a failure message to STDOUT, as well as STDERR at info level.
       # If an error was provided, it is logged to STDERR at error level.
-      # @param eventOrMessage [String] name of the preservation event which failed, 
+      # @param eventOrMessage [String] name of the preservation event which failed,
       #    or the message to output if it is the only parameter.
       # @param file_name [String] file name which is the subject of this message.
       # @param message [String] descriptive message to accompany this output
@@ -88,17 +88,17 @@ module Longleaf
       def failure(eventOrMessage, file_name = nil, message = nil, service = nil, error: nil)
         text = outcome_text('FAILURE', eventOrMessage, file_name, message, service, error)
         @stdout_log.warn(text)
-      
+
         @stderr_log.info(text)
         @stderr_log.error("#{error.message}") unless error.nil?
         @stderr_log.error("#{error.backtrace.to_s}") unless error.nil? || error.backtrace.nil?
       end
-    
+
       # Logs an outcome message to STDOUT, as well as STDERR at info level.
       # If file_name and message are nil, eventOrMessage will be used as the message.
       #
       # @param outcome [String] The status of the outcome. Required.
-      # @param eventOrMessage [String] name of the preservation event which was successful, 
+      # @param eventOrMessage [String] name of the preservation event which was successful,
       #     or the message to output if it is the only parameter. Required.
       # @param file_name [String] file name which is the subject of this message.
       # @param message [String] descriptive message to accompany this output
@@ -109,13 +109,13 @@ module Longleaf
         @stdout_log.info(text)
         @stderr_log.info(text)
       end
-    
+
       private
       def outcome_text(outcome, eventOrMessage, file_name = nil, message = nil, service = nil, error = nil)
         message_only = file_name.nil? && message.nil? && error.nil?
-        
+
         text = "#{outcome}"
-      
+
         if message_only
           text << ": #{eventOrMessage}"
         else

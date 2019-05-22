@@ -5,7 +5,7 @@ module Longleaf
   # Helper methods for generating digests
   class DigestHelper
     KNOWN_DIGESTS ||= ['md5', 'sha1', 'sha2', 'sha256', 'sha384', 'sha512', 'rmd160']
-    
+
     # @param algs Either a string containing one or an array containing zero or more digest
     #    algorithm names.
     # @raise [InvalidDigestAlgorithmError] thrown if any of the digest algorithms listed are not
@@ -23,7 +23,7 @@ module Longleaf
         end
       end
     end
-    
+
     # Get a Digest class for the specified algorithm
     # @param alg [String] name of the digest algorithm
     # @return [Digest] A digest class for the requested algorithm

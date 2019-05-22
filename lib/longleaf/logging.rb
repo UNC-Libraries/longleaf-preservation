@@ -7,16 +7,16 @@ module Longleaf
     def logger
       Logging.logger
     end
-    
+
     # Get the main logger for longleaf
     def self.logger
       @logger ||= RedirectingLogger.new
     end
-  
+
     def initialize_logger(failure_only, log_level, log_format, datetime_format)
       Logging.initialize_logger(failure_only, log_level, log_format, datetime_format)
     end
-  
+
     def self.initialize_logger(failure_only, log_level, log_format, datetime_format)
       @logger = RedirectingLogger.new(failure_only: failure_only,
           log_level: log_level,

@@ -6,12 +6,11 @@ FactoryBot.define do
     log_level { 'WARN' }
     log_format { nil }
     datetime_format { nil }
-    
+
     trait :debug do
       log_level { 'DEBUG' }
     end
-    
+
     initialize_with { new(attributes) }
   end
 end
-  

@@ -6,7 +6,7 @@ module Longleaf
   # set of selection criteria
   class RegisteredFileSelector < FileSelector
     include Longleaf::Logging
-    
+
     # Get the next file path for this selector.
     # @raise [InvalidStoragePathError] if any of the selected files do not exist
     # @raise [StorageLocationUnavailableError] if any of the selected paths are not
@@ -25,7 +25,7 @@ module Longleaf
 
       # No more paths to return
       return nil if @md_paths&.empty?
-      
+
       # Get the most recently added path for depth first traversal of selected paths
       md_path = @md_paths.pop
       until md_path.nil? do
@@ -50,12 +50,12 @@ module Longleaf
             raise InvalidStoragePathError.new("File #{file_path} does not exist.")
           end
         end
-        
+
         # Returned path was not a suitable file, try the next path
         md_path = @md_paths.pop
       end
     end
-    
+
     private
     def file_path_for_metadata(md_path)
       storage_loc = @app_config.location_manager.get_location_by_metadata_path(md_path)

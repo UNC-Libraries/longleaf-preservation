@@ -7,10 +7,10 @@ module Longleaf
     attr_reader :work_script, :work_class
     attr_reader :frequency, :delay
     attr_reader :properties
-    
+
     def initialize(name:, work_script:, work_class: nil, frequency: nil, delay: nil, properties: Hash.new)
       raise ArgumentError.new("Parameters name and work_script are required") unless name && work_script
-      
+
       @properties = properties
       @name = name
       @work_script = work_script

@@ -5,7 +5,6 @@ require_relative 'service_mapping_validator'
 module Longleaf
   # Validator for Longleaf application configuration
   class ApplicationConfigValidator
-    
     # Validates the application configuration provided. Will raise ConfigurationError
     # if any portion of the configuration is not syntactically or semantically valid.
     # @param config [Hash] application configuration

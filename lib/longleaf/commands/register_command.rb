@@ -8,7 +8,7 @@ module Longleaf
   # Command for registering files with longleaf
   class RegisterCommand
     include Longleaf::EventStatusTracking
-    
+
     def initialize(app_manager)
       @app_manager = app_manager
     end
@@ -26,11 +26,11 @@ module Longleaf
         loop do
           f_path = file_selector.next_path
           break if f_path.nil?
-          
+
           storage_location = @app_manager.location_manager.get_location_by_path(f_path)
-        
+
           file_rec = FileRecord.new(f_path, storage_location)
-          
+
           register_event = RegisterEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager,
               checksums: checksums)
           track_status(register_event.perform)
@@ -40,7 +40,7 @@ module Longleaf
       rescue => err
         record_failure(EventNames::REGISTER, error: err)
       end
-      
+
       logger.info("Completed register command in #{Time.now - start_time}s")
       return_status
     end

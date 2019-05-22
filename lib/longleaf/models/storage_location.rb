@@ -7,20 +7,20 @@ module Longleaf
     attr_reader :path
     attr_reader :metadata_path
     attr_reader :metadata_digests
-    
+
     # @param name [String] the name of this storage location
     # @param path [String] absolute path where the storage location is located
     # @param metadata_path [String] absolute path where the metadata for files in this location will be stored.
     # @param metadata_digests list of digest algorithms to use for metadata file digests in this location.
     def initialize(name:, path:, metadata_path:, metadata_digests: [])
       raise ArgumentError.new("Parameters name, path and metadata_path are required") unless name && path && metadata_path
-      
+
       @path = path
       @path += '/' unless @path.end_with?('/')
       @name = name
       @metadata_path = metadata_path
       @metadata_path += '/' unless @metadata_path.end_with?('/')
-      
+
       if metadata_digests.nil?
         @metadata_digests = []
       elsif metadata_digests.is_a?(String)
@@ -30,7 +30,7 @@ module Longleaf
       end
       DigestHelper::validate_algorithms(@metadata_digests)
     end
-    
+
     # Get the path for the metadata file for the given file path located in this storage location.
     # @param file_path [String] path of the file
     # @raise [ArgumentError] if the file_path is not provided or is not in this storage location.
@@ -47,7 +47,7 @@ module Longleaf
         md_path + MetadataSerializer::metadata_suffix
       end
     end
-    
+
     # Get the metadata path for the provided file path located in this storage location.
     # @param md_path [String] metadata file path
     # @raise [ArgumentError] if the md_path is not in this storage location
@@ -60,7 +60,7 @@ module Longleaf
       file_path = md_path.sub(/^#{@metadata_path}/, @path)
       file_path.sub(/#{MetadataSerializer::metadata_suffix}$/, '')
     end
-    
+
     # Checks that the path and metadata path defined in this location are available
     # @raise [StorageLocationUnavailableError] if the storage location is not available
     def available?

@@ -6,9 +6,9 @@ module Longleaf
     include Longleaf::Logging
     SPECIFICITY_PATH = 'path'
     SPECIFICITY_STORAGE_LOCATION = 'storage_location'
-    
+
     attr_reader :specificity
-    
+
     # May only provide either file_paths or storage_locations
     def initialize(file_paths: nil, storage_locations: nil, app_config:)
       if nil_or_empty?(file_paths) && nil_or_empty?(storage_locations)
@@ -27,7 +27,7 @@ module Longleaf
         end
         path = File.expand_path(path)
 
-        #adding trailing /'s to directories
+        # adding trailing /'s to directories
         if Dir.exists?(path) && !path.end_with?('/')
           path + '/'
         else
@@ -49,7 +49,7 @@ module Longleaf
         end
       end
     end
-    
+
     # @return [Array] a list of top level paths from which files will be selected
     def target_paths
       # If starting from locations, initialize by expanding locations out to their actual paths
@@ -59,10 +59,10 @@ module Longleaf
           @target_paths << @app_config.location_manager.locations[loc_name].path
         end
       end
-      
+
       @target_paths
     end
-    
+
     # Get the next file path for this selector.
     # @return [String] an absolute path to the next file targeted by this selector,
     # or nil if no more files selected
@@ -75,12 +75,12 @@ module Longleaf
 
       # No more paths to return
       return nil if @paths&.empty?
-      
+
       # Get the most recently added path for depth first traversal of selected paths
       path = @paths.pop
       until path.nil? do
         @app_config.location_manager.verify_path_in_location(path)
-        
+
         if File.exist?(path)
           if File.directory?(path)
             logger.debug("Expanding directory #{path}")
@@ -95,23 +95,23 @@ module Longleaf
         else
           raise InvalidStoragePathError.new("File #{path} does not exist.")
         end
-        
+
         # Returned path was not a suitable file, try the next path
         path = @paths.pop
       end
     end
-    
+
     # Iterate through the file paths for this selector and execute the provided block with each.
     # A block is required.
     def each
       file_path = next_path
       until file_path.nil?
         yield file_path
-        
+
         file_path = next_path
       end
     end
-    
+
     # return [Array] a list of all storage locations being targeted by this selector
     def storage_locations
       # Determine what storage_locations are represented by the given file paths
@@ -123,14 +123,14 @@ module Longleaf
         end
         @storage_locations = loc_set.to_a
       end
-      
+
       if @storage_locations.nil?
         @storage_locations = Array.new
       end
-      
+
       @storage_locations
     end
-    
+
     private
     def nil_or_empty?(value)
       value.nil? || value.empty?

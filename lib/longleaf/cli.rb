@@ -16,12 +16,12 @@ module Longleaf
   # Main commandline interface setup for Longleaf using Thor.
   class CLI < Thor
     include Longleaf::Logging
-    
+
     # Register a shared method option in a shared option group
     def self.add_shared_option(name, group, options = {})
       @shared_groups = {} if @shared_groups.nil?
       @shared_groups[group] = {} if @shared_groups[group].nil?
-      @shared_groups[group][name] =  options
+      @shared_groups[group][name] = options
     end
 
     # Add all of the shared options in the specified group as method options
@@ -30,7 +30,7 @@ module Longleaf
         option opt_name, opt
       end
     end
-    
+
     # Config options
     add_shared_option(
         :config, :common, {
@@ -59,11 +59,11 @@ module Longleaf
     add_shared_option(
         :log_datetime, :common, {
               :desc => 'Format to use for timestamps used in logging to STDERR, following strftime syntax.' })
-    
+
     # File selection options
     add_shared_option(
         :file, :file_selection, {
-              :aliases => "-f", 
+              :aliases => "-f",
               :required => false,
               :desc => 'File or files to perform this operation on. If multiple files are provided, they must be comma separated.' })
     add_shared_option(
@@ -72,31 +72,30 @@ module Longleaf
               :required => false,
               :desc => 'Name or comma separated names of storage locations to perform this operation over.' })
 
-
     # Commands
     map %w[--version] => :__print_version
     desc "--version", "Prints the Longleaf version number."
     def __print_version
       puts "longleaf version #{Longleaf::VERSION}"
     end
-    
+
     desc "register", "Register files with Longleaf"
     shared_options_group(:file_selection)
     method_option(:force,
-        :type => :boolean, 
+        :type => :boolean,
         :default => false,
         :desc => 'Force the registration of already registered files.')
     method_option(:checksums,
-        :desc => %q{Checksums for the submitted file. Each checksum must be prefaced with an algorithm prefix. Multiple checksums must be comma separated. If multiple files were submitted, they will be provided with the same checksums. For example: 
+        :desc => %q{Checksums for the submitted file. Each checksum must be prefaced with an algorithm prefix. Multiple checksums must be comma separated. If multiple files were submitted, they will be provided with the same checksums. For example:
           '--checksums "md5:d8e8fca2dc0f896fd7cb4cb0031ba249,sha1:4e1243bd22c66e76c2ba9eddc1f91394e57f9f83"'})
     shared_options_group(:common)
     # Register event command
     def register
       verify_config_provided(options)
       setup_logger(options)
-      
+
       app_config_manager = load_application_config(options)
-      
+
       file_selector = create_file_selector(options, app_config_manager)
       if options[:checksums]
         checksums = options[:checksums]
@@ -109,15 +108,15 @@ module Longleaf
           exit 1
         end
       end
-      
+
       command = RegisterCommand.new(app_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force], checksums: checksums)
     end
-    
+
     desc "deregister", "Deregister files with Longleaf"
     shared_options_group(:file_selection)
     method_option(:force,
-        :type => :boolean, 
+        :type => :boolean,
         :default => false,
         :desc => 'Force the deregistration of already deregistered files.')
     shared_options_group(:common)
@@ -125,33 +124,33 @@ module Longleaf
     def deregister
       verify_config_provided(options)
       setup_logger(options)
-      
+
       app_config_manager = load_application_config(options)
       file_selector = create_registered_selector(options, app_config_manager)
-      
+
       command = DeregisterCommand.new(app_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force])
     end
-    
+
     desc "preserve", "Perform preservation services on files with Longleaf"
     shared_options_group(:file_selection)
     method_option(:force,
-        :type => :boolean, 
+        :type => :boolean,
         :default => false,
         :desc => 'Force the execution of preservation services, disregarding scheduling information.')
     shared_options_group(:common)
     def preserve
       verify_config_provided(options)
       setup_logger(options)
-      
+
       extend_load_path(options[:load_path])
       app_config_manager = load_application_config(options)
       file_selector = create_registered_selector(options, app_config_manager)
-      
+
       command = PreserveCommand.new(app_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force])
     end
-    
+
     desc "validate_config", "Validate an application configuration file, provided using --config."
     shared_options_group(:common)
     # Application configuration validation command
@@ -159,10 +158,10 @@ module Longleaf
       verify_config_provided(options)
       setup_logger(options)
       extend_load_path(options[:load_path])
-      
+
       exit Longleaf::ValidateConfigCommand.new(options[:config]).execute
     end
-    
+
     desc "validate_metadata", "Validate metadata files."
     shared_options_group(:file_selection)
     shared_options_group(:common)
@@ -170,21 +169,21 @@ module Longleaf
     def validate_metadata
       verify_config_provided(options)
       setup_logger(options)
-      
+
       app_config_manager = load_application_config(options)
       file_selector = create_registered_selector(options, app_config_manager)
-      
+
       exit Longleaf::ValidateMetadataCommand.new(app_config_manager).execute(file_selector: file_selector)
     end
-    
+
     desc "setup_index", "Sets up the structure of the metadata index, if one is configured using the system configuration file provided using the --system_config option. Some index types may require additional steps to be taken by an administrator before hand, such as creating users and databases."
     shared_options_group(:common)
     def setup_index
       verify_config_provided(options)
       setup_logger(options)
-      
+
       app_config_manager = load_application_config(options)
-      
+
       if app_config_manager.index_manager.using_index?
         app_config_manager.index_manager.setup_index
         logger.success("Setup of index complete")
@@ -194,10 +193,10 @@ module Longleaf
         exit 1
       end
     end
-    
+
     desc "reindex", "Perform a full reindex of file metadata stored within the configured storage locations."
     method_option(:if_stale,
-        :type => :boolean, 
+        :type => :boolean,
         :default => false,
         :desc => 'Only perform the reindex if the index is known to be stale, generally after an config file change.')
     shared_options_group(:common)
@@ -205,10 +204,10 @@ module Longleaf
       verify_config_provided(options)
       setup_logger(options)
       app_config_manager = load_application_config(options)
-      
+
       exit Longleaf::ReindexCommand.new(app_config_manager).execute(only_if_stale: options[:if_stale])
     end
-    
+
     no_commands do
       def setup_logger(options)
         initialize_logger(options[:failure_only],
@@ -216,7 +215,7 @@ module Longleaf
             options[:log_format],
             options[:log_datetime])
       end
-      
+
       def load_application_config(options)
         begin
           app_manager = ApplicationConfigDeserializer.deserialize(options[:config])
@@ -225,17 +224,17 @@ module Longleaf
           exit 1
         end
       end
-      
+
       def verify_config_provided(options)
         if options[:config].nil? || options[:config].empty?
           raise "No value provided for required options '--config'"
         end
       end
-      
+
       def create_file_selector(options, app_config_manager, selector_class: FileSelector)
         file_paths = options[:file]&.split(/\s*,\s*/)
         storage_locations = options[:location]&.split(/\s*,\s*/)
-        
+
         begin
           selector_class.new(file_paths: file_paths, storage_locations: storage_locations, app_config: app_config_manager)
         rescue ArgumentError => e
@@ -243,11 +242,11 @@ module Longleaf
           exit 1
         end
       end
-      
+
       def create_registered_selector(options, app_config_manager)
         create_file_selector(options, app_config_manager, selector_class: RegisteredFileSelector)
       end
-      
+
       def extend_load_path(load_paths)
         load_paths = load_paths&.split(/\s*,\s*/)
         if !load_paths.nil?

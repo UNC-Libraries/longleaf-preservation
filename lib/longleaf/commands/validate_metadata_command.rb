@@ -7,7 +7,7 @@ module Longleaf
   # Command for validating file metadata longleaf
   class ValidateMetadataCommand
     include Longleaf::EventStatusTracking
-    
+
     def initialize(app_manager)
       @app_manager = app_manager
     end
@@ -23,15 +23,15 @@ module Longleaf
         loop do
           f_path = file_selector.next_path
           break if f_path.nil?
-          
+
           storage_location = @app_manager.location_manager.get_location_by_path(f_path)
-          
+
           begin
             file_rec = FileRecord.new(f_path, storage_location)
             unless file_rec.metadata_present?
               raise MetadataError.new("Cannot validate metadata for #{f_path}, file is not registered.")
             end
-          
+
             @app_manager.md_manager.load(file_rec)
             record_success("Metadata for file passed validation: #{f_path}")
           rescue LongleafError => err
@@ -43,7 +43,7 @@ module Longleaf
       rescue => err
         record_failure("Encountered error while validating metadata files", error: err)
       end
-      
+
       logger.info("Completed validate metadata command in #{Time.now - start_time}s")
       return_status
     end

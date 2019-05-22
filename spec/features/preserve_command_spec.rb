@@ -13,16 +13,16 @@ require 'fileutils'
 describe 'preserve', :type => :aruba do
   include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
-  
+
   let(:path_dir) { Dir.mktmpdir('path') }
   let(:md_dir) { Dir.mktmpdir('metadata') }
   let(:lib_dir) { make_test_dir(name: 'lib_dir') }
-  
+
   after do
     FileUtils.rm_rf([md_dir, path_dir, lib_dir])
     $LOAD_PATH.delete(lib_dir)
   end
-  
+
   context 'config path does not exist' do
     before do
       config_file = Tempfile.new('config')
@@ -42,11 +42,13 @@ describe 'preserve', :type => :aruba do
   context 'with one service configured' do
     let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb') }
 
-    let!(:config_path) { ConfigBuilder.new
+    let!(:config_path) {
+      ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: work_script_file, frequency: '1 hour')
         .map_services('loc1', 'serv1')
-        .write_to_yaml_file }
+        .write_to_yaml_file
+    }
     let(:file_path) { create_test_file(dir: path_dir) }
 
     context 'no file path or storage location' do
@@ -115,7 +117,7 @@ describe 'preserve', :type => :aruba do
         before do
           run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
         end
-        
+
         it 'successfully verifies file' do
           expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path}/)
           expect(last_command_started).to have_exit_status(0)
@@ -163,14 +165,18 @@ describe 'preserve', :type => :aruba do
   end
 
   context 'with failing service configured' do
-    let!(:fail_script) { create_work_class(lib_dir, 'PresService', 'pres_service.rb',
-        perform: "raise Longleaf::PreservationServiceError.new") }
+    let!(:fail_script) {
+      create_work_class(lib_dir, 'PresService', 'pres_service.rb',
+        perform: "raise Longleaf::PreservationServiceError.new")
+    }
 
-    let!(:config_path) { ConfigBuilder.new
+    let!(:config_path) {
+      ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: fail_script, frequency: '1 year')
         .map_services('loc1', 'serv1')
-        .write_to_yaml_file }
+        .write_to_yaml_file
+    }
     let(:file_path) { create_test_file(dir: path_dir) }
 
     before do
@@ -187,11 +193,13 @@ describe 'preserve', :type => :aruba do
   context 'storage location with multiple files' do
     let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb') }
 
-    let!(:config_path) { ConfigBuilder.new
+    let!(:config_path) {
+      ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: work_script_file, frequency: '1 hour')
         .map_services('loc1', 'serv1')
-        .write_to_yaml_file }
+        .write_to_yaml_file
+    }
     let(:file_path1) { create_test_file(dir: path_dir, name: "file1") }
     let(:nested_dir) { make_test_dir(parent: path_dir) }
     let(:file_path2) { create_test_file(dir: nested_dir, name: "file2") }
@@ -215,8 +223,10 @@ describe 'preserve', :type => :aruba do
     end
 
     context 'one file fails service' do
-      let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb',
-          perform: "raise Longleaf::PreservationServiceError.new('Bad') if file_rec.path == '#{file_path2}'") }
+      let!(:work_script_file) {
+        create_work_class(lib_dir, 'PresService', 'pres_service.rb',
+          perform: "raise Longleaf::PreservationServiceError.new('Bad') if file_rec.path == '#{file_path2}'")
+      }
 
       before do
         run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
@@ -231,8 +241,10 @@ describe 'preserve', :type => :aruba do
     end
 
     context 'all files fails service' do
-      let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb',
-          perform: "raise Longleaf::PreservationServiceError.new('Bad')") }
+      let!(:work_script_file) {
+        create_work_class(lib_dir, 'PresService', 'pres_service.rb',
+          perform: "raise Longleaf::PreservationServiceError.new('Bad')")
+      }
 
       before do
         run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
@@ -277,14 +289,14 @@ describe 'preserve', :type => :aruba do
         expect(last_command_started).to have_exit_status(0)
       end
     end
-    
+
     context 'registered file that no longer exists' do
       before do
         FileUtils.rm(file_path2)
-        
+
         run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
-        
+
       it 'fails for the deleted file' do
         expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{file_path1}/)
         expect(last_command_started).to have_output(/FAILURE preserve #{file_path2}: File is registered but missing/)
@@ -299,13 +311,15 @@ describe 'preserve', :type => :aruba do
     let!(:work_script_file2) { create_work_class(lib_dir, 'PresService2', 'pres_service2.rb') }
     let!(:work_script_file3) { create_work_class(lib_dir, 'PresService3', 'pres_service3.rb') }
 
-    let!(:config_path) { ConfigBuilder.new
+    let!(:config_path) {
+      ConfigBuilder.new
         .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
         .with_service(name: 'serv1', work_script: work_script_file1, frequency: '1 hour')
         .with_service(name: 'serv2', work_script: work_script_file2, frequency: '1 hour')
         .with_service(name: 'serv3', work_script: work_script_file3, frequency: '1 hour')
         .map_services('loc1', ['serv1', 'serv2', 'serv3'])
-        .write_to_yaml_file }
+        .write_to_yaml_file
+    }
     let(:file_path) { create_test_file(dir: path_dir) }
 
     before do
@@ -326,8 +340,10 @@ describe 'preserve', :type => :aruba do
     end
 
     context 'service fails with expected error' do
-      let!(:work_script_file2) { create_work_class(lib_dir, 'PresService2', 'pres_service2.rb',
-          perform: "raise Longleaf::PreservationServiceError.new('Bad')") }
+      let!(:work_script_file2) {
+        create_work_class(lib_dir, 'PresService2', 'pres_service2.rb',
+          perform: "raise Longleaf::PreservationServiceError.new('Bad')")
+      }
 
       before do
         run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
@@ -342,8 +358,10 @@ describe 'preserve', :type => :aruba do
     end
 
     context 'service fails with unexpected error' do
-      let!(:work_script_file2) { create_work_class(lib_dir, 'PresService2', 'pres_service2.rb',
-          perform: "raise StandardError.new('Really Bad')") }
+      let!(:work_script_file2) {
+        create_work_class(lib_dir, 'PresService2', 'pres_service2.rb',
+          perform: "raise StandardError.new('Really Bad')")
+      }
 
       before do
         run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
@@ -358,12 +376,18 @@ describe 'preserve', :type => :aruba do
     end
 
     context 'all services fail' do
-      let!(:work_script_file1) { create_work_class(lib_dir, 'PresService1', 'pres_service1.rb',
-          perform: "raise Longleaf::PreservationServiceError.new('Bad1')") }
-      let!(:work_script_file2) { create_work_class(lib_dir, 'PresService2', 'pres_service2.rb',
-          perform: "raise Longleaf::PreservationServiceError.new('Bad2')") }
-      let!(:work_script_file3) { create_work_class(lib_dir, 'PresService3', 'pres_service3.rb',
-          perform: "raise Longleaf::PreservationServiceError.new('Bad3')") }
+      let!(:work_script_file1) {
+        create_work_class(lib_dir, 'PresService1', 'pres_service1.rb',
+          perform: "raise Longleaf::PreservationServiceError.new('Bad1')")
+      }
+      let!(:work_script_file2) {
+        create_work_class(lib_dir, 'PresService2', 'pres_service2.rb',
+          perform: "raise Longleaf::PreservationServiceError.new('Bad2')")
+      }
+      let!(:work_script_file3) {
+        create_work_class(lib_dir, 'PresService3', 'pres_service3.rb',
+          perform: "raise Longleaf::PreservationServiceError.new('Bad3')")
+      }
 
       before do
         run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
@@ -393,13 +417,13 @@ describe 'preserve', :type => :aruba do
       end
     end
   end
-    
+
   def get_metadata_path(file_path, config_path)
     app_config = Longleaf::ApplicationConfigDeserializer.deserialize(config_path)
     location = app_config.location_manager.get_location_by_path(file_path)
     location.get_metadata_path_for(file_path)
   end
-  
+
   def update_timestamp(file_path, config_path, service_name, timestamp: Time.now.utc)
     md_path = get_metadata_path(file_path, config_path)
     md_rec = Longleaf::MetadataDeserializer.deserialize(file_path: md_path)
@@ -408,4 +432,3 @@ describe 'preserve', :type => :aruba do
     Longleaf::MetadataSerializer.write(metadata: md_rec, file_path: md_path)
   end
 end
-  

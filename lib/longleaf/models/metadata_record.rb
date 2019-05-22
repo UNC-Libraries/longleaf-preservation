@@ -9,7 +9,7 @@ module Longleaf
     attr_reader :checksums
     attr_reader :properties
     attr_accessor :file_size, :last_modified
-    
+
     # @param properties [Hash] initial data properties for this record
     # @param services [Hash] initial service property tree
     # @param deregistered [String] deregistered timestamp
@@ -27,12 +27,12 @@ module Longleaf
       @file_size = file_size
       @last_modified = last_modified
     end
-    
+
     # @return [Boolean] true if the record is deregistered
     def deregistered?
       !@deregistered.nil?
     end
-    
+
     # Adds a service to this record
     #
     # @param name [String] identifier for the service being added
@@ -41,10 +41,10 @@ module Longleaf
     def add_service(name, service = ServiceRecord.new)
       raise ArgumentError.new("Value must be a ServiceRecord object when adding a service") unless service.class == Longleaf::ServiceRecord
       raise IndexError.new("Service with name '#{name}' already exists") if @services.key?(name)
-      
+
       @services[name] = service
     end
-    
+
     # Updates details of service record as if the service had been executed.
     # @param service_name [String] name of the service run
     # @return [ServiceRecord] the service record updated
@@ -54,7 +54,7 @@ module Longleaf
       service_rec.timestamp = ServiceDateHelper.formatted_timestamp
       service_rec
     end
-    
+
     # Updates details of service record as if the service had encountered a
     # failure during execution.
     # @param service_name [String] name of the service run
@@ -64,13 +64,13 @@ module Longleaf
       service_rec.failure_timestamp = ServiceDateHelper.formatted_timestamp
       service_rec
     end
-    
+
     # @param name [String] name identifier of the service to retrieve
     # @return [ServiceRecord] the ServiceRecord for the service identified by name, or nil
     def service(name)
       @services[name]
     end
-    
+
     # @return [Array<String>] a list of name identifiers for services registered to this record
     def list_services
       @services.keys

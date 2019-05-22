@@ -3,7 +3,6 @@ require 'time'
 module Longleaf
   # Helper methods for interacting with dates/timestamps on services
   class ServiceDateHelper
-    
     # Adds the amount of time from modifier to the provided timestamp
     # @param timestamp [String] ISO-8601 timestamp string
     # @param modifier [String] amount of time to add to the timestamp. It must follow the syntax
@@ -18,7 +17,7 @@ module Longleaf
       else
         raise ArgumentError.new("Cannot parse time modifier #{modifier}")
       end
-      
+
       datetime = Time.iso8601(timestamp)
       case unit
       when 'second'
@@ -36,11 +35,11 @@ module Longleaf
       when 'year'
         unit_modifier = 365 * 24 * 3600
       end
-      
+
       modified_time = datetime + (value * unit_modifier)
       modified_time.iso8601
     end
-    
+
     # Get a timestamp in the format expected for service timestamps.
     # @param timestamp [Time] the time to format. Defaults to now.
     # @return [String] the time formatted as iso8601
