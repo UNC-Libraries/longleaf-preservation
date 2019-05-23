@@ -16,10 +16,6 @@ Metrics/BlockLength:
   Exclude:
     - "spec/**/*"
 
-Metrics/ClassLength:
-  Exclude:
-    - "lib/blacklight/configuration.rb"
-
 Metrics/LineLength:
   Max: 200
   Exclude:
@@ -41,10 +37,6 @@ Rails/OutputSafety:
 # https://github.com/rubocop-hq/rubocop/issues/6439
 Style/AccessModifierDeclarations:
   Enabled: false
-
-Style/MissingRespondToMissing:
-  Exclude:
-  - 'lib/blacklight/nested_open_struct_with_hash_access.rb'
 
 Style/StringLiterals:
   Enabled: false
