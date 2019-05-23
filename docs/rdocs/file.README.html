@@ -57,83 +57,118 @@
         <div class="clear"></div>
       </div>
 
-      <div id="content"><div id='filecontents'><h1 id="longleaf">Longleaf</h1>
-<p>Longleaf is a command-line tool which allows users to configure a set of storage locations and define custom sets of preservation services to run on their contents. These services are executed in response to applicable preservation events issued by clients. Its primary goal is to provide tools to create a simple and customizable preservation environment.  Longleaf:</p>
+      <div id="content"><div id='filecontents'>
+<h1 id="label-Longleaf">Longleaf</h1>
 
-<ul>
-  <li>Offers a predictable command-line interface and integrates with standard command-line tools.</li>
-  <li>Offers configurable and customizable criteria based preservation workflows.</li>
-  <li>Provides a base set of tools and a framework for building extensions.</li>
-  <li>Provides activity logging and notifications.</li>
-  <li>Performs preservation services only when required.</li>
-</ul>
+<p>Longleaf is a command-line tool which allows users to configure a set of
+storage locations and define custom sets of preservation services to run on
+their contents. These services are executed in response to applicable
+preservation events issued by clients. Its primary goal is to provide tools
+to create a simple and customizable preservation environment. Longleaf:</p>
+<ul><li>
+<p>Offers a predictable command-line interface and integrates with standard
+command-line tools.</p>
+</li><li>
+<p>Offers configurable and customizable criteria based preservation workflows.</p>
+</li><li>
+<p>Provides a base set of tools and a framework for building extensions.</p>
+</li><li>
+<p>Provides activity logging and notifications.</p>
+</li><li>
+<p>Performs preservation services only when required.</p>
+</li></ul>
 
-<h2 id="installation">Installation</h2>
+<h2 id="label-Installation">Installation</h2>
 
-<p>Add this line to your application’s Gemfile:</p>
+<p>Add this line to your application&#39;s Gemfile:</p>
 
-<p><code>ruby
-gem 'longleaf'
-</code></p>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_gem'>gem</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>longleaf</span><span class='tstring_end'>&#39;</span></span>
+</code></pre>
 
 <p>And then execute:</p>
 
-<pre class="code ruby"><code class="ruby">$ bundle
-</code></pre>
+<pre class="code ruby"><code class="ruby">$ bundle</code></pre>
 
 <p>Or install it yourself as:</p>
 
-<pre class="code ruby"><code class="ruby">$ gem install longleaf
-</code></pre>
+<pre class="code ruby"><code class="ruby">$ gem install longleaf</code></pre>
 
-<h2 id="usage">Usage</h2>
+<h2 id="label-Usage">Usage</h2>
 
-<h4 id="register-a-file">Register a file</h4>
+<h4 id="label-Register+a+file">Register a file</h4>
+
 <p>In order to register a new file with Longleaf, use the register command:
-<code>longleaf register -c &lt;config.yml&gt; -f &lt;path to file&gt;</code></p>
+<code>longleaf register -c &lt;config.yml&gt; -f &lt;path to
+file&gt;</code></p>
 
-<p>In the case that a file’s content is replaced, the file can be re-registered by providing the <code>--force</code> flag.</p>
+<p>In the case that a file&#39;s content is replaced, the file can be
+re-registered by providing the <code>--force</code> flag.</p>
 
-<h4 id="validate-configuration-files">Validate configuration files</h4>
-<p>Application configuration files can be validated prior to usage with the following command:
-<code>longleaf validate_config -c &lt;config.yml&gt;</code></p>
+<h4 id="label-Validate+configuration+files">Validate configuration files</h4>
 
-<h4 id="output-and-logging">Output and logging</h4>
+<p>Application configuration files can be validated prior to usage with the
+following command: <code>longleaf validate_config -c
+&lt;config.yml&gt;</code></p>
 
-<p>The primary output from Longleaf is directed to STDOUT, and contains both success and failure messages. If you would like to only return failure messages, you may provide the <code>--failure_only</code> flag.</p>
+<h4 id="label-Output+and+logging">Output and logging</h4>
 
-<p>Additional logging is sent to STDERR. To control the level of logging, you may provide the <code>--log-level</code> parameter, which expects the standard <a href="https://ruby-doc.org/stdlib-2.4.0/libdoc/logger/rdoc/Logger.html">Ruby Logger levels</a>. The default log level is ‘WARN’.</p>
+<p>The primary output from Longleaf is directed to STDOUT, and contains both
+success and failure messages. If you would like to only return failure
+messages, you may provide the <code>--failure_only</code> flag.</p>
 
-<p>Messages sent to STDOUT are duplicated to STDERR at ‘INFO’ level, so they are excluded by default. In order to store an ongoing log of activity and errors, you would perform the following:
-<code>longleaf &lt;command&gt; --log-level 'INFO' 2&gt; /logs/longleaf.log</code></p>
+<p>Additional logging is sent to STDERR. To control the level of logging, you
+may provide the <code>--log-level</code> parameter, which expects the
+standard <a
+href="https://ruby-doc.org/stdlib-2.4.0/libdoc/logger/rdoc/Logger.html">Ruby
+Logger levels</a>. The default log level is &#39;WARN&#39;.</p>
 
-<h2 id="development">Development</h2>
+<p>Messages sent to STDOUT are duplicated to STDERR at &#39;INFO&#39; level,
+so they are excluded by default. In order to store an ongoing log of
+activity and errors, you would perform the following: <code>longleaf
+&lt;command&gt; --log-level &#39;INFO&#39; 2&gt; /logs/longleaf.log</code></p>
 
-<p>After checking out the repo, run <code>bin/setup</code> to install dependencies. Then, run <code>bundle exec rspec</code> to run the tests. You can also run <code>bin/console</code> for an interactive prompt that will allow you to experiment.</p>
+<h2 id="label-Development">Development</h2>
 
-<p>To run Longleaf with local changes without needing to do a local install, you may run <code>bundle exec exe/longleaf &lt;command&gt;</code>.</p>
+<p>After checking out the repo, run <code>bin/setup</code> to install
+dependencies. Then, run <code>bundle exec rspec</code> to run the tests.
+You can also run <code>bin/console</code> for an interactive prompt that
+will allow you to experiment.</p>
 
-<p>To install this gem onto your local machine, run <code>bundle exec rake install</code>. This will allow you to run <code>longleaf &lt;command&gt;</code> and places the gem into <code>pkg/</code>. Note: Only files committed to git will be included in the installed gem.</p>
+<p>To run Longleaf with local changes without needing to do a local install,
+you may run <code>bundle exec exe/longleaf &lt;command&gt;</code>.</p>
 
-<p>To release a new version, update the version number in <code>version.rb</code>, and then run <code>bundle exec rake release</code>, which will create a git tag for the version, push git commits and tags, and push the <code>.gem</code> file to <a href="https://rubygems.org">rubygems.org</a>.</p>
+<p>To install this gem onto your local machine, run <code>bundle exec rake
+install</code>. This will allow you to run <code>longleaf
+&lt;command&gt;</code> and places the gem into <code>pkg/</code>. Note:
+Only files committed to git will be included in the installed gem.</p>
 
-<h2 id="indexing">Indexing</h2>
-<p>To use an index to improve performance, you will need to bundle longleaf with the driver you wish to use:
-<code>bundle install --with postgres</code></p>
+<p>To release a new version, update the version number in
+<code>version.rb</code>, and then run <code>bundle exec rake
+release</code>, which will create a git tag for the version, push git
+commits and tags, and push the <code>.gem</code> file to <a
+href="https://rubygems.org">rubygems.org</a>.</p>
+
+<h2 id="label-Indexing">Indexing</h2>
+
+<p>To use an index to improve performance, you will need to bundle longleaf
+with the driver you wish to use: <code>bundle install --with
+postgres</code></p>
 
 <p>Options include: postgres, mysql2, mysql, sqlite, amalgalite</p>
 
-<h2 id="contributing">Contributing</h2>
+<h2 id="label-Contributing">Contributing</h2>
 
-<p>Bug reports and pull requests are welcome on GitHub at https://gitlab.lib.unc.edu/cdr/longleaf.</p>
+<p>Bug reports and pull requests are welcome on GitHub at <a
+href="https://gitlab.lib.unc.edu/cdr/longleaf">gitlab.lib.unc.edu/cdr/longleaf</a>.</p>
 
-<h2 id="license">License</h2>
+<h2 id="label-License">License</h2>
 
-<p>The gem is available as open source under the terms of the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.</p>
+<p>The gem is available as open source under the terms of the <a
+href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.</p>
 </div></div>
 
       <div id="footer">
-  Generated on Thu May 23 09:47:41 2019 by
+  Generated on Thu May 23 10:40:26 2019 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.19 (ruby-2.4.1).
 </div>

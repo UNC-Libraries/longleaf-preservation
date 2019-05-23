@@ -8,7 +8,7 @@ module Longleaf
     SYS_FIELDS ||= Longleaf::SystemConfigFields
 
     # @param config [Hash] The system configuration as a hash
-    # @param app_config_manage [ApplicationConfigManager] the application config
+    # @param app_config_manager [ApplicationConfigManager] the application config
     def initialize(config, app_config_manager)
       @config = config
       @app_config_manager = app_config_manager
