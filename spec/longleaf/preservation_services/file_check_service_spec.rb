@@ -64,7 +64,7 @@ describe Longleaf::FileCheckService do
     let(:service) { FileCheckService.new(service_def, app_manager) }
 
     let(:file_content) { 'file content' }
-    let(:file_rec) { create_registered_file(path_dir, file_content) }
+    let!(:file_rec) { create_registered_file(path_dir, file_content) }
 
     context 'with file matching registered details' do
       it { expect { service.perform(file_rec, PRESERVE_EVENT) }.to_not raise_error }
@@ -84,8 +84,8 @@ describe Longleaf::FileCheckService do
     context 'file content replaced by different equal length string' do
       before do
         sleep(0.01)
-        open(file_rec.path, 'w') do |f|
-          f << 'content  >:)'
+        File.open(file_rec.path, 'w') do |f|
+          f.write 'content  >:)'
         end
       end
 
