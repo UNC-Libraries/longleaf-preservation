@@ -18,7 +18,7 @@ describe 'validate_config', :type => :aruba do
   end
 
   context 'no config path' do
-    before { run_simple('longleaf validate_config', fail_on_error: false) }
+    before { run_command_and_stop('longleaf validate_config', fail_on_error: false) }
 
     it { expect(last_command_started).to have_output(/No value provided for required options '--config'/) }
   end
@@ -29,7 +29,7 @@ describe 'validate_config', :type => :aruba do
       config_path = config_file.path
       config_file.delete
 
-      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
+      run_command_and_stop("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
 
     it do
@@ -49,7 +49,7 @@ describe 'validate_config', :type => :aruba do
     }
 
     before do
-      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
+      run_command_and_stop("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
 
     after do
@@ -76,7 +76,7 @@ describe 'validate_config', :type => :aruba do
     }
 
     before do
-      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
+      run_command_and_stop("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
 
     after do
@@ -102,7 +102,7 @@ describe 'validate_config', :type => :aruba do
     }
 
     before do
-      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
+      run_command_and_stop("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
 
     after do
@@ -129,7 +129,7 @@ describe 'validate_config', :type => :aruba do
     }
 
     before do
-      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
+      run_command_and_stop("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
 
     after do
@@ -155,7 +155,7 @@ describe 'validate_config', :type => :aruba do
     }
 
     before do
-      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
+      run_command_and_stop("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
 
     after do
@@ -185,7 +185,7 @@ describe 'validate_config', :type => :aruba do
     }
 
     before do
-      run_simple("longleaf validate_config -c #{config_path} -I #{lib_dir}", fail_on_error: false)
+      run_command_and_stop("longleaf validate_config -c #{config_path} -I #{lib_dir}", fail_on_error: false)
     end
 
     after do
@@ -210,7 +210,7 @@ describe 'validate_config', :type => :aruba do
 
     context 'with -c option' do
       before do
-        run_simple("longleaf validate_config -c #{config_path} -I #{lib_dir}", fail_on_error: false)
+        run_command_and_stop("longleaf validate_config -c #{config_path} -I #{lib_dir}", fail_on_error: false)
       end
 
       it { expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/) }
@@ -219,7 +219,7 @@ describe 'validate_config', :type => :aruba do
     context 'with config from environment' do
       before do
         append_environment_variable('LONGLEAF_CFG', config_path)
-        run_simple("longleaf validate_config -I #{lib_dir}", fail_on_error: false)
+        run_command_and_stop("longleaf validate_config -I #{lib_dir}", fail_on_error: false)
       end
 
       it { expect(last_command_started).to have_output(/SUCCESS: Application configuration passed validation/) }
@@ -238,7 +238,7 @@ describe 'validate_config', :type => :aruba do
     }
 
     before do
-      run_simple("longleaf validate_config -c #{config_path} -I #{lib_dir}", fail_on_error: false)
+      run_command_and_stop("longleaf validate_config -c #{config_path} -I #{lib_dir}", fail_on_error: false)
     end
 
     after do

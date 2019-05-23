@@ -31,7 +31,7 @@ describe 'deregister', :type => :aruba do
 
     context 'empty file path' do
       before do
-        run_simple("longleaf deregister -c #{config_path} -f ''", fail_on_error: false)
+        run_command_and_stop("longleaf deregister -c #{config_path} -f ''", fail_on_error: false)
       end
 
       it 'rejects missing file path value' do
@@ -44,7 +44,7 @@ describe 'deregister', :type => :aruba do
       before do
         File.delete(file_path)
 
-        run_simple("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'rejects file which does not exist' do
@@ -58,7 +58,7 @@ describe 'deregister', :type => :aruba do
       before do
         test_file = create_test_file(name: 'not_in_path')
 
-        run_simple("longleaf deregister -c #{config_path} -f '#{test_file}'", fail_on_error: false)
+        run_command_and_stop("longleaf deregister -c #{config_path} -f '#{test_file}'", fail_on_error: false)
       end
 
       it 'outputs failure to find storage location' do
@@ -70,7 +70,7 @@ describe 'deregister', :type => :aruba do
 
     context 'file not registered' do
       before do
-        run_simple("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'outputs failure to find storage location' do
@@ -82,12 +82,12 @@ describe 'deregister', :type => :aruba do
 
     context 'file is registered' do
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
       end
 
       context 'deregister file' do
         before do
-          run_simple("longleaf deregister -c #{config_path} -f #{file_path}", fail_on_error: false)
+          run_command_and_stop("longleaf deregister -c #{config_path} -f #{file_path}", fail_on_error: false)
         end
 
         it 'deregisters the file' do
@@ -99,8 +99,8 @@ describe 'deregister', :type => :aruba do
 
       context 'deregister file more than once' do
         before do
-          run_simple("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
-          run_simple("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+          run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+          run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
         end
 
         it 'rejects registering file' do
@@ -116,8 +116,8 @@ describe 'deregister', :type => :aruba do
 
       context 'deregister file more than once with force flag' do
         before do
-          run_simple("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
-          run_simple("longleaf deregister -c #{config_path} -f '#{file_path}' --force", fail_on_error: false)
+          run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+          run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path}' --force", fail_on_error: false)
         end
 
         it 'deregisters the file' do
@@ -132,7 +132,7 @@ describe 'deregister', :type => :aruba do
 
         context 'only one file is registered' do
           before do
-            run_simple("longleaf deregister -c #{config_path} -f '#{file_path},#{file_path2}'", fail_on_error: false)
+            run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path},#{file_path2}'", fail_on_error: false)
           end
 
           it 'registers one file, fails the other' do
@@ -147,9 +147,9 @@ describe 'deregister', :type => :aruba do
 
         context 'all files are registered' do
           before do
-            run_simple("longleaf register -c #{config_path} -f #{file_path2}", fail_on_error: false)
+            run_command_and_stop("longleaf register -c #{config_path} -f #{file_path2}", fail_on_error: false)
 
-            run_simple("longleaf deregister -c #{config_path} -f '#{file_path},#{file_path2}'", fail_on_error: false)
+            run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path},#{file_path2}'", fail_on_error: false)
           end
 
           it 'registers both files' do

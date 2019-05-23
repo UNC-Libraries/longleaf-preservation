@@ -29,7 +29,7 @@ describe 'preserve', :type => :aruba do
       config_path = config_file.path
       config_file.delete
 
-      run_simple("longleaf preserve -c #{config_path} -f '/path/to/file'", fail_on_error: false)
+      run_command_and_stop("longleaf preserve -c #{config_path} -f '/path/to/file'", fail_on_error: false)
     end
 
     it 'outputs error loading configuration' do
@@ -53,7 +53,7 @@ describe 'preserve', :type => :aruba do
 
     context 'no file path or storage location' do
       before do
-        run_simple("longleaf preserve -c #{config_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path}", fail_on_error: false)
       end
 
       it 'exits with failure' do
@@ -64,7 +64,7 @@ describe 'preserve', :type => :aruba do
 
     context 'both file path and storage location' do
       before do
-        run_simple("longleaf preserve -c #{config_path} -s loc1 -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -s loc1 -f #{file_path}", fail_on_error: false)
       end
 
       it 'exits with failure' do
@@ -75,7 +75,7 @@ describe 'preserve', :type => :aruba do
 
     context 'invalid storage location' do
       before do
-        run_simple("longleaf preserve -c #{config_path} -s nope", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -s nope", fail_on_error: false)
       end
 
       it 'exits with failure' do
@@ -88,7 +88,7 @@ describe 'preserve', :type => :aruba do
       before do
         test_file = Tempfile.new('not_in_loc')
         out_of_location = test_file.path
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{out_of_location}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{out_of_location}", fail_on_error: false)
       end
 
       it 'fails with message indicating unknown storage location' do
@@ -99,7 +99,7 @@ describe 'preserve', :type => :aruba do
 
     context 'specifying unregistered file' do
       before do
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'completes with no output' do
@@ -110,12 +110,12 @@ describe 'preserve', :type => :aruba do
 
     context 'specifying one file' do
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
       end
 
       context 'service has not run before' do
         before do
-          run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+          run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
         end
 
         it 'successfully verifies file' do
@@ -127,7 +127,7 @@ describe 'preserve', :type => :aruba do
       context 'does not need to run again' do
         before do
           update_timestamp(file_path, config_path, 'serv1')
-          run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+          run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
         end
 
         it 'completes without any output' do
@@ -139,7 +139,7 @@ describe 'preserve', :type => :aruba do
       context 'does not need to run again, force flag provided' do
         before do
           update_timestamp(file_path, config_path, 'serv1')
-          run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path} --force", fail_on_error: false)
+          run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path} --force", fail_on_error: false)
         end
 
         it 'successfully verifies file' do
@@ -153,7 +153,7 @@ describe 'preserve', :type => :aruba do
           # Change the last run timestamp to a while ago
           update_timestamp(file_path, config_path, 'serv1', timestamp: Time.new(2000))
 
-          run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+          run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
         end
 
         it 'successfully verifies file' do
@@ -180,8 +180,8 @@ describe 'preserve', :type => :aruba do
     let(:file_path) { create_test_file(dir: path_dir) }
 
     before do
-      run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
-      run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+      run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+      run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
     end
 
     it 'fails to verify file' do
@@ -206,12 +206,12 @@ describe 'preserve', :type => :aruba do
     let(:file_path3) { create_test_file(dir: path_dir, name: "file3") }
 
     before do
-      run_simple("longleaf register -c #{config_path} -f #{file_path1},#{file_path2},#{file_path3}", fail_on_error: false)
+      run_command_and_stop("longleaf register -c #{config_path} -f #{file_path1},#{file_path2},#{file_path3}", fail_on_error: false)
     end
 
     context 'all files need service' do
       before do
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
 
       it 'successfully verifies file' do
@@ -229,7 +229,7 @@ describe 'preserve', :type => :aruba do
       }
 
       before do
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
 
       it 'successfully verifies two files, fails one' do
@@ -247,7 +247,7 @@ describe 'preserve', :type => :aruba do
       }
 
       before do
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
 
       it 'all files fail for the service' do
@@ -263,7 +263,7 @@ describe 'preserve', :type => :aruba do
         # Set timestamp for service on the second file so that it does not need to be run again
         update_timestamp(file_path2, config_path, 'serv1')
 
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
 
       it 'successfully verifies two files, skips one' do
@@ -281,7 +281,7 @@ describe 'preserve', :type => :aruba do
         update_timestamp(file_path2, config_path, 'serv1')
         update_timestamp(file_path3, config_path, 'serv1')
 
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
 
       it 'skips all files' do
@@ -294,7 +294,7 @@ describe 'preserve', :type => :aruba do
       before do
         FileUtils.rm(file_path2)
 
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -s loc1", fail_on_error: false)
       end
 
       it 'fails for the deleted file' do
@@ -323,12 +323,12 @@ describe 'preserve', :type => :aruba do
     let(:file_path) { create_test_file(dir: path_dir) }
 
     before do
-      run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+      run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
     end
 
     context 'all services needed' do
       before do
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'reports that all services succeeded' do
@@ -346,7 +346,7 @@ describe 'preserve', :type => :aruba do
       }
 
       before do
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'reports that one service failed' do
@@ -364,7 +364,7 @@ describe 'preserve', :type => :aruba do
       }
 
       before do
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'reports that one service succeeded, one failed, and one was skipped' do
@@ -390,7 +390,7 @@ describe 'preserve', :type => :aruba do
       }
 
       before do
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'reports that all services failed' do
@@ -408,7 +408,7 @@ describe 'preserve', :type => :aruba do
         update_timestamp(file_path, config_path, 'serv2')
         update_timestamp(file_path, config_path, 'serv3')
 
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path} --log_level 'DEBUG'", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path} --log_level 'DEBUG'", fail_on_error: false)
       end
 
       it 'indicates that no services ran' do

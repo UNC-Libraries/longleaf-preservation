@@ -55,7 +55,7 @@ describe 'reindex command', :type => :aruba do
     let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
 
     before do
-      run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
+      run_command_and_stop("longleaf reindex -c #{config_path}", fail_on_error: false)
     end
 
     it 'exits with failure' do
@@ -87,7 +87,7 @@ describe 'reindex command', :type => :aruba do
       context 'reindex' do
         before do
           @last_reindexed = get_index_state[:last_reindexed]
-          run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
+          run_command_and_stop("longleaf reindex -c #{config_path}", fail_on_error: false)
         end
 
         it 'succeeds but indexes nothing' do
@@ -107,7 +107,7 @@ describe 'reindex command', :type => :aruba do
       context 'full reindex' do
         before do
           @last_reindexed = get_index_state[:last_reindexed]
-          run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
+          run_command_and_stop("longleaf reindex -c #{config_path}", fail_on_error: false)
         end
 
         it 'reindexes the file' do
@@ -123,7 +123,7 @@ describe 'reindex command', :type => :aruba do
 
       context 'with if_stale flag, non-stale index' do
         before do
-          run_simple("longleaf reindex -c #{config_path} --if_stale", fail_on_error: false)
+          run_command_and_stop("longleaf reindex -c #{config_path} --if_stale", fail_on_error: false)
         end
 
         it 'completes with no action taken' do
@@ -141,7 +141,7 @@ describe 'reindex command', :type => :aruba do
               .with_system(sys_config)
               .write_to_yaml_file(config_path)
 
-          run_simple("longleaf reindex -c #{config_path} --if_stale", fail_on_error: false)
+          run_command_and_stop("longleaf reindex -c #{config_path} --if_stale", fail_on_error: false)
         end
 
         it 'reindexes the file' do
@@ -154,7 +154,7 @@ describe 'reindex command', :type => :aruba do
 
         context 'reindex again with if_stale' do
           before do
-            run_simple("longleaf reindex -c #{config_path} --if_stale", fail_on_error: false)
+            run_command_and_stop("longleaf reindex -c #{config_path} --if_stale", fail_on_error: false)
           end
 
           it 'completes with no action taken' do
@@ -177,7 +177,7 @@ describe 'reindex command', :type => :aruba do
 
       context 'normal reindex' do
         before do
-          run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
+          run_command_and_stop("longleaf reindex -c #{config_path}", fail_on_error: false)
         end
 
         it 'reindexes the files' do
@@ -193,7 +193,7 @@ describe 'reindex command', :type => :aruba do
         before do
           File.open(file_rec2.metadata_path, 'a') { |f| f.write("busted") }
 
-          run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
+          run_command_and_stop("longleaf reindex -c #{config_path}", fail_on_error: false)
         end
 
         it 'reindexes two of the files, fails one' do
@@ -209,7 +209,7 @@ describe 'reindex command', :type => :aruba do
         before do
           FileUtils.rm([file_rec2.path, file_rec2.metadata_path])
 
-          run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
+          run_command_and_stop("longleaf reindex -c #{config_path}", fail_on_error: false)
         end
 
         it 'cleans up the removed file from index' do
@@ -233,7 +233,7 @@ describe 'reindex command', :type => :aruba do
 
       before do
         index_manager.setup_index
-        run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
+        run_command_and_stop("longleaf reindex -c #{config_path}", fail_on_error: false)
       end
 
       it 'indexes the files' do
@@ -281,7 +281,7 @@ describe 'reindex command', :type => :aruba do
       let!(:file_rec2) { create_file_rec(storage_loc2, 'serv1', days_from_now) }
 
       before do
-        run_simple("longleaf reindex -c #{config_path}", fail_on_error: false)
+        run_command_and_stop("longleaf reindex -c #{config_path}", fail_on_error: false)
       end
 
       it 'reindexes files in both locations' do

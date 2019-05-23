@@ -48,7 +48,7 @@ describe 'metadata indexing', :type => :aruba do
 
     # Initialize the index's database
     before do
-      run_simple("longleaf setup_index -c #{config_path}", fail_on_error: false)
+      run_command_and_stop("longleaf setup_index -c #{config_path}", fail_on_error: false)
       expect(last_command_started).to have_exit_status(0)
     end
 
@@ -56,7 +56,7 @@ describe 'metadata indexing', :type => :aruba do
 
     context 'registering a file' do
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
       end
 
       it 'successfully runs and adds entry to index' do
@@ -68,9 +68,9 @@ describe 'metadata indexing', :type => :aruba do
 
     context 'reregistering a file' do
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
         @first_timestamp = get_timestamp_from_index(file_path)
-        run_simple("longleaf register -c #{config_path} -f #{file_path} --force", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path} --force", fail_on_error: false)
       end
 
       it 'successfully runs and updates entry in index' do
@@ -84,9 +84,9 @@ describe 'metadata indexing', :type => :aruba do
 
     context 'performing preserve event on registered file with single run service' do
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
         @first_timestamp = get_timestamp_from_index(file_path)
-        run_simple("longleaf preserve -c #{config_path} -f #{file_path} -I #{lib_dir}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -f #{file_path} -I #{lib_dir}", fail_on_error: false)
       end
 
       it 'successfully runs and updates entry in index with nil timestamp' do
@@ -108,10 +108,10 @@ describe 'metadata indexing', :type => :aruba do
       }
 
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
-        run_simple("longleaf register -c #{config_path} -f #{file_path2}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path2}", fail_on_error: false)
         @first_timestamp2 = get_timestamp_from_index(file_path2)
-        run_simple("longleaf preserve -c #{config_path} -s loc1 -I #{lib_dir}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -s loc1 -I #{lib_dir}", fail_on_error: false)
       end
 
       it 'partially successfully runs, setting delay on the failed file but not the other' do
@@ -135,8 +135,8 @@ describe 'metadata indexing', :type => :aruba do
 
     context 'deregistering a file' do
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
-        run_simple("longleaf deregister -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf deregister -c #{config_path} -f #{file_path}", fail_on_error: false)
       end
 
       it 'successfully runs and updates entry in index with nil timestamp' do

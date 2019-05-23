@@ -37,9 +37,9 @@ describe 'metadata digests', :type => :aruba do
 
     context 'metadata file digest matches' do
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
 
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'successfully runs' do
@@ -50,11 +50,11 @@ describe 'metadata digests', :type => :aruba do
 
     context 'metadata file unexpectedly changed' do
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
 
         change_metadata(file_path, config_path)
 
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'fails preserve event with metadata digest error' do
@@ -76,9 +76,9 @@ describe 'metadata digests', :type => :aruba do
 
     context 'metadata file digests match' do
       before(:each) do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
 
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'successfully runs' do
@@ -89,11 +89,11 @@ describe 'metadata digests', :type => :aruba do
 
     context 'sha512 digest modified' do
       before(:each) do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
 
         change_digest(file_path, config_path, 'sha512')
 
-        run_simple("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
       end
 
       it 'fails preserve event with sha512 digest error' do
