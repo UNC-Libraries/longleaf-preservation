@@ -32,7 +32,7 @@ describe 'fixity check service', :type => :aruba do
 
     context 'validating configuration' do
       before do
-        run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
+        run_command_and_stop("longleaf validate_config -c #{config_path}", fail_on_error: false)
       end
 
       it 'exits with failure' do
@@ -43,9 +43,9 @@ describe 'fixity check service', :type => :aruba do
 
     context 'preserving registered file' do
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
 
-        run_simple("longleaf preserve -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -f #{file_path}", fail_on_error: false)
       end
 
       it 'successfully runs service' do
@@ -56,13 +56,13 @@ describe 'fixity check service', :type => :aruba do
 
     context 'preserving file that has been modified' do
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
 
         File.open(file_path, 'w') do |file|
           file << 'check_me'
         end
 
-        run_simple("longleaf preserve -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -f #{file_path}", fail_on_error: false)
       end
 
       it 'successfully runs service' do

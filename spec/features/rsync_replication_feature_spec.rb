@@ -44,7 +44,7 @@ describe 'rsync replication service', :type => :aruba do
 
     context 'preserve by storage location' do
       before do
-        run_simple("longleaf preserve -c #{config_path} -s loc1", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -s loc1", fail_on_error: false)
       end
 
       it 'reports success and replicated file exists' do
@@ -64,7 +64,7 @@ describe 'rsync replication service', :type => :aruba do
       before do
         FileUtils.rm_rf(md_dir2)
 
-        run_simple("longleaf preserve -c #{config_path} -s loc1", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -s loc1", fail_on_error: false)
       end
 
       it 'reports failure and does not replicate' do

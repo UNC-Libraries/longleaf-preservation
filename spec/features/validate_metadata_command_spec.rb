@@ -31,7 +31,7 @@ describe 'validate_metadata', :type => :aruba do
       before do
         File.delete(file_path)
 
-        run_simple("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'rejects file which does not exist' do
@@ -43,7 +43,7 @@ describe 'validate_metadata', :type => :aruba do
 
     context 'file not registered' do
       before do
-        run_simple("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'outputs failure to find storage location' do
@@ -55,9 +55,9 @@ describe 'validate_metadata', :type => :aruba do
 
     context 'file with no digest' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
         File.delete(get_digest_path(file_path, md_dir, 'sha1'))
-        run_simple("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'passes validation but gives warning' do
@@ -69,8 +69,8 @@ describe 'validate_metadata', :type => :aruba do
 
     context 'file with digest' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
-        run_simple("longleaf validate_metadata -c #{config_path} -f '#{file_path}' --log_level INFO", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}' --log_level INFO", fail_on_error: false)
       end
 
       it 'passes validation without warnings' do
@@ -82,9 +82,9 @@ describe 'validate_metadata', :type => :aruba do
 
     context 'file with checksum mismatch' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
         change_metadata(file_path, md_dir)
-        run_simple("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'passes validation but gives warning' do
@@ -98,9 +98,9 @@ describe 'validate_metadata', :type => :aruba do
       let!(:file_path3) { create_test_file(dir: path_dir, name: "file3") }
 
       before do
-        run_simple("longleaf register -c #{config_path} -f #{path_dir}/", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{path_dir}/", fail_on_error: false)
         change_metadata(file_path2, md_dir)
-        run_simple("longleaf validate_metadata -c #{config_path} -s loc1", fail_on_error: false)
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -s loc1", fail_on_error: false)
       end
 
       it 'two pass, one fails validation' do
@@ -124,10 +124,10 @@ describe 'validate_metadata', :type => :aruba do
 
     context 'file with digest' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
         # Create a digest file, contents shouldn't matter
         change_digest(file_path, md_dir, 'sha1')
-        run_simple("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'passes validation' do
@@ -138,8 +138,8 @@ describe 'validate_metadata', :type => :aruba do
 
     context 'file without digest' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
-        run_simple("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'passes validation' do
@@ -151,7 +151,7 @@ describe 'validate_metadata', :type => :aruba do
     context 'metadata file is not valid yaml' do
       before do
         change_metadata(file_path, md_dir, "this file is garbage")
-        run_simple("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'fails validation' do
@@ -172,8 +172,8 @@ describe 'validate_metadata', :type => :aruba do
 
     context 'file with all digests' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
-        run_simple("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'passes validation' do
@@ -184,9 +184,9 @@ describe 'validate_metadata', :type => :aruba do
 
     context 'file with one missing digest' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
         File.delete(get_digest_path(file_path, md_dir, 'sha1'))
-        run_simple("longleaf validate_metadata -c #{config_path} -f '#{file_path}' --log_level INFO", fail_on_error: false)
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}' --log_level INFO", fail_on_error: false)
       end
 
       it 'passes validation with warning' do
@@ -199,9 +199,9 @@ describe 'validate_metadata', :type => :aruba do
 
     context 'file with one valid digest, one invalid' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
         change_digest(file_path, md_dir, 'sha512')
-        run_simple("longleaf validate_metadata -c #{config_path} -f '#{file_path}' --log_level INFO", fail_on_error: false)
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}' --log_level INFO", fail_on_error: false)
       end
 
       it 'fails validation, reporting on the changed digest' do

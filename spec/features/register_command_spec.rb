@@ -25,7 +25,7 @@ describe 'register', :type => :aruba do
       config_path = config_file.path
       config_file.delete
 
-      run_simple("longleaf register -c #{config_path} -f '/path/to/file'", fail_on_error: false)
+      run_command_and_stop("longleaf register -c #{config_path} -f '/path/to/file'", fail_on_error: false)
     end
 
     it 'outputs error loading configuration' do
@@ -45,7 +45,7 @@ describe 'register', :type => :aruba do
     }
 
     before do
-      run_simple("longleaf register -c #{config_path} -f '/path/to/file'", fail_on_error: false)
+      run_command_and_stop("longleaf register -c #{config_path} -f '/path/to/file'", fail_on_error: false)
     end
 
     it 'outputs invalid configuration error' do
@@ -68,7 +68,7 @@ describe 'register', :type => :aruba do
 
     context 'empty file path' do
       before do
-        run_simple("longleaf register -c #{config_path} -f ''", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f ''", fail_on_error: false)
       end
 
       it 'rejects missing file path value' do
@@ -81,7 +81,7 @@ describe 'register', :type => :aruba do
       before do
         File.delete(file_path)
 
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'rejects file which does not exist' do
@@ -96,7 +96,7 @@ describe 'register', :type => :aruba do
         test_file = Tempfile.new('not_in_loc')
         out_of_location = test_file.path
 
-        run_simple("longleaf register -c #{config_path} -f '#{out_of_location}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{out_of_location}'", fail_on_error: false)
       end
 
       it 'outputs failure to find storage location' do
@@ -108,7 +108,7 @@ describe 'register', :type => :aruba do
 
     context 'register file' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'registers the file' do
@@ -120,8 +120,8 @@ describe 'register', :type => :aruba do
 
     context 'register file more than once' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
       it 'rejects registering file' do
         # File should be registered by first call
@@ -136,8 +136,8 @@ describe 'register', :type => :aruba do
 
     context 'register file more than once with force flag' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}' --force", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}' --force", fail_on_error: false)
       end
       it 'registers the file' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
@@ -150,7 +150,7 @@ describe 'register', :type => :aruba do
       let(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
 
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path},#{file_path2}'")
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path},#{file_path2}'")
       end
 
       it 'registers both files' do
@@ -166,7 +166,7 @@ describe 'register', :type => :aruba do
       let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
 
       before do
-        run_simple("longleaf register -c #{config_path} -s 'loc1' --log-level 'DEBUG'")
+        run_command_and_stop("longleaf register -c #{config_path} -s 'loc1' --log-level 'DEBUG'")
       end
 
       it 'registers both files' do
@@ -182,7 +182,7 @@ describe 'register', :type => :aruba do
       let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
 
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{path_dir}/' --log_level DEBUG", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{path_dir}/' --log_level DEBUG", fail_on_error: false)
       end
 
       it 'registers both files' do
@@ -196,7 +196,7 @@ describe 'register', :type => :aruba do
 
     context 'invalid checksum format' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}' --checksums 'flat'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}' --checksums 'flat'", fail_on_error: false)
       end
 
       it 'rejects checksum parameter' do
@@ -208,7 +208,7 @@ describe 'register', :type => :aruba do
 
     context 'valid checksum format' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}' --checksums 'md5:digest'")
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}' --checksums 'md5:digest'")
       end
 
       it 'registers the file' do
@@ -220,7 +220,7 @@ describe 'register', :type => :aruba do
 
     context 'multiple valid checksums' do
       before do
-        run_simple("longleaf register -c #{config_path} -f '#{file_path}' --checksums 'md5:digest,sha1:anotherdigest'")
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}' --checksums 'md5:digest,sha1:anotherdigest'")
       end
 
       it 'registers the file' do

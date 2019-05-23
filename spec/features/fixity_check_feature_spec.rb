@@ -38,7 +38,7 @@ describe 'fixity check service', :type => :aruba do
     }
 
     before do
-      run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
+      run_command_and_stop("longleaf validate_config -c #{config_path}", fail_on_error: false)
     end
 
     it 'exits with failure' do
@@ -61,7 +61,7 @@ describe 'fixity check service', :type => :aruba do
 
     context 'validating configuration' do
       before do
-        run_simple("longleaf validate_config -c #{config_path}", fail_on_error: false)
+        run_command_and_stop("longleaf validate_config -c #{config_path}", fail_on_error: false)
       end
 
       it 'exits with success' do
@@ -72,9 +72,9 @@ describe 'fixity check service', :type => :aruba do
 
     context 'preserving with valid checksum' do
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path} --checksums 'md5: #{MD5_DIGEST}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path} --checksums 'md5: #{MD5_DIGEST}'", fail_on_error: false)
 
-        run_simple("longleaf preserve -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -f #{file_path}", fail_on_error: false)
       end
 
       it 'successfully runs service' do
@@ -85,9 +85,9 @@ describe 'fixity check service', :type => :aruba do
 
     context 'preserving with invalid checksum' do
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path} --checksums 'md5: 11111'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path} --checksums 'md5: 11111'", fail_on_error: false)
 
-        run_simple("longleaf preserve -c #{config_path} -f #{file_path}", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -f #{file_path}", fail_on_error: false)
       end
 
       it 'reports failure' do
@@ -101,11 +101,11 @@ describe 'fixity check service', :type => :aruba do
       let(:file_path3) { create_test_file(dir: path_dir, name: 'file3', content: 'fail time') }
 
       before do
-        run_simple("longleaf register -c #{config_path} -f #{file_path} --checksums 'md5: #{MD5_DIGEST}'", fail_on_error: false)
-        run_simple("longleaf register -c #{config_path} -f #{file_path2} --checksums 'md5: 6253b590b56b50345fc14390249b6586'", fail_on_error: false)
-        run_simple("longleaf register -c #{config_path} -f #{file_path3} --checksums 'md5: 11111'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path} --checksums 'md5: #{MD5_DIGEST}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path2} --checksums 'md5: 6253b590b56b50345fc14390249b6586'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path3} --checksums 'md5: 11111'", fail_on_error: false)
 
-        run_simple("longleaf preserve -c #{config_path} -s loc1", fail_on_error: false)
+        run_command_and_stop("longleaf preserve -c #{config_path} -s loc1", fail_on_error: false)
       end
 
       it 'reports two successes and a failure' do

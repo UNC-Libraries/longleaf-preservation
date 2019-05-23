@@ -3,7 +3,6 @@ require 'longleaf/models/service_definition'
 require 'longleaf/errors'
 
 describe Longleaf::ServiceDefinition do
-
   describe '.initialize' do
     context 'with no work_script' do
       it { expect { build(:service_definition, work_script: nil) }.to raise_error(ArgumentError) }

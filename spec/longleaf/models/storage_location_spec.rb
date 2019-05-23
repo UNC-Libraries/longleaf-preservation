@@ -6,7 +6,6 @@ require 'fileutils'
 require 'tempfile'
 
 describe Longleaf::StorageLocation do
-
   describe '.initialize' do
     context 'with no metadata_path' do
       it { expect { build(:storage_location, metadata_path: nil) }.to raise_error(ArgumentError) }
