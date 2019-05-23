@@ -34,7 +34,7 @@ module Longleaf
     end
 
     # Deserialize a configuration file into a hash
-    # @param config_path [String] file path to the application configuration file
+    # @param content [String] the contents of the application configuration file
     # @param format [String] encoding format of the config file
     # return [Hash] hash containing the configuration
     def self.load(content, format)

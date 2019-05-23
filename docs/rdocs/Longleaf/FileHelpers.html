@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Longleaf::FileHelpers
+  
+    &mdash; Documentation by YARD 0.9.19
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "Longleaf::FileHelpers";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Longleaf.html" title="Longleaf (module)">Longleaf</a></span></span>
+     &raquo; 
+    <span class="title">FileHelpers</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Longleaf::FileHelpers
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/longleaf/specs/file_helpers.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Test helper methods for creating test files</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_test_file-class_method" title="create_test_file (class method)">.<strong>create_test_file</strong>(dir: nil, name: nil, content: &#39;content&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_work_class-class_method" title="create_work_class (class method)">.<strong>create_work_class</strong>(lib_dir, class_name, file_name, module_name, is_applicable, init_body, perform)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_test_dir-class_method" title="make_test_dir (class method)">.<strong>make_test_dir</strong>(parent: nil, name: &#39;dir&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_test_file-instance_method" title="#create_test_file (instance method)">#<strong>create_test_file</strong>(dir: nil, name: nil, content: &#39;content&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_work_class-instance_method" title="#create_work_class (instance method)">#<strong>create_work_class</strong>(lib_dir, class_name, file_name, module_name = nil, is_applicable: true, init_body: &quot;&quot;, perform: &quot;&quot;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_test_dir-instance_method" title="#make_test_dir (instance method)">#<strong>make_test_dir</strong>(parent: nil, name: &#39;dir&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create_test_file-class_method">
+  
+    .<strong>create_test_file</strong>(dir: nil, name: nil, content: &#39;content&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/specs/file_helpers.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create_test_file'>create_test_file</span><span class='lparen'>(</span><span class='label'>dir:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>content:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>content</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_dir'>dir</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>test_file</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_file'>file</span> <span class='op'>=</span> <span class='const'>Tempfile</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_dir'>dir</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_file'>file</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_content'>content</span>
+    <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>w</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_path'>path</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_work_class-class_method">
+  
+    .<strong>create_work_class</strong>(lib_dir, class_name, file_name, module_name, is_applicable, init_body, perform)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/specs/file_helpers.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create_work_class'>create_work_class</span><span class='lparen'>(</span><span class='id identifier rubyid_lib_dir'>lib_dir</span><span class='comma'>,</span> <span class='id identifier rubyid_class_name'>class_name</span><span class='comma'>,</span> <span class='id identifier rubyid_file_name'>file_name</span><span class='comma'>,</span> <span class='id identifier rubyid_module_name'>module_name</span><span class='comma'>,</span> <span class='id identifier rubyid_is_applicable'>is_applicable</span><span class='comma'>,</span> <span class='id identifier rubyid_init_body'>init_body</span><span class='comma'>,</span> <span class='id identifier rubyid_perform'>perform</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_class_contents'>class_contents</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%Q(</span><span class='tstring_content'>
+    class </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_class_name'>class_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      def initialize(service_def, app_manager)
+        </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_init_body'>init_body</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      end
+      def perform(file_rec, event)
+        </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_perform'>perform</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      end
+      def is_applicable?(event)
+        </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_is_applicable'>is_applicable</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      end
+    end
+  </span><span class='tstring_end'>)</span></span>
+  <span class='id identifier rubyid_class_contents'>class_contents</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>module </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_module_name'>module_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_class_contents'>class_contents</span><span class='embexpr_end'>}</span><span class='tstring_content'>\nend</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_module_name'>module_name</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_create_test_file'>create_test_file</span><span class='lparen'>(</span><span class='label'>dir:</span> <span class='id identifier rubyid_lib_dir'>lib_dir</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='id identifier rubyid_file_name'>file_name</span><span class='comma'>,</span> <span class='label'>content:</span> <span class='id identifier rubyid_class_contents'>class_contents</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_test_dir-class_method">
+  
+    .<strong>make_test_dir</strong>(parent: nil, name: &#39;dir&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13
+14
+15
+16
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/specs/file_helpers.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_test_dir'>make_test_dir</span><span class='lparen'>(</span><span class='label'>parent:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dir</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_mktmpdir'>mktmpdir</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_parent'>parent</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+    <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_mkdir'>mkdir</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_path'>path</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create_test_file-instance_method">
+  
+    #<strong>create_test_file</strong>(dir: nil, name: nil, content: &#39;content&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/specs/file_helpers.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_test_file'>create_test_file</span><span class='lparen'>(</span><span class='label'>dir:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>content:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>content</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="" title="Longleaf::FileHelpers (module)">FileHelpers</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_test_file'><span class='object_link'><a href="#create_test_file-class_method" title="Longleaf::FileHelpers.create_test_file (method)">create_test_file</a></span></span><span class='lparen'>(</span><span class='label'>dir:</span> <span class='id identifier rubyid_dir'>dir</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>content:</span> <span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_work_class-instance_method">
+  
+    #<strong>create_work_class</strong>(lib_dir, class_name, file_name, module_name = nil, is_applicable: true, init_body: &quot;&quot;, perform: &quot;&quot;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/specs/file_helpers.rb', line 39</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_work_class'>create_work_class</span><span class='lparen'>(</span><span class='id identifier rubyid_lib_dir'>lib_dir</span><span class='comma'>,</span> <span class='id identifier rubyid_class_name'>class_name</span><span class='comma'>,</span> <span class='id identifier rubyid_file_name'>file_name</span><span class='comma'>,</span> <span class='id identifier rubyid_module_name'>module_name</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>is_applicable:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>init_body:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>perform:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="" title="Longleaf::FileHelpers (module)">FileHelpers</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_work_class'><span class='object_link'><a href="#create_work_class-class_method" title="Longleaf::FileHelpers.create_work_class (method)">create_work_class</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_lib_dir'>lib_dir</span><span class='comma'>,</span> <span class='id identifier rubyid_class_name'>class_name</span><span class='comma'>,</span> <span class='id identifier rubyid_file_name'>file_name</span><span class='comma'>,</span> <span class='id identifier rubyid_module_name'>module_name</span><span class='comma'>,</span> <span class='id identifier rubyid_is_applicable'>is_applicable</span><span class='comma'>,</span> <span class='id identifier rubyid_init_body'>init_body</span><span class='comma'>,</span> <span class='id identifier rubyid_perform'>perform</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_test_dir-instance_method">
+  
+    #<strong>make_test_dir</strong>(parent: nil, name: &#39;dir&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/specs/file_helpers.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_make_test_dir'>make_test_dir</span><span class='lparen'>(</span><span class='label'>parent:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dir</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="" title="Longleaf::FileHelpers (module)">FileHelpers</a></span></span><span class='period'>.</span><span class='id identifier rubyid_make_test_dir'><span class='object_link'><a href="#make_test_dir-class_method" title="Longleaf::FileHelpers.make_test_dir (method)">make_test_dir</a></span></span><span class='lparen'>(</span><span class='label'>parent:</span> <span class='id identifier rubyid_parent'>parent</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu May 23 10:40:26 2019 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.19 (ruby-2.4.1).
+</div>
+
+    </div>
+  </body>
+</html>
