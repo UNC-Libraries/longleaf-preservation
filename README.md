@@ -9,7 +9,29 @@ Longleaf is a command-line tool which allows users to configure a set of storage
 
 ## Installation
 
-Add this line to your application's Gemfile:
+There are two primary ways to install Longleaf, depending on how you intend to use it:
+
+#### Standalone gem
+
+To use Longleaf as a command-line application, the gem can be installed using:
+
+```
+$ gem install longleaf
+```
+
+Or it may be built from source:
+
+```
+$ git clone git@github.com:UNC-Libraries/longleaf-preservation.git
+$ cd longleaf-preservation
+$ bin/setup
+$ bundle exec rake install # builds the gem
+$ gem install --local pkg/longleaf* # installs gem
+```
+
+#### Applicaton dependency
+
+To make use of longleaf as a dependency of your application, add this line to your application's Gemfile:
 
 ```ruby
 gem 'longleaf'
@@ -17,11 +39,9 @@ gem 'longleaf'
 
 And then execute:
 
+```
     $ bundle
-
-Or install it yourself as:
-
-    $ gem install longleaf
+```
 
 ## Usage
 
@@ -46,23 +66,37 @@ Messages sent to STDOUT are duplicated to STDERR at 'INFO' level, so they are ex
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `bundle exec rspec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies. 
 
-To run Longleaf with local changes without needing to do a local install, you may run `bundle exec exe/longleaf <command>`.
+To perform the tests, run:
+```
+bundle exec rspec
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. This will allow you to run `longleaf <command>` and places the gem into `pkg/`. Note: Only files committed to git will be included in the installed gem.
+To run Longleaf with local changes without needing to do a local install, you may run:
+```
+bundle exec exe/longleaf <command>
+```
+
+To install this gem onto your local machine, run:
+```
+bundle exec rake install
+```
+
+This places a newly built gem into the `pkg/` directory. This gem may then be installed in order to run commands in the `longleaf <command>` form.
+_Note:_ Only files committed to git will be included in the installed gem.
 
 To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Indexing
-To use an index to improve performance, you will need to bundle longleaf with the driver you wish to use:
+To use an index to improve performance, you will need to install the database drivers separately or bundle longleaf with the driver you wish to use:
 `bundle install --with postgres`
 
 Options include: postgres, mysql2, mysql, sqlite, amalgalite
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://gitlab.lib.unc.edu/cdr/longleaf.
+Bug reports and pull requests are welcome on GitHub at https://github.com/UNC-Libraries/longleaf-preservation.
 
 
 ## License
