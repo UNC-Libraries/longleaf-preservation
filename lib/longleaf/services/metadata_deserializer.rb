@@ -19,7 +19,7 @@ module Longleaf
       when 'yaml'
         md = from_yaml(file_path, digest_algs)
       else
-        raise ArgumentError.new('Invalid deserialization format #{format} specified')
+        raise ArgumentError.new("Invalid deserialization format #{format} specified")
       end
 
       if !md || !md.is_a?(Hash) || !md.key?(MDF::DATA) || !md.key?(MDF::SERVICES)
@@ -36,31 +36,29 @@ module Longleaf
 
       services = md[MDF::SERVICES]
       service_records = Hash.new
-      unless services.nil?
-        services.each do |name, props|
-          raise Longleaf::MetadataError.new("Value of service #{name} must be a hash") unless props.class == Hash
+      services&.each do |name, props|
+        raise Longleaf::MetadataError.new("Value of service #{name} must be a hash") unless props.class == Hash
 
-          service_props = Hash.new.merge(props)
+        service_props = Hash.new.merge(props)
 
-          stale_replicas = service_props.delete(MDFields::STALE_REPLICAS)
-          timestamp = service_props.delete(MDFields::SERVICE_TIMESTAMP)
-          run_needed = service_props.delete(MDFields::RUN_NEEDED)
+        stale_replicas = service_props.delete(MDFields::STALE_REPLICAS)
+        timestamp = service_props.delete(MDFields::SERVICE_TIMESTAMP)
+        run_needed = service_props.delete(MDFields::RUN_NEEDED)
 
-          service_records[name] = ServiceRecord.new(
-              properties: service_props,
-              stale_replicas: stale_replicas,
-              timestamp: timestamp,
-              run_needed: run_needed)
-        end
+        service_records[name] = ServiceRecord.new(
+          properties: service_props,
+          stale_replicas: stale_replicas,
+          timestamp: timestamp,
+          run_needed: run_needed)
       end
 
       MetadataRecord.new(properties: data,
-          services: service_records,
-          registered: registered,
-          deregistered: deregistered,
-          checksums: checksums,
-          file_size: file_size,
-          last_modified: last_modified)
+                         services: service_records,
+                         registered: registered,
+                         deregistered: deregistered,
+                         checksums: checksums,
+                         file_size: file_size,
+                         last_modified: last_modified)
     end
 
     # Load configuration a yaml encoded configuration file
@@ -101,7 +99,7 @@ module Longleaf
           logger.info("Metadata fixity check using algorithm '#{alg}' succeeded for file #{path}")
         else
           raise ChecksumMismatchError.new("Metadata digest of type #{alg} did not match the contents of #{path}:" \
-              + " expected #{existing_digest}, calculated #{result}")
+                                          + " expected #{existing_digest}, calculated #{result}")
         end
       end
     end

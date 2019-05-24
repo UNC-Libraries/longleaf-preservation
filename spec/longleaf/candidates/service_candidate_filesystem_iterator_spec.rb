@@ -391,10 +391,8 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
 
   def create_metadata(file_path, services, app_config, deregistered: nil)
     md = build(:metadata_record, deregistered: deregistered)
-    unless services.nil?
-      services.each do |name, record|
-        md.add_service(name, record)
-      end
+    services&.each do |name, record|
+      md.add_service(name, record)
     end
     write_metadata(md, file_path, app_config)
   end

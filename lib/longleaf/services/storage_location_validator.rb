@@ -29,7 +29,6 @@ module Longleaf
       end
     end
 
-    private
     def self.assert_path_property_valid(name, path_prop, properties, existing_paths)
       path = properties[path_prop]
       begin
@@ -58,5 +57,7 @@ module Longleaf
 
       existing_paths << path
     end
+
+    private_class_method :assert_path_property_valid
   end
 end

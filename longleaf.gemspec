@@ -34,5 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "aruba", "~> 0.14.9"
   spec.add_development_dependency "rubocop", '~> 0.70.0'
   spec.add_development_dependency "rubocop-rspec", '~> 1.33'
+  spec.add_development_dependency "rubocop-performance", '~> 1.3.0'
+  spec.add_development_dependency "rubocop-sequel", '~> 0.0.5'
   spec.add_development_dependency "amalgalite", "~> 1.6.3"
 end

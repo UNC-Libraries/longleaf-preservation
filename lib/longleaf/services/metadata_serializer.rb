@@ -27,7 +27,7 @@ module Longleaf
       when 'yaml'
         content = to_yaml(metadata)
       else
-        raise ArgumentError.new('Invalid serialization format #{format} specified')
+        raise ArgumentError.new("Invalid serialization format #{format} specified")
       end
 
       # Fill in parent directories if they do not exist
@@ -53,7 +53,7 @@ module Longleaf
       data = Hash.new.merge(metadata.properties)
       data[MDF::REGISTERED_TIMESTAMP] = metadata.registered if metadata.registered
       data[MDF::DEREGISTERED_TIMESTAMP] = metadata.deregistered if metadata.deregistered
-      data[MDF::CHECKSUMS] = metadata.checksums unless metadata.checksums&.empty?
+      data[MDF::CHECKSUMS] = metadata.checksums unless metadata.checksums && metadata.checksums.empty?
       data[MDF::FILE_SIZE] = metadata.file_size unless metadata.file_size.nil?
       data[MDF::LAST_MODIFIED] = metadata.last_modified if metadata.last_modified
 
@@ -81,11 +81,10 @@ module Longleaf
       when 'yaml'
         '-llmd.yaml'
       else
-        raise ArgumentError.new('Invalid serialization format #{format} specified')
+        raise ArgumentError.new("Invalid serialization format #{format} specified")
       end
     end
 
-    private
     def self.write_digests(file_path, content, digests)
       return if digests.nil? || digests.empty?
 
@@ -103,5 +102,7 @@ module Longleaf
         self.logger.debug("Generated #{alg} digest for metadata file #{file_path}: #{result}")
       end
     end
+
+    private_class_method :write_digests
   end
 end

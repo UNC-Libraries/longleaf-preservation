@@ -91,7 +91,7 @@ module Longleaf
 
         @stderr_log.info(text)
         @stderr_log.error("#{error.message}") unless error.nil?
-        @stderr_log.error("#{error.backtrace.to_s}") unless error.nil? || error.backtrace.nil?
+        @stderr_log.error("#{error.backtrace}") unless error.nil? || error.backtrace.nil?
       end
 
       # Logs an outcome message to STDOUT, as well as STDERR at info level.

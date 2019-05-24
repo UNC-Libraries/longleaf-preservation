@@ -19,7 +19,6 @@ module Longleaf
       services = config[AF::SERVICES]
       assert("'#{AF::SERVICES}' must be a hash of services", services.class == Hash)
 
-      existing_paths = Array.new
       services.each do |name, properties|
         assert("Name of service definition must be a string, but was of type #{name.class}", name.instance_of?(String))
         assert("Service definition '#{name}' must be a hash, but a #{properties.class} was provided", properties.is_a?(Hash))

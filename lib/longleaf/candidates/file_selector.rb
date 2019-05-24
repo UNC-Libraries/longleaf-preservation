@@ -28,7 +28,7 @@ module Longleaf
         path = File.expand_path(path)
 
         # adding trailing /'s to directories
-        if Dir.exists?(path) && !path.end_with?('/')
+        if Dir.exist?(path) && !path.end_with?('/')
           path + '/'
         else
           path
@@ -85,7 +85,7 @@ module Longleaf
           if File.directory?(path)
             logger.debug("Expanding directory #{path}")
             # For a directory, add all children to file_paths
-            Dir.entries(path).sort.reverse.each do |child|
+            Dir.entries(path).sort.reverse_each do |child|
               @paths << File.join(path, child) unless child == '.' or child == '..'
             end
           else

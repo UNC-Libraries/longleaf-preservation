@@ -73,7 +73,7 @@ module Longleaf
           event: @event)
 
       # When in force mode, candidate needs a run as long as there are any services configured for it.
-      if @force && expected_services.length > 0
+      if @force && !expected_services.empty?
         logger.debug("Forcing run needed for file: #{file_rec.path}")
         return true
       end

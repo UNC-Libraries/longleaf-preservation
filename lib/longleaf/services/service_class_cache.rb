@@ -65,7 +65,7 @@ module Longleaf
       # Load the script
       begin
         require require_path
-      rescue LoadError => e
+      rescue LoadError
         raise ConfigurationError.new("Failed to load work_script '#{script_name}' for service #{service_name}")
       end
 

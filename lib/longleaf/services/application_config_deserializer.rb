@@ -23,11 +23,10 @@ module Longleaf
       Longleaf::ApplicationConfigManager.new(config, config_md5)
     end
 
-    private
     def self.load_config_file(config_path)
       begin
         File.read(config_path)
-      rescue Errno::ENOENT => err
+      rescue Errno::ENOENT
         raise Longleaf::ConfigurationError.new(
             "Configuration file #{config_path} does not exist.")
       end
@@ -42,7 +41,7 @@ module Longleaf
       when 'yaml'
         from_yaml(content)
       else
-        raise ArgumentError.new('Invalid deserialization format #{format} specified')
+        raise ArgumentError.new("Invalid deserialization format #{format} specified")
       end
     end
 
@@ -76,5 +75,7 @@ module Longleaf
         end
       end
     end
+
+    private_class_method :load_config_file
   end
 end

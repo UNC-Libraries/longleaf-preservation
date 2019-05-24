@@ -27,7 +27,7 @@ module Longleaf
 
       logger.debug("Performing file information check of #{file_path}")
 
-      if !File.exists?(file_path)
+      if !File.exist?(file_path)
         raise PreservationServiceError.new("File does not exist: #{file_path}")
       end
 
