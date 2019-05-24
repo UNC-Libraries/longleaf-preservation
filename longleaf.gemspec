@@ -14,6 +14,8 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/UNC-Libraries/"
   spec.license       = "Apache-2.0"
 
+  spec.required_ruby_version = '>= 2.4'
+
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files         = Dir.chdir(File.expand_path('..', __FILE__)) do
@@ -25,16 +27,16 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "thor", "~> 0.20.0"
   spec.add_dependency "yard", "~> 0.9.16"
-  spec.add_dependency "sequel", "~> 5.19.0"
+  spec.add_dependency "sequel", "~> 5.20"
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 12.0"
-  spec.add_development_dependency "rspec", "~> 3.6.0"
-  spec.add_development_dependency "factory_bot", "~> 4.0"
+  spec.add_development_dependency "rspec", "~> 3.8"
+  spec.add_development_dependency "factory_bot", "~> 5.0"
   spec.add_development_dependency "aruba", "~> 0.14.9"
   spec.add_development_dependency "rubocop", '~> 0.70.0'
   spec.add_development_dependency "rubocop-rspec", '~> 1.33'
-  spec.add_development_dependency "rubocop-performance", '~> 1.3.0'
+  spec.add_development_dependency "rubocop-performance", '~> 1.3'
   spec.add_development_dependency "rubocop-sequel", '~> 0.0.5'
-  spec.add_development_dependency "amalgalite", "~> 1.6.3"
+  spec.add_development_dependency "amalgalite", "~> 1.6"
 end
