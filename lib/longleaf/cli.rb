@@ -249,9 +249,7 @@ module Longleaf
 
       def extend_load_path(load_paths)
         load_paths = load_paths&.split(/\s*,\s*/)
-        if !load_paths.nil?
-          load_paths.each { |path| $LOAD_PATH.unshift(path) }
-        end
+        load_paths&.each { |path| $LOAD_PATH.unshift(path) }
       end
     end
   end

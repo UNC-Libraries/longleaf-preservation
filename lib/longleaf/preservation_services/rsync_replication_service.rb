@@ -50,7 +50,7 @@ module Longleaf
       @options = @service_def.properties[RSYNC_OPTIONS_PROPERTY] || DEFAULT_OPTIONS
       if contains_disallowed_option?(@options)
         raise ArgumentError.new("Service #{service_def.name} specifies a disallowed rsync paramter," \
-            + " rsync_options may not include the following: #{DISALLOWED_OPTIONS.join(" ")}")
+            + " rsync_options may not include the following: #{DISALLOWED_OPTIONS.join(' ')}")
       end
 
       # Add -R (--relative) in to command options to ensure full path gets replicated
