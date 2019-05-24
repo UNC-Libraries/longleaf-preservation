@@ -1,4 +1,7 @@
-require: rubocop-rspec
+require:
+- rubocop-rspec
+- rubocop-performance
+- rubocop-sequel
 
 inherit_from:
   - .rubocop_todo.yml
