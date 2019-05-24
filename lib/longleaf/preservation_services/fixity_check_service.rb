@@ -51,7 +51,7 @@ module Longleaf
         if SUPPORTED_ALGORITHMS.include?(normalized_alg)
           @digest_algs << normalized_alg
         else
-          raise ArgumentError.new("Unsupported checksum algorithm '#{alg}' in definition #{service_def.name}. Supported algorithms are: #{SUPPORTED_ALGORITHMS.to_s}")
+          raise ArgumentError.new("Unsupported checksum algorithm '#{alg}' in definition #{service_def.name}. Supported algorithms are: #{SUPPORTED_ALGORITHMS}")
         end
       end
     end

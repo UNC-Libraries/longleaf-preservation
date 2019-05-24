@@ -19,7 +19,7 @@ module Longleaf
       when 'yaml'
         md = from_yaml(file_path, digest_algs)
       else
-        raise ArgumentError.new('Invalid deserialization format #{format} specified')
+        raise ArgumentError.new("Invalid deserialization format #{format} specified")
       end
 
       if !md || !md.is_a?(Hash) || !md.key?(MDF::DATA) || !md.key?(MDF::SERVICES)

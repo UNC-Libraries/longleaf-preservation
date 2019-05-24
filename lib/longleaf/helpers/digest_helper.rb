@@ -19,7 +19,7 @@ module Longleaf
       else
         unknown = algs.select { |alg| !KNOWN_DIGESTS.include?(alg) }
         unless unknown.empty?
-          raise InvalidDigestAlgorithmError.new("Unknown digest algorithm(s): #{unknown.to_s}")
+          raise InvalidDigestAlgorithmError.new("Unknown digest algorithm(s): #{unknown}")
         end
       end
     end

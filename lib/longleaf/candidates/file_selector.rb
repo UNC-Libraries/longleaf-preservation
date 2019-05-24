@@ -28,7 +28,7 @@ module Longleaf
         path = File.expand_path(path)
 
         # adding trailing /'s to directories
-        if Dir.exists?(path) && !path.end_with?('/')
+        if Dir.exist?(path) && !path.end_with?('/')
           path + '/'
         else
           path

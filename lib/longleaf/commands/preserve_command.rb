@@ -30,8 +30,6 @@ module Longleaf
         candidate_it = candidate_locator.candidate_iterator(file_selector, EventNames::PRESERVE, force)
         candidate_it.each do |file_rec|
           begin
-            f_path = file_rec.path
-
             logger.debug("Selected candidate #{file_rec.path} for a preserve event")
             preserve_event = PreserveEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager)
             track_status(preserve_event.perform)

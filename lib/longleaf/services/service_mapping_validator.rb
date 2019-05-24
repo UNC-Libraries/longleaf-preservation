@@ -21,7 +21,6 @@ module Longleaf
       service_names = config[AF::SERVICES].keys
       location_names = config[AF::LOCATIONS].keys
 
-      existing_paths = Array.new
       mappings.each do |mapping|
         assert("Mapping must be a hash, but received #{mapping.inspect} instead", mapping.is_a?(Hash))
 
@@ -30,7 +29,6 @@ module Longleaf
       end
     end
 
-    private
     def self.validate_mapping_field(field, mapping, valid_values)
       assert("Mapping must contain a '#{field}' field", mapping.key?(field))
       field_values = mapping[field]
@@ -44,5 +42,7 @@ module Longleaf
             valid_values.include?(value))
       end
     end
+
+    private_class_method :validate_mapping_field
   end
 end
