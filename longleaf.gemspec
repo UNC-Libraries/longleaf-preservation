@@ -6,13 +6,16 @@ require 'longleaf/version'
 Gem::Specification.new do |spec|
   spec.name          = "longleaf"
   spec.version       = Longleaf::VERSION
-  spec.authors       = ["bbpennel"]
+  spec.authors       = ["Ben Pennell"]
   spec.email         = ["bbpennel@email.unc.edu"]
 
   spec.summary       = %q{Longleaf preservation services tool}
-  spec.description   = %q{Provides a framework for performing preservation services over sets of files.}
-  spec.homepage      = "https://github.com/UNC-Libraries/"
+  spec.description   = %q{Longleaf is a command-line tool which allows users to configure a set of storage locations and define custom sets of preservation services to run on their contents. These services are executed in response to applicable preservation events issued by clients. Its primary goal is to provide tools to create a simple and customizable preservation environment.}
+  spec.homepage      = "https://unc-libraries.github.io/longleaf-preservation"
+  spec.metadata         = { "source_code_uri" => "https://github.com/UNC-Libraries/longleaf-preservation" }
   spec.license       = "Apache-2.0"
+
+  spec.required_ruby_version = '>= 2.4'
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -25,16 +28,16 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "thor", "~> 0.20.0"
   spec.add_dependency "yard", "~> 0.9.16"
-  spec.add_dependency "sequel", "~> 5.19.0"
+  spec.add_dependency "sequel", "~> 5.20"
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 12.0"
-  spec.add_development_dependency "rspec", "~> 3.6.0"
-  spec.add_development_dependency "factory_bot", "~> 4.0"
+  spec.add_development_dependency "rspec", "~> 3.8"
+  spec.add_development_dependency "factory_bot", "~> 5.0"
   spec.add_development_dependency "aruba", "~> 0.14.9"
   spec.add_development_dependency "rubocop", '~> 0.70.0'
   spec.add_development_dependency "rubocop-rspec", '~> 1.33'
-  spec.add_development_dependency "rubocop-performance", '~> 1.3.0'
+  spec.add_development_dependency "rubocop-performance", '~> 1.3'
   spec.add_development_dependency "rubocop-sequel", '~> 0.0.5'
-  spec.add_development_dependency "amalgalite", "~> 1.6.3"
+  spec.add_development_dependency "amalgalite", "~> 1.6"
 end
