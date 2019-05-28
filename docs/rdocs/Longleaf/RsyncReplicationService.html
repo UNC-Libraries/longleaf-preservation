@@ -107,28 +107,24 @@
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
     
-<p>Preservation service which performs replication of a file to one or more
-destinations using rsync.</p>
+<p>Preservation service which performs replication of a file to one or more destinations using rsync.</p>
 
-<p>The service definition must contain one or more destinations, specified
-with the “to” property. These destinations must be either a known storage
-location name, a remote path, or absolute path.</p>
+<p>The service definition must contain one or more destinations, specified with the “to” property. These destinations must be either a known storage location name, a remote path, or absolute path.</p>
 
 <p>Optional service configuration properties:</p>
 <ul><li>
-<p>replica_collision_policy = specifies the desired outcome if the service
-attempts to replicate</p>
+<p>replica_collision_policy = specifies the desired outcome if the service attempts to replicate</p>
 
-<pre class="code ruby"><code class="ruby">a file which already exists at a destination. Default: &quot;replace&quot;.</code></pre>
+<pre class="code ruby"><code class="ruby">a file which already exists at a destination. Default: &quot;replace&quot;.
+</code></pre>
 </li><li>
-<p>rsync_command = the command to invoke in order to execute rsync. Default:
-“rsync”</p>
+<p>rsync_command = the command to invoke in order to execute rsync. Default: “rsync”</p>
 </li><li>
-<p>rsync_options = additional parameters that will be passed along to rsync.
-Cannot include options</p>
+<p>rsync_options = additional parameters that will be passed along to rsync. Cannot include options</p>
 
 <pre class="code ruby"><code class="ruby">which change the target of the command or prevent its execution, such as &quot;files-from&quot;, &quot;dry-run&quot;,
-&quot;help&quot;, etc. Command will always include &quot;-R&quot;. Default &quot;-a&quot;.</code></pre>
+&quot;help&quot;, etc. Command will always include &quot;-R&quot;. Default &quot;-a&quot;.
+</code></pre>
 </li></ul>
 
 
@@ -296,6 +292,28 @@ Cannot include options</p>
 
     <ul class="summary">
       
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#contains_disallowed_option%3F-instance_method" title="#contains_disallowed_option? (instance method)">#<strong>contains_disallowed_option?</strong>(options)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
         <li class="public ">
   <span class="summary_signature">
     
@@ -340,8 +358,7 @@ Cannot include options</p>
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Determine if this service is applicable for the provided event, given the
-configured service definition.</p>
+<p>Determine if this service is applicable for the provided event, given the configured service definition.</p>
 </div></span>
   
 </li>
@@ -365,9 +382,52 @@ configured service definition.</p>
 
   
     <span class="summary_desc"><div class='inline'>
-<p>During a replication event, perform replication of the specified file to
-all configured destinations as necessary.</p>
+<p>During a replication event, perform replication of the specified file to all configured destinations as necessary.</p>
 </div></span>
+  
+</li>
+
+      
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#register_replica-instance_method" title="#register_replica (instance method)">#<strong>register_replica</strong>(destination, rel_path, file_rec)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#verify_destination_available-instance_method" title="#verify_destination_available (instance method)">#<strong>verify_destination_available</strong>(destination, file_rec)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
@@ -696,7 +756,83 @@ all configured destinations as necessary.</p>
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="is_applicable?-instance_method">
+  <h3 class="signature first" id="contains_disallowed_option?-instance_method">
+  
+    #<strong>contains_disallowed_option?</strong>(options)  &#x21d2; <tt>Boolean</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/preservation_services/rsync_replication_service.rb', line 143</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_contains_disallowed_option?'>contains_disallowed_option?</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="#DISALLOWED_OPTIONS-constant" title="Longleaf::RsyncReplicationService::DISALLOWED_OPTIONS (constant)">DISALLOWED_OPTIONS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_disallowed'>disallowed</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_disallowed'>disallowed</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>1</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(\A| )-[a-zA-Z0-9]*</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_disallowed'>disallowed</span><span class='embexpr_end'>}</span><span class='tstring_content'>[a-zA-Z0-9]*( |=|\z)</span><span class='regexp_end'>/</span></span>
+        <span class='kw'>return</span> <span class='kw'>true</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(\A| )--</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_disallowed'>disallowed</span><span class='embexpr_end'>}</span><span class='tstring_content'>( |=|\z)</span><span class='regexp_end'>/</span></span>
+        <span class='kw'>return</span> <span class='kw'>true</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_applicable?-instance_method">
   
     #<strong>is_applicable?</strong>(event)  &#x21d2; <tt>Boolean</tt> 
   
@@ -707,8 +843,7 @@ all configured destinations as necessary.</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Determine if this service is applicable for the provided event, given the
-configured service definition</p>
+<p>Determine if this service is applicable for the provided event, given the configured service definition</p>
 
 
   </div>
@@ -797,8 +932,7 @@ configured service definition</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>During a replication event, perform replication of the specified file to
-all configured destinations as necessary.</p>
+<p>During a replication event, perform replication of the specified file to all configured destinations as necessary.</p>
 
 
   </div>
@@ -937,14 +1071,108 @@ all configured destinations as necessary.</p>
 </table>
 </div>
     
+      <div class="method_details ">
+  <h3 class="signature " id="register_replica-instance_method">
+  
+    #<strong>register_replica</strong>(destination, rel_path, file_rec)  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/preservation_services/rsync_replication_service.rb', line 173</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register_replica'>register_replica</span><span class='lparen'>(</span><span class='id identifier rubyid_destination'>destination</span><span class='comma'>,</span> <span class='id identifier rubyid_rel_path'>rel_path</span><span class='comma'>,</span> <span class='id identifier rubyid_file_rec'>file_rec</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dest_file_path'>dest_file_path</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_destination'>destination</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_rel_path'>rel_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dest_file_rec'>dest_file_rec</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="FileRecord.html" title="Longleaf::FileRecord (class)">FileRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="FileRecord.html#initialize-instance_method" title="Longleaf::FileRecord#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file_path'>dest_file_path</span><span class='comma'>,</span> <span class='id identifier rubyid_destination'>destination</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_event'>register_event</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="RegisterEvent.html" title="Longleaf::RegisterEvent (class)">RegisterEvent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RegisterEvent.html#initialize-instance_method" title="Longleaf::RegisterEvent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>file_rec:</span> <span class='id identifier rubyid_dest_file_rec'>dest_file_rec</span><span class='comma'>,</span>
+      <span class='label'>app_manager:</span> <span class='ivar'>@app_manager</span><span class='comma'>,</span>
+      <span class='label'>force:</span> <span class='kw'>true</span><span class='comma'>,</span>
+      <span class='label'>checksums:</span> <span class='id identifier rubyid_file_rec'>file_rec</span><span class='period'>.</span><span class='id identifier rubyid_metadata_record'>metadata_record</span><span class='period'>.</span><span class='id identifier rubyid_checksums'>checksums</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_register_event'>register_event</span><span class='period'>.</span><span class='id identifier rubyid_perform'>perform</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="verify_destination_available-instance_method">
+  
+    #<strong>verify_destination_available</strong>(destination, file_rec)  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/preservation_services/rsync_replication_service.rb', line 159</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_verify_destination_available'>verify_destination_available</span><span class='lparen'>(</span><span class='id identifier rubyid_destination'>destination</span><span class='comma'>,</span> <span class='id identifier rubyid_file_rec'>file_rec</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_destination'>destination</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Longleaf.html" title="Longleaf (module)">Longleaf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="StorageLocation.html" title="Longleaf::StorageLocation (class)">StorageLocation</a></span></span><span class='rparen'>)</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_destination'>destination</span><span class='period'>.</span><span class='id identifier rubyid_available?'>available?</span>
+    <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="StorageLocationUnavailableError.html" title="Longleaf::StorageLocationUnavailableError (class)">StorageLocationUnavailableError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="StorageLocationUnavailableError.html" title="Longleaf::StorageLocationUnavailableError (class)">StorageLocationUnavailableError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cannot replicate </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_file_rec'>file_rec</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'> to destination </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_destination'>destination</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='tstring_end'>&quot;</span></span> \
+          <span class='op'>+</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_destination'>destination</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="StorageLocationUnavailableError.html" title="Longleaf::StorageLocationUnavailableError (class)">StorageLocationUnavailableError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cannot replicate </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_file_rec'>file_rec</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'> to destination</span><span class='tstring_end'>&quot;</span></span> \
+        <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_destination'>destination</span><span class='embexpr_end'>}</span><span class='tstring_content'>, path does not exist.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_destination'>destination</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
   </div>
 
 </div>
 
       <div id="footer">
-  Generated on Fri May 24 12:41:00 2019 by
+  Generated on Tue May 28 15:48:03 2019 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.19 (ruby-2.4.1).
+  0.9.19 (ruby-2.6.3).
 </div>
 
     </div>

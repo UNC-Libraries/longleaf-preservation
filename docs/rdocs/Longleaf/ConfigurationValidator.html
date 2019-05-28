@@ -121,14 +121,105 @@
 
 
 
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
 
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#assert-class_method" title="assert (class method)">.<strong>assert</strong>(fail_message, assertion_passed)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="assert-class_method">
+  
+    .<strong>assert</strong>(fail_message, assertion_passed)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="ConfigurationError.html" title="Longleaf::ConfigurationError (class)">ConfigurationError</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+6
+7
+8</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/services/configuration_validator.rb', line 6</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_assert'>assert</span><span class='lparen'>(</span><span class='id identifier rubyid_fail_message'>fail_message</span><span class='comma'>,</span> <span class='id identifier rubyid_assertion_passed'>assertion_passed</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="ConfigurationError.html" title="Longleaf::ConfigurationError (class)">ConfigurationError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_fail_message'>fail_message</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_assertion_passed'>assertion_passed</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
 
 </div>
 
       <div id="footer">
-  Generated on Fri May 24 12:41:00 2019 by
+  Generated on Tue May 28 15:48:02 2019 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.19 (ruby-2.4.1).
+  0.9.19 (ruby-2.6.3).
 </div>
 
     </div>

@@ -180,6 +180,52 @@
 </li>
 
       
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#populate_file_properties-instance_method" title="#populate_file_properties (instance method)">#<strong>populate_file_properties</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#retain_existing_properties-instance_method" title="#retain_existing_properties (instance method)">#<strong>retain_existing_properties</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Copy a subset of properties from an existing metadata record to the new record.</p>
+</div></span>
+  
+</li>
+
+      
     </ul>
   
 
@@ -458,14 +504,123 @@
 </table>
 </div>
     
+      <div class="method_details ">
+  <h3 class="signature " id="populate_file_properties-instance_method">
+  
+    #<strong>populate_file_properties</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69
+70
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/events/register_event.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_populate_file_properties'>populate_file_properties</span>
+  <span class='id identifier rubyid_md_rec'>md_rec</span> <span class='op'>=</span> <span class='ivar'>@file_rec</span><span class='period'>.</span><span class='id identifier rubyid_metadata_record'>metadata_record</span>
+
+  <span class='comment'># Set file properties
+</span>  <span class='id identifier rubyid_md_rec'>md_rec</span><span class='period'>.</span><span class='id identifier rubyid_last_modified'>last_modified</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_mtime'>mtime</span><span class='lparen'>(</span><span class='ivar'>@file_rec</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='period'>.</span><span class='id identifier rubyid_iso8601'>iso8601</span><span class='lparen'>(</span><span class='int'>3</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_md_rec'>md_rec</span><span class='period'>.</span><span class='id identifier rubyid_file_size'>file_size</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='lparen'>(</span><span class='ivar'>@file_rec</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="retain_existing_properties-instance_method">
+  
+    #<strong>retain_existing_properties</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Copy a subset of properties from an existing metadata record to the new record</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/events/register_event.rb', line 76</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_retain_existing_properties'>retain_existing_properties</span>
+  <span class='id identifier rubyid_md_rec'>md_rec</span> <span class='op'>=</span> <span class='ivar'>@file_rec</span><span class='period'>.</span><span class='id identifier rubyid_metadata_record'>metadata_record</span>
+
+  <span class='id identifier rubyid_old_md'>old_md</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="MetadataDeserializer.html" title="Longleaf::MetadataDeserializer (class)">MetadataDeserializer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deserialize'><span class='object_link'><a href="MetadataDeserializer.html#deserialize-class_method" title="Longleaf::MetadataDeserializer.deserialize (method)">deserialize</a></span></span><span class='lparen'>(</span><span class='label'>file_path:</span> <span class='ivar'>@file_rec</span><span class='period'>.</span><span class='id identifier rubyid_metadata_path'>metadata_path</span><span class='comma'>,</span>
+          <span class='label'>digest_algs:</span> <span class='ivar'>@file_rec</span><span class='period'>.</span><span class='id identifier rubyid_storage_location'>storage_location</span><span class='period'>.</span><span class='id identifier rubyid_metadata_digests'>metadata_digests</span><span class='rparen'>)</span>
+  <span class='comment'># Copy custom properties
+</span>  <span class='id identifier rubyid_old_md'>old_md</span><span class='period'>.</span><span class='id identifier rubyid_properties'>properties</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span> <span class='id identifier rubyid_md_rec'>md_rec</span><span class='period'>.</span><span class='id identifier rubyid_properties'>properties</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span>
+  <span class='comment'># Copy stale-replicas flag per service
+</span>  <span class='id identifier rubyid_old_md'>old_md</span><span class='period'>.</span><span class='id identifier rubyid_list_services'>list_services</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_serv_name'>serv_name</span><span class='op'>|</span>
+    <span class='id identifier rubyid_serv_rec'>serv_rec</span> <span class='op'>=</span> <span class='id identifier rubyid_old_md'>old_md</span><span class='period'>.</span><span class='id identifier rubyid_service'>service</span><span class='lparen'>(</span><span class='id identifier rubyid_serv_name'>serv_name</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_stale_replicas'>stale_replicas</span> <span class='op'>=</span> <span class='id identifier rubyid_serv_rec'>serv_rec</span><span class='period'>.</span><span class='id identifier rubyid_stale_replicas'>stale_replicas</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_stale_replicas'>stale_replicas</span>
+      <span class='id identifier rubyid_new_service'>new_service</span> <span class='op'>=</span> <span class='id identifier rubyid_md_rec'>md_rec</span><span class='period'>.</span><span class='id identifier rubyid_service'>service</span><span class='lparen'>(</span><span class='id identifier rubyid_serv_name'>serv_name</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_new_service'>new_service</span><span class='period'>.</span><span class='id identifier rubyid_stale_replicas'>stale_replicas</span> <span class='op'>=</span> <span class='id identifier rubyid_stale_replicas'>stale_replicas</span> <span class='kw'>unless</span> <span class='id identifier rubyid_new_service'>new_service</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
   </div>
 
 </div>
 
       <div id="footer">
-  Generated on Fri May 24 12:40:58 2019 by
+  Generated on Tue May 28 15:48:01 2019 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.19 (ruby-2.4.1).
+  0.9.19 (ruby-2.6.3).
 </div>
 
     </div>
