@@ -35,8 +35,7 @@ jobs:
           paths:
             - ./.bundle
           key: v1-dependencies-{{ checksum "longleaf.gemspec" }}
-  test:
-    steps:
+
       - run:
           name: run tests
           command: |
@@ -62,4 +61,3 @@ workflows:
   notify_deploy:
     jobs:
       - build
-      - test
