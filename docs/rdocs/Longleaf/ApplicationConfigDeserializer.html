@@ -165,9 +165,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Deserializes a valid application configuration file as a
-ApplicationConfigManager option return [ApplicationConfigManager] manager
-for the loaded configuration.</p>
+<p>Deserializes a valid application configuration file as a ApplicationConfigManager option return [ApplicationConfigManager] manager for the loaded configuration.</p>
 </div></span>
   
 </li>
@@ -213,9 +211,30 @@ for the loaded configuration.</p>
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Deserialize a configuration file into a hash return [Hash] hash containing
-the configuration.</p>
+<p>Deserialize a configuration file into a hash return [Hash] hash containing the configuration.</p>
 </div></span>
+  
+</li>
+
+      
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#load_config_file-class_method" title="load_config_file (class method)">.<strong>load_config_file</strong>(config_path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
@@ -311,9 +330,7 @@ the configuration.</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Deserializes a valid application configuration file as a
-ApplicationConfigManager option return [ApplicationConfigManager] manager
-for the loaded configuration</p>
+<p>Deserializes a valid application configuration file as a ApplicationConfigManager option return [ApplicationConfigManager] manager for the loaded configuration</p>
 
 
   </div>
@@ -442,8 +459,7 @@ for the loaded configuration</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Deserialize a configuration file into a hash return [Hash] hash containing
-the configuration</p>
+<p>Deserialize a configuration file into a hash return [Hash] hash containing the configuration</p>
 
 
   </div>
@@ -519,6 +535,46 @@ the configuration</p>
 </div>
     
       <div class="method_details ">
+  <h3 class="signature " id="load_config_file-class_method">
+  
+    .<strong>load_config_file</strong>(config_path)  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28
+29
+30
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/services/application_config_deserializer.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_load_config_file'>load_config_file</span><span class='lparen'>(</span><span class='id identifier rubyid_config_path'>config_path</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_config_path'>config_path</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>ENOENT</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../Longleaf.html" title="Longleaf (module)">Longleaf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ConfigurationError.html" title="Longleaf::ConfigurationError (class)">ConfigurationError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Configuration file </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_config_path'>config_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> does not exist.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
   <h3 class="signature " id="make_paths_absolute-class_method">
   
     .<strong>make_paths_absolute</strong>(config_path, config)  &#x21d2; <tt>Object</tt> 
@@ -565,9 +621,9 @@ the configuration</p>
 </div>
 
       <div id="footer">
-  Generated on Fri May 24 12:41:00 2019 by
+  Generated on Tue May 28 15:48:02 2019 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.19 (ruby-2.4.1).
+  0.9.19 (ruby-2.6.3).
 </div>
 
     </div>

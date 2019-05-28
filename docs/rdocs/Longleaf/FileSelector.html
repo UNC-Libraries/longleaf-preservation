@@ -107,8 +107,7 @@
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
     
-<p>Selects and allows for iteration over files which match a provided set of
-selection criteria</p>
+<p>Selects and allows for iteration over files which match a provided set of selection criteria</p>
 
 
   </div>
@@ -208,8 +207,7 @@ selection criteria</p>
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Iterate through the file paths for this selector and execute the provided
-block with each.</p>
+<p>Iterate through the file paths for this selector and execute the provided block with each.</p>
 </div></span>
   
 </li>
@@ -265,6 +263,28 @@ block with each.</p>
 </li>
 
       
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#nil_or_empty%3F-instance_method" title="#nil_or_empty? (instance method)">#<strong>nil_or_empty?</strong>(value)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
         <li class="public ">
   <span class="summary_signature">
     
@@ -283,8 +303,7 @@ block with each.</p>
 
   
     <span class="summary_desc"><div class='inline'>
-<p>return [Array] a list of all storage locations being targeted by this
-selector.</p>
+<p>return [Array] a list of all storage locations being targeted by this selector.</p>
 </div></span>
   
 </li>
@@ -511,8 +530,7 @@ selector.</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Iterate through the file paths for this selector and execute the provided
-block with each. A block is required.</p>
+<p>Iterate through the file paths for this selector and execute the provided block with each. A block is required.</p>
 
 
   </div>
@@ -673,6 +691,58 @@ block with each. A block is required.</p>
 </div>
     
       <div class="method_details ">
+  <h3 class="signature " id="nil_or_empty?-instance_method">
+  
+    #<strong>nil_or_empty?</strong>(value)  &#x21d2; <tt>Boolean</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+135
+136
+137</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/candidates/file_selector.rb', line 135</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_nil_or_empty?'>nil_or_empty?</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
   <h3 class="signature " id="storage_locations-instance_method">
   
     #<strong>storage_locations</strong>  &#x21d2; <tt>Object</tt> 
@@ -684,8 +754,7 @@ block with each. A block is required.</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>return [Array] a list of all storage locations being targeted by this
-selector</p>
+<p>return [Array] a list of all storage locations being targeted by this selector</p>
 
 
   </div>
@@ -822,9 +891,9 @@ selector</p>
 </div>
 
       <div id="footer">
-  Generated on Fri May 24 12:40:59 2019 by
+  Generated on Tue May 28 15:48:01 2019 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.19 (ruby-2.4.1).
+  0.9.19 (ruby-2.6.3).
 </div>
 
     </div>

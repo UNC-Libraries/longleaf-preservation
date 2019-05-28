@@ -8,5 +8,5 @@ task :default => :spec
 
 YARD::Rake::YardocTask.new do |t|
   t.options = ['--private', '--protected']
- t.stats_options = ['--list-undoc']
+  t.stats_options = ['--list-undoc']
 end

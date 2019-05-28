@@ -107,15 +107,9 @@
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
     
-<p>Driver for interacting with RDBM based metadata index using the Sequel ORM
-gem. Users must create the database and credentials for connecting to it in
-advance, if using a database application that requires creation of
-databases (ie, not sqlite). The default database name is
-&#39;longleaf_metadata_index&#39; but may be overridden.</p>
+<p>Driver for interacting with RDBM based metadata index using the Sequel ORM gem. Users must create the database and credentials for connecting to it in advance, if using a database application that requires creation of databases (ie, not sqlite). The default database name is &#39;longleaf_metadata_index&#39; but may be overridden.</p>
 
-<p>See the Sequel documentation for details about accepted connection
-parameters: <a
-href="https://github.com/jeremyevans/sequel/blob/master/doc/opening_databases.rdoc">github.com/jeremyevans/sequel/blob/master/doc/opening_databases.rdoc</a></p>
+<p>See the Sequel documentation for details about accepted connection parameters: <a href="https://github.com/jeremyevans/sequel/blob/master/doc/opening_databases.rdoc">github.com/jeremyevans/sequel/blob/master/doc/opening_databases.rdoc</a></p>
 
 
   </div>
@@ -138,6 +132,28 @@ href="https://github.com/jeremyevans/sequel/blob/master/doc/opening_databases.rd
 
     <ul class="summary">
       
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#add_path_restrictions-instance_method" title="#add_path_restrictions (instance method)">#<strong>add_path_restrictions</strong>(dataset, file_selector)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
         <li class="public ">
   <span class="summary_signature">
     
@@ -158,6 +174,50 @@ href="https://github.com/jeremyevans/sequel/blob/master/doc/opening_databases.rd
     <span class="summary_desc"><div class='inline'>
 <p>Remove all entries from the index.</p>
 </div></span>
+  
+</li>
+
+      
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#convert_iso8601_to_timestamp-instance_method" title="#convert_iso8601_to_timestamp (instance method)">#<strong>convert_iso8601_to_timestamp</strong>(iso8601)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#db_conn-instance_method" title="#db_conn (instance method)">#<strong>db_conn</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
@@ -228,8 +288,7 @@ href="https://github.com/jeremyevans/sequel/blob/master/doc/opening_databases.rd
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Find the earliest service execution time for any services expected to be
-run for the specified file.</p>
+<p>Find the earliest service execution time for any services expected to be run for the specified file.</p>
 </div></span>
   
 </li>
@@ -303,9 +362,30 @@ run for the specified file.</p>
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Returns true if the application configuration does not match the
-configuration used for the last reindex.</p>
+<p>Returns true if the application configuration does not match the configuration used for the last reindex.</p>
 </div></span>
+  
+</li>
+
+      
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#minimum_timestamp-instance_method" title="#minimum_timestamp (instance method)">#<strong>minimum_timestamp</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
@@ -328,9 +408,52 @@ configuration used for the last reindex.</p>
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Retrieves page of file paths which have one or more services which need to
-run.</p>
+<p>Retrieves page of file paths which have one or more services which need to run.</p>
 </div></span>
+  
+</li>
+
+      
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#preserve_tbl-instance_method" title="#preserve_tbl (instance method)">#<strong>preserve_tbl</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#registered_dataset-instance_method" title="#registered_dataset (instance method)">#<strong>registered_dataset</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
@@ -425,8 +548,7 @@ run.</p>
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Updates the state information for the index to indicate that the index has
-been refreshed or is in sync with the application&#39;s configuration.</p>
+<p>Updates the state information for the index to indicate that the index has been refreshed or is in sync with the application&#39;s configuration.</p>
 </div></span>
   
 </li>
@@ -513,10 +635,7 @@ been refreshed or is in sync with the application&#39;s configuration.</p>
       
         &mdash;
         <div class='inline'>
-<p>Details about the configuration and connection to the database used for the
-index. If a string is provided, it will be used as the connection URL and
-must identify the adapter. If a hash is provided, it used as the parameters
-for the database connection.</p>
+<p>Details about the configuration and connection to the database used for the index. If a string is provided, it will be used as the connection URL and must identify the adapter. If a hash is provided, it used as the parameters for the database connection.</p>
 </div>
       
     </li>
@@ -595,7 +714,49 @@ for the database connection.</p>
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="clear_index-instance_method">
+  <h3 class="signature first" id="add_path_restrictions-instance_method">
+  
+    #<strong>add_path_restrictions</strong>(dataset, file_selector)  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+292
+293
+294
+295
+296
+297
+298
+299
+300</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/indexing/sequel_index_driver.rb', line 292</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_path_restrictions'>add_path_restrictions</span><span class='lparen'>(</span><span class='id identifier rubyid_dataset'>dataset</span><span class='comma'>,</span> <span class='id identifier rubyid_file_selector'>file_selector</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_file_selector'>file_selector</span><span class='period'>.</span><span class='id identifier rubyid_specificity'>specificity</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="FileSelector.html" title="Longleaf::FileSelector (class)">FileSelector</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="FileSelector.html#SPECIFICITY_STORAGE_LOCATION-constant" title="Longleaf::FileSelector::SPECIFICITY_STORAGE_LOCATION (constant)">SPECIFICITY_STORAGE_LOCATION</a></span></span>
+    <span class='id identifier rubyid_dataset'>dataset</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>storage_location:</span> <span class='id identifier rubyid_file_selector'>file_selector</span><span class='period'>.</span><span class='id identifier rubyid_storage_locations'>storage_locations</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='comment'># Reformat all selected paths into LIKE partial string matches
+</span>    <span class='id identifier rubyid_path_conds'>path_conds</span> <span class='op'>=</span> <span class='id identifier rubyid_file_selector'>file_selector</span><span class='period'>.</span><span class='id identifier rubyid_target_paths'>target_paths</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_path'>path</span><span class='op'>|</span> <span class='id identifier rubyid_path'>path</span><span class='period'>.</span><span class='id identifier rubyid_end_with?'>end_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_path'>path</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='id identifier rubyid_path'>path</span> <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_dataset'>dataset</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='const'>Sequel</span><span class='period'>.</span><span class='id identifier rubyid_like'>like</span><span class='lparen'>(</span><span class='symbol'>:file_path</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_path_conds'>path_conds</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="clear_index-instance_method">
   
     #<strong>clear_index</strong>(older_than = nil)  &#x21d2; <tt>Object</tt> 
   
@@ -628,8 +789,7 @@ for the database connection.</p>
       
         &mdash;
         <div class='inline'>
-<p>Optional. If provided, only entries that have not been indexed since before
-the provided time will be deleted.</p>
+<p>Optional. If provided, only entries that have not been indexed since before the provided time will be deleted.</p>
 </div>
       
     </li>
@@ -669,6 +829,70 @@ the provided time will be deleted.</p>
 </div>
     
       <div class="method_details ">
+  <h3 class="signature " id="convert_iso8601_to_timestamp-instance_method">
+  
+    #<strong>convert_iso8601_to_timestamp</strong>(iso8601)  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+302
+303
+304
+305</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/indexing/sequel_index_driver.rb', line 302</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_convert_iso8601_to_timestamp'>convert_iso8601_to_timestamp</span><span class='lparen'>(</span><span class='id identifier rubyid_iso8601'>iso8601</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_iso8601'>iso8601</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_iso8601'>iso8601</span><span class='lparen'>(</span><span class='id identifier rubyid_iso8601'>iso8601</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strftime'>strftime</span><span class='lparen'>(</span><span class='const'>TIMESTAMP_FORMAT</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="db_conn-instance_method">
+  
+    #<strong>db_conn</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+282
+283
+284
+285</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/indexing/sequel_index_driver.rb', line 282</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_db_conn'>db_conn</span>
+  <span class='ivar'>@connection</span> <span class='op'>=</span> <span class='const'>Sequel</span><span class='period'>.</span><span class='id identifier rubyid_connect'>connect</span><span class='lparen'>(</span><span class='ivar'>@conn_details</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='ivar'>@connection</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='ivar'>@connection</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
   <h3 class="signature " id="delay_until_timestamp-instance_method">
   
     #<strong>delay_until_timestamp</strong>(md_rec)  &#x21d2; <tt>Object</tt> 
@@ -680,8 +904,7 @@ the provided time will be deleted.</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Returns The first failure timestamp for any service, or nil if there were
-none.</p>
+<p>Returns The first failure timestamp for any service, or nil if there were none.</p>
 
 
   </div>
@@ -750,8 +973,7 @@ none.</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Calls the provided block once per each registered file path registered.
-Must be passed a block.</p>
+<p>Calls the provided block once per each registered file path registered. Must be passed a block.</p>
 
 
   </div>
@@ -787,8 +1009,7 @@ Must be passed a block.</p>
       
         &mdash;
         <div class='inline'>
-<p>Optional. If provided, only files that have not been indexed since before
-this timestamp will be returned.</p>
+<p>Optional. If provided, only files that have not been indexed since before this timestamp will be returned.</p>
 </div>
       
     </li>
@@ -847,8 +1068,7 @@ this timestamp will be returned.</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Find the earliest service execution time for any services expected to be
-run for the specified file.</p>
+<p>Find the earliest service execution time for any services expected to be run for the specified file.</p>
 
 
   </div>
@@ -903,10 +1123,7 @@ run for the specified file.</p>
       
         
         <div class='inline'>
-<p>The timestamp of the earliest service execution time for the file described
-by md_rec, in iso8601 format. Returns nil if no services are expected all
-services have already run and do not have a next occurrence, or the file is
-deregistered.</p>
+<p>The timestamp of the earliest service execution time for the file described by md_rec, in iso8601 format. Returns nil if no services are expected all services have already run and do not have a next occurrence, or the file is deregistered.</p>
 </div>
       
     </li>
@@ -1145,8 +1362,7 @@ deregistered.</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Returns true if the application configuration does not match the
-configuration used for the last reindex.</p>
+<p>Returns true if the application configuration does not match the configuration used for the last reindex.</p>
 
 
   </div>
@@ -1189,6 +1405,42 @@ configuration used for the last reindex.</p>
 </div>
     
       <div class="method_details ">
+  <h3 class="signature " id="minimum_timestamp-instance_method">
+  
+    #<strong>minimum_timestamp</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+307
+308
+309
+310
+311
+312</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/indexing/sequel_index_driver.rb', line 307</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_minimum_timestamp'>minimum_timestamp</span>
+  <span class='kw'>if</span> <span class='ivar'>@min_timestamp</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='ivar'>@min_timestamp</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="ServiceDateHelper.html" title="Longleaf::ServiceDateHelper (class)">ServiceDateHelper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_formatted_timestamp'><span class='object_link'><a href="ServiceDateHelper.html#formatted_timestamp-class_method" title="Longleaf::ServiceDateHelper.formatted_timestamp (method)">formatted_timestamp</a></span></span><span class='lparen'>(</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_at'>at</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@min_timestamp</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
   <h3 class="signature " id="paths_with_stale_services-instance_method">
   
     #<strong>paths_with_stale_services</strong>(file_selector, stale_datetime)  &#x21d2; <tt>Array</tt> 
@@ -1200,8 +1452,7 @@ configuration used for the last reindex.</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Retrieves page of file paths which have one or more services which need to
-run.</p>
+<p>Retrieves page of file paths which have one or more services which need to run.</p>
 
 
   </div>
@@ -1302,6 +1553,80 @@ run.</p>
       <span class='period'>.</span><span class='id identifier rubyid_where'>where</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_service_time'>service_time</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_stale_datetime'>stale_datetime</span> <span class='rbrace'>}</span>
       <span class='period'>.</span><span class='id identifier rubyid_where'>where</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_delay_until_time'>delay_until_time</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_stale_datetime'>stale_datetime</span> <span class='rbrace'>}</span>
       <span class='period'>.</span><span class='id identifier rubyid_select_map'>select_map</span><span class='lparen'>(</span><span class='symbol'>:file_path</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="preserve_tbl-instance_method">
+  
+    #<strong>preserve_tbl</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+287
+288
+289
+290</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/indexing/sequel_index_driver.rb', line 287</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_preserve_tbl'>preserve_tbl</span>
+  <span class='ivar'>@preserve_tbl</span> <span class='op'>=</span> <span class='id identifier rubyid_db_conn'>db_conn</span><span class='lbracket'>[</span><span class='const'>PRESERVE_TBL</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='ivar'>@preserve_tbl</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='ivar'>@preserve_tbl</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registered_dataset-instance_method">
+  
+    #<strong>registered_dataset</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+314
+315
+316
+317
+318
+319
+320
+321
+322</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/indexing/sequel_index_driver.rb', line 314</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registered_dataset'>registered_dataset</span>
+  <span class='kw'>if</span> <span class='ivar'>@registered_dataset</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='ivar'>@registered_dataset</span> <span class='op'>=</span> <span class='id identifier rubyid_db_conn'>db_conn</span>
+        <span class='period'>.</span><span class='id identifier rubyid_from'>from</span><span class='lparen'>(</span><span class='const'>PRESERVE_TBL</span><span class='rparen'>)</span>
+        <span class='period'>.</span><span class='id identifier rubyid_limit'>limit</span><span class='lparen'>(</span><span class='ivar'>@page_size</span><span class='rparen'>)</span>
+        <span class='period'>.</span><span class='id identifier rubyid_order'>order</span><span class='lparen'>(</span><span class='const'>Sequel</span><span class='period'>.</span><span class='id identifier rubyid_asc'>asc</span><span class='lparen'>(</span><span class='symbol'>:service_time</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@registered_dataset</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1599,8 +1924,7 @@ run.</p>
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Updates the state information for the index to indicate that the index has
-been refreshed or is in sync with the application&#39;s configuration.</p>
+<p>Updates the state information for the index to indicate that the index has been refreshed or is in sync with the application&#39;s configuration.</p>
 
 
   </div>
@@ -1644,9 +1968,9 @@ been refreshed or is in sync with the application&#39;s configuration.</p>
 </div>
 
       <div id="footer">
-  Generated on Fri May 24 12:40:59 2019 by
+  Generated on Tue May 28 15:48:02 2019 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.19 (ruby-2.4.1).
+  0.9.19 (ruby-2.6.3).
 </div>
 
     </div>

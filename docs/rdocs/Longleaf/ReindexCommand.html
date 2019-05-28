@@ -130,6 +130,28 @@
 
     <ul class="summary">
       
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#all_storage_locations_selector-instance_method" title="#all_storage_locations_selector (instance method)">#<strong>all_storage_locations_selector</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
         <li class="public ">
   <span class="summary_signature">
     
@@ -150,6 +172,28 @@
     <span class="summary_desc"><div class='inline'>
 <p>Execute the reindex command.</p>
 </div></span>
+  
+</li>
+
+      
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#index_all-instance_method" title="#index_all (instance method)">#<strong>index_all</strong>(selector)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
@@ -259,7 +303,41 @@
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="execute-instance_method">
+  <h3 class="signature first" id="all_storage_locations_selector-instance_method">
+  
+    #<strong>all_storage_locations_selector</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+86
+87
+88
+89
+90</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/commands/reindex_command.rb', line 86</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_all_storage_locations_selector'>all_storage_locations_selector</span>
+  <span class='id identifier rubyid_storage_loc_names'>storage_loc_names</span> <span class='op'>=</span> <span class='ivar'>@app_manager</span><span class='period'>.</span><span class='id identifier rubyid_location_manager'>location_manager</span><span class='period'>.</span><span class='id identifier rubyid_locations'>locations</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
+
+  <span class='const'><span class='object_link'><a href="RegisteredFileSelector.html" title="Longleaf::RegisteredFileSelector (class)">RegisteredFileSelector</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="FileSelector.html#initialize-instance_method" title="Longleaf::FileSelector#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>storage_locations:</span> <span class='id identifier rubyid_storage_loc_names'>storage_loc_names</span><span class='comma'>,</span> <span class='label'>app_config:</span> <span class='ivar'>@app_manager</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="execute-instance_method">
   
     #<strong>execute</strong>(only_if_stale: false)  &#x21d2; <tt>Integer</tt> 
   
@@ -290,8 +368,7 @@
       
         &mdash;
         <div class='inline'>
-<p>if true, then the reindex command will perform no operation unless the
-index is stale.</p>
+<p>if true, then the reindex command will perform no operation unless the index is stale.</p>
 </div>
       
     </li>
@@ -418,14 +495,80 @@ index is stale.</p>
 </table>
 </div>
     
+      <div class="method_details ">
+  <h3 class="signature " id="index_all-instance_method">
+  
+    #<strong>index_all</strong>(selector)  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/commands/reindex_command.rb', line 64</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_index_all'>index_all</span><span class='lparen'>(</span><span class='id identifier rubyid_selector'>selector</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_count'>count</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_failures'>failures</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_selector'>selector</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_file_path'>file_path</span><span class='op'>|</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_storage_loc'>storage_loc</span> <span class='op'>=</span> <span class='ivar'>@app_manager</span><span class='period'>.</span><span class='id identifier rubyid_location_manager'>location_manager</span><span class='period'>.</span><span class='id identifier rubyid_get_location_by_path'>get_location_by_path</span><span class='lparen'>(</span><span class='id identifier rubyid_file_path'>file_path</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_file_rec'>file_rec</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="FileRecord.html" title="Longleaf::FileRecord (class)">FileRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="FileRecord.html#initialize-instance_method" title="Longleaf::FileRecord#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_file_path'>file_path</span><span class='comma'>,</span> <span class='id identifier rubyid_storage_loc'>storage_loc</span><span class='rparen'>)</span>
+
+      <span class='ivar'>@app_manager</span><span class='period'>.</span><span class='id identifier rubyid_md_manager'>md_manager</span><span class='period'>.</span><span class='id identifier rubyid_load'>load</span><span class='lparen'>(</span><span class='id identifier rubyid_file_rec'>file_rec</span><span class='rparen'>)</span>
+      <span class='ivar'>@index_manager</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_file_rec'>file_rec</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_record_success'>record_success</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Reindexed </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_file_rec'>file_rec</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_count'>count</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="LongleafError.html" title="Longleaf::LongleafError (class)">LongleafError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_err'>err</span>
+      <span class='id identifier rubyid_record_failure'>record_failure</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to reindex </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_file_rec'>file_rec</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_err'>err</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_failures'>failures</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>success</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_count'>count</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fail</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_failures'>failures</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
   </div>
 
 </div>
 
       <div id="footer">
-  Generated on Fri May 24 12:40:59 2019 by
+  Generated on Tue May 28 15:48:01 2019 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.19 (ruby-2.4.1).
+  0.9.19 (ruby-2.6.3).
 </div>
 
     </div>

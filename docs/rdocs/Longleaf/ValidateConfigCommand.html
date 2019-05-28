@@ -180,6 +180,30 @@
 </li>
 
       
+        <li class="private ">
+  <span class="summary_signature">
+    
+      <a href="#validate_services-instance_method" title="#validate_services (instance method)">#<strong>validate_services</strong>(service_manager)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title private">private</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Verify that all defined services are valid and may be instantiated with the given configuration, according to internal expectations.</p>
+</div></span>
+  
+</li>
+
+      
     </ul>
   
 
@@ -337,14 +361,89 @@
 </table>
 </div>
     
+      <div class="method_details ">
+  <h3 class="signature " id="validate_services-instance_method">
+  
+    #<strong>validate_services</strong>(service_manager)  &#x21d2; <tt>Object</tt>  <span class="extras">(private)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Verify that all defined services are valid and may be instantiated with the given configuration, according to internal expectations.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'>
+<p>ConfigurationError if any services may not be instantiated</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/longleaf/commands/validate_config_command.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_validate_services'>validate_services</span><span class='lparen'>(</span><span class='id identifier rubyid_service_manager'>service_manager</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_def_manager'>def_manager</span> <span class='op'>=</span> <span class='id identifier rubyid_service_manager'>service_manager</span><span class='period'>.</span><span class='id identifier rubyid_definition_manager'>definition_manager</span>
+
+  <span class='id identifier rubyid_def_manager'>def_manager</span><span class='period'>.</span><span class='id identifier rubyid_services'>services</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_service_name'>service_name</span><span class='comma'>,</span> <span class='id identifier rubyid_service_def'>service_def</span><span class='op'>|</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_service_manager'>service_manager</span><span class='period'>.</span><span class='id identifier rubyid_service'>service</span><span class='lparen'>(</span><span class='id identifier rubyid_service_name'>service_name</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="ConfigurationError.html" title="Longleaf::ConfigurationError (class)">ConfigurationError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
   </div>
 
 </div>
 
       <div id="footer">
-  Generated on Fri May 24 12:41:00 2019 by
+  Generated on Tue May 28 15:48:02 2019 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.19 (ruby-2.4.1).
+  0.9.19 (ruby-2.6.3).
 </div>
 
     </div>
