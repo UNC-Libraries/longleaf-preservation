@@ -41,7 +41,7 @@ describe Longleaf::ServiceClassCache do
     end
 
     context 'work_script from disallowed external path' do
-      before { $LOAD_PATH.shift }
+      before { $LOAD_PATH.delete(lib_dir) }
       let(:class_cache) { build(:service_class_cache, location_manager: app_manager) }
       let!(:work_script_file) { create_work_class(lib_dir, 'APresService', 'a_pres_service.rb') }
       let(:service_def) { build(:service_definition, work_script: work_script_file) }
@@ -51,7 +51,7 @@ describe Longleaf::ServiceClassCache do
 
     context 'work_script does not match class name' do
       let(:class_cache) { build(:service_class_cache, location_manager: app_manager) }
-      let!(:work_script_file) { create_work_class(lib_dir, 'SecretService1', 'pres_service1.rb') }
+      let!(:work_script_file) { create_work_class(lib_dir, 'SecretService1', "pres_service#{Time.now.to_f}.rb") }
       let(:service_def) { build(:service_definition, work_script: work_script_file) }
 
       it { expect { class_cache.service_class(service_def) }.to raise_error(Longleaf::ConfigurationError) }
