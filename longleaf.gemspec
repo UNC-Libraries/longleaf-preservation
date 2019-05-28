@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "rspec", "~> 3.8"
+  spec.add_development_dependency "rspec_junit_formatter", "~> 0.4"
   spec.add_development_dependency "factory_bot", "~> 5.0"
   spec.add_development_dependency "aruba", "~> 0.14.9"
   spec.add_development_dependency "rubocop", '~> 0.70.0'
