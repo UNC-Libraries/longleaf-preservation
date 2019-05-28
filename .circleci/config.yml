@@ -31,7 +31,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            bundle install --jobs=4 --retry=3 --path vendor/bundle
+            bin/setup
 
       - save_cache:
           paths:
@@ -59,6 +59,7 @@ jobs:
       - store_artifacts:
           path: /tmp/test-results
           destination: test-results
+  
 workflows:
   version: 2
   notify_deploy:
