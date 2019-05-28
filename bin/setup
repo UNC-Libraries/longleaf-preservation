@@ -1,8 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 IFS=$'\n\t'
+
+INSTALL_DEST=(--path '.bundle/')
+
+while [[ $# -gt 0 ]]
+do
+  key="$1"
+
+  case $key in
+  -s|--system)
+    INSTALL_DEST=(--system)
+    shift # past argument
+    ;;
+  esac
+done
+
 set -vx
 
-bundle install --path .bundle/ --without ""
+bundle install ${INSTALL_DEST[@]} --without ""
 
 # Do any other automated setup that you need to do here
