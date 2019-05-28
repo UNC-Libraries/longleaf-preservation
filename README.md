@@ -40,20 +40,26 @@ gem 'longleaf'
 And then execute:
 
 ```
-    $ bundle
+$ bundle
 ```
 
 ## Usage
 
 #### Register a file
 In order to register a new file with Longleaf, use the register command:
-`longleaf register -c <config.yml> -f <path to file>`
+
+```
+longleaf register -c <config.yml> -f <path to file>
+```
 
 In the case that a file's content is replaced, the file can be re-registered by providing the `--force` flag.
 
 #### Validate configuration files
 Application configuration files can be validated prior to usage with the following command:
-`longleaf validate_config -c <config.yml>`
+
+```
+longleaf validate_config -c <config.yml>
+```
 
 #### Output and logging
 
@@ -62,7 +68,10 @@ The primary output from Longleaf is directed to STDOUT, and contains both succes
 Additional logging is sent to STDERR. To control the level of logging, you may provide the `--log-level` parameter, which expects the standard [Ruby Logger levels](https://ruby-doc.org/stdlib-2.4.0/libdoc/logger/rdoc/Logger.html). The default log level is 'WARN'.
 
 Messages sent to STDOUT are duplicated to STDERR at 'INFO' level, so they are excluded by default. In order to store an ongoing log of activity and errors, you would perform the following:
-`longleaf <command> --log-level 'INFO' 2> /logs/longleaf.log`
+
+```
+longleaf <command> --log-level 'INFO' 2> /logs/longleaf.log
+```
 
 ## Development
 
@@ -90,7 +99,10 @@ To release a new version, update the version number in `version.rb`, and then ru
 
 ## Indexing
 To use an index to improve performance, you will need to install the database drivers separately or bundle longleaf with the driver you wish to use:
-`bundle install --with postgres`
+
+```
+bundle install --with postgres
+```
 
 Options include: postgres, mysql2, mysql, sqlite, amalgalite
 
