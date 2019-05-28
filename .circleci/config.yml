@@ -37,10 +37,10 @@ jobs:
           name: install rsync
           command: sudo apt install -y rsync
 
-      # - save_cache:
-      #     paths:
-      #       - ./vendor/bundle
-      #     key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+      - save_cache:
+          paths:
+            - ./.bundle/
+          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
 
       # run tests!
       - run:
@@ -48,7 +48,7 @@ jobs:
           command: |
             mkdir /tmp/test-results
             TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | \
-              circleci tests split --split-by=timings)"
+              circleci tests split --split-by=timings --timings-type=classname)"
 
             bundle exec rspec \
               --format progress \
