@@ -21,11 +21,13 @@ describe Longleaf::SequelIndexDriver do
 
   let(:md_dir) { Dir.mktmpdir('metadata') }
   let(:path_dir) { Dir.mktmpdir('path') }
+  
+  let(:db_file) { create_test_file(name: 'index.db', content: '') }
 
   after do
     FileUtils.remove_dir(md_dir)
     FileUtils.remove_dir(path_dir)
-    FileUtils.rm('tmp/test.db')
+    FileUtils.rm(db_file)
   end
 
   let(:config_path) {
@@ -39,7 +41,7 @@ describe Longleaf::SequelIndexDriver do
   let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
   let(:config_md5) { Digest::MD5.file(config_path).hexdigest }
 
-  let(:conn_details) { 'amalgalite://tmp/test.db' }
+  let(:conn_details) { "amalgalite://#{db_file}" }
 
   let(:driver) { Longleaf::SequelIndexDriver.new(app_config, :amalgalite, conn_details) }
 

@@ -17,6 +17,9 @@ describe Longleaf::ServiceClassCache do
   end
 
   describe '.service_class' do
+    before { $LOAD_PATH.unshift(lib_dir) }
+    after { $LOAD_PATH.delete(lib_dir) }
+    
     context 'work_script from standard library script' do
       let(:class_cache) { build(:service_class_cache, location_manager: app_manager) }
       let(:service_def) { build(:service_definition, work_script: 'fixity_check_service') }
@@ -30,7 +33,6 @@ describe Longleaf::ServiceClassCache do
     end
 
     context 'work_script from allowed external path' do
-      before { $LOAD_PATH.unshift(lib_dir) }
       let(:class_cache) { build(:service_class_cache, location_manager: app_manager) }
       let!(:work_script_file) { create_work_class(lib_dir, 'APresService', 'a_pres_service.rb') }
       let(:service_def) { build(:service_definition, work_script: work_script_file) }
@@ -39,6 +41,7 @@ describe Longleaf::ServiceClassCache do
     end
 
     context 'work_script from disallowed external path' do
+      before { $LOAD_PATH.delete(lib_dir) }
       let(:class_cache) { build(:service_class_cache, location_manager: app_manager) }
       let!(:work_script_file) { create_work_class(lib_dir, 'APresService', 'a_pres_service.rb') }
       let(:service_def) { build(:service_definition, work_script: work_script_file) }
@@ -47,16 +50,14 @@ describe Longleaf::ServiceClassCache do
     end
 
     context 'work_script does not match class name' do
-      before { $LOAD_PATH.unshift(lib_dir) }
       let(:class_cache) { build(:service_class_cache, location_manager: app_manager) }
-      let!(:work_script_file) { create_work_class(lib_dir, 'SecretService1', 'pres_service1.rb') }
+      let!(:work_script_file) { create_work_class(lib_dir, 'SecretService1', "pres_service#{Time.now.to_f}.rb") }
       let(:service_def) { build(:service_definition, work_script: work_script_file) }
 
       it { expect { class_cache.service_class(service_def) }.to raise_error(Longleaf::ConfigurationError) }
     end
 
     context 'work_script with correct work_class' do
-      before { $LOAD_PATH.unshift(lib_dir) }
       let(:class_cache) { build(:service_class_cache, location_manager: app_manager) }
       let!(:work_script_file) { create_work_class(lib_dir, 'SecretService2', 'pres_service2.rb') }
       let(:service_def) { build(:service_definition, work_script: work_script_file, work_class: 'SecretService2') }
@@ -65,7 +66,6 @@ describe Longleaf::ServiceClassCache do
     end
 
     context 'work_script with work_class containing module' do
-      before { $LOAD_PATH.unshift(lib_dir) }
       let(:class_cache) { build(:service_class_cache, location_manager: app_manager) }
       let!(:work_script_file) { create_work_class(lib_dir, 'SecretService3', 'pres_service3.rb', 'Myservices') }
       let(:service_def) { build(:service_definition, work_script: work_script_file, work_class: 'Myservices::SecretService3') }
@@ -74,7 +74,6 @@ describe Longleaf::ServiceClassCache do
     end
 
     context 'work_script with incorrect work_class' do
-      before { $LOAD_PATH.unshift(lib_dir) }
       let(:class_cache) { build(:service_class_cache, location_manager: app_manager) }
       let!(:work_script_file) { create_work_class(lib_dir, 'SecretService4', 'pres_service2.rb') }
       let(:service_def) { build(:service_definition, work_script: work_script_file, work_class: 'WhoaService') }
