@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/ruby:2.6.3
+      - image: circleci/ruby:<< parameters.tag >>
         environment:
           BUNDLER_VERSION: 1.17.3
 
@@ -25,7 +25,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            rvm 2.3.8,2.6.3 do bin/setup
+            bin/setup
 
       - run:
           name: install rsync
@@ -42,7 +42,7 @@ jobs:
             mkdir /tmp/test-results
             TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb")"
 
-            rvm 2.3.8,2.6.3 do bundle exec rspec \
+            bundle exec rspec \
               --format progress \
               --format RspecJunitFormatter \
               --out /tmp/test-results/rspec.xml \
@@ -62,4 +62,5 @@ workflows:
   version: 2
   notify_deploy:
     jobs:
-      - build
+      - build:
+        tag: 2.6.3
