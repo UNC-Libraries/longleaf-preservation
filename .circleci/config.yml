@@ -3,64 +3,80 @@
 # Check https://circleci.com/docs/2.0/language-ruby/ for more details
 #
 version: 2
+
+commands:
+  build_and_run_tests:
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+        keys:
+          - v1-dependencies-{{ checksum "longleaf.gemspec" }}
+            # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+        name: install dependencies
+        command: |
+          bin/setup
+
+      - run:
+        name: install rsync
+        command: sudo apt install -y rsync
+
+      - save_cache:
+        paths:
+          - ./.bundle
+        key: v1-dependencies-{{ checksum "longleaf.gemspec" }}
+
+      - run:
+        name: run tests
+        command: |
+          mkdir /tmp/test-results
+          TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb")"
+
+          bundle exec rspec \
+            --format progress \
+            --format RspecJunitFormatter \
+            --out /tmp/test-results/rspec.xml \
+            --format progress \
+            $TEST_FILES
+
+      # collect reports
+      - store_test_results:
+        path: /tmp/test-results
+      - store_artifacts:
+        path: /tmp/test-results
+        destination: test-results
+      - store_artifacts:
+        path: coverage
+
 jobs:
-  build:
+  test_with_ruby_238:
     docker:
-      - image: circleci/ruby:<< parameters.tag >>
+      - image: circleci/ruby:2.3.8
         environment:
           BUNDLER_VERSION: 1.17.3
 
     working_directory: ~/repo
 
     steps:
-      - checkout
+      -build_and_run_tests
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "longleaf.gemspec" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+  test_with_ruby_263:
+    docker:
+      - image: circleci/ruby:2.6.3
+        environment:
+          BUNDLER_VERSION: 1.17.3
 
-      - run:
-          name: install dependencies
-          command: |
-            bin/setup
+    working_directory: ~/repo
 
-      - run:
-          name: install rsync
-          command: sudo apt install -y rsync
-
-      - save_cache:
-          paths:
-            - ./.bundle
-          key: v1-dependencies-{{ checksum "longleaf.gemspec" }}
-
-      - run:
-          name: run tests
-          command: |
-            mkdir /tmp/test-results
-            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb")"
-
-            bundle exec rspec \
-              --format progress \
-              --format RspecJunitFormatter \
-              --out /tmp/test-results/rspec.xml \
-              --format progress \
-              $TEST_FILES
-
-      # collect reports
-      - store_test_results:
-          path: /tmp/test-results
-      - store_artifacts:
-          path: /tmp/test-results
-          destination: test-results
-      - store_artifacts:
-          path: coverage
-
+    steps:
+      -build_and_run_tests
 workflows:
   version: 2
   notify_deploy:
     jobs:
-      - build:
-        tag: 2.6.3
+      - test_with_ruby_238
+      - test_with_ruby_263
