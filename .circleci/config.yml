@@ -55,9 +55,9 @@ commands:
           path: coverage
 
 jobs:
-  test_with_ruby_23:
+  test_with_ruby_22:
     docker:
-      - image: circleci/ruby:2.3
+      - image: circleci/ruby:2.2
         environment:
           BUNDLER_VERSION: 1.17.3
 
