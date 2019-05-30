@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Basic Usage - Longleaf Documentation</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  <link href="../extra.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Basic Usage";
+    var mkdocs_page_input_path = "quickstart.md";
+    var mkdocs_page_url = "/longleaf-preservation/quickstart/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Longleaf Documentation</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Welcome</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../aboutlongleaf/">About Longleaf</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../install/">Installation</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Basic Usage</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#longleaf-basic-usage-tutorial">Longleaf basic usage tutorial</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#system-requirements-for-this-tutorial">System Requirements for this tutorial</a></li>
+        
+            <li><a class="toctree-l3" href="#example-data-directory-for-this-tutorial">Example data directory for this tutorial</a></li>
+        
+            <li><a class="toctree-l3" href="#set-up-your-local-sandbox-copy-the-example-data-directory-to-your-desktop">Set up your local sandbox: copy the example data directory to your Desktop</a></li>
+        
+            <li><a class="toctree-l3" href="#review-the-example-longleaf-configuration-file">Review the example Longleaf configuration file</a></li>
+        
+            <li><a class="toctree-l3" href="#check-that-you-can-run-longleaf-by-viewing-the-help-text-page">Check that you can run Longleaf, by viewing the help text page</a></li>
+        
+            <li><a class="toctree-l3" href="#validate-the-example-configuration-file">Validate the example configuration file</a></li>
+        
+            <li><a class="toctree-l3" href="#register-example-data-files">Register example data files</a></li>
+        
+            <li><a class="toctree-l3" href="#validate-the-new-metadata-files">Validate the new metadata files</a></li>
+        
+            <li><a class="toctree-l3" href="#run-the-preserve-command-to-replicate-and-check-fixity-on-the-registered-files">Run the Preserve command, to replicate and check fixity on the registered files.</a></li>
+        
+            <li><a class="toctree-l3" href="#look-at-the-output-of-the-preserve-command">Look at the output of the Preserve command</a></li>
+        
+            <li><a class="toctree-l3" href="#re-run-the-preserve-command-to-check-the-integrity-of-the-files-that-are-being-preserved">Re-run the Preserve command, to check the integrity of the files that are being preserved.</a></li>
+        
+            <li><a class="toctree-l3" href="#cause-a-change-to-a-file-and-catch-the-change-with-the-preservation-command">Cause a change to a file, and catch the change with the Preservation command.</a></li>
+        
+            <li><a class="toctree-l3" href="#re-register-the-altered-file">Re-register the altered file.</a></li>
+        
+            <li><a class="toctree-l3" href="#run-preserve-on-the-re-registered-file">Run Preserve on the re-registered file.</a></li>
+        
+            <li><a class="toctree-l3" href="#re-run-preserve-at-the-directory-level-to-check-all-three-files">Re-run Preserve at the directory level to check all three files.</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Longleaf Documentation</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Basic Usage</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="longleaf-basic-usage-tutorial">Longleaf basic usage tutorial</h2>
+<p>This tutorial provides an introduction to the basic functionality of Longleaf by demonstrating how to configure and execute a small set of preservation tasks, using an example data directory as a local sandbox on your own computer.</p>
+<p><strong>Longleaf basic usage tasks covered in this tutorial:</strong></p>
+<ul>
+<li>Validate the mandatory Longleaf configuration file that contains the storage locations and preservation activities you will use</li>
+<li>Register example data files</li>
+<li>Validate metadata for registered files</li>
+<li>Run a Preservation action on example data files</li>
+<li>Alter an example data file to cause an error; catch the error by re-running the Preservation action</li>
+<li>Re-register the altered file, and preserve the file in its new, altered state</li>
+</ul>
+<h3 id="system-requirements-for-this-tutorial">System Requirements for this tutorial</h3>
+<p>Longleaf scripts rely on common UNIX programs. In Mac OS X and Linux operating systems, these programs will likely already be installed, but some of these tools, such as <code>rsync</code> may be missing from a Windows system unless you have installed it.</p>
+<h3 id="example-data-directory-for-this-tutorial">Example data directory for this tutorial</h3>
+<p>The example data directory for this tutorial is named 'll-example'; it is located in the 'docs' folder of the longleaf-preservation repository. </p>
+<p>The 'll-example' directory contains all the materials required for completing this tutorial:</p>
+<ul>
+<li>an example configuration file, 'config-example-relative.yml', that is pre-configured for tutorial tasks</li>
+<li>a folder of example data files to be preserved</li>
+<li>empty scaffolding folders that will be used for storing: 1) metadata files about the original data files, 2) the replicated data files created from the originals, and 3) metadata files about the replicated data files.</li>
+</ul>
+<p><strong>folder structure of 'll-example' directory: materials for tutorial tasks</strong>  </p>
+<pre><code class="tree">└───ll-example
+    │   config-example-relative.yml
+    │
+    ├───files-dir
+    │       LLexample-PDF.pdf
+    │       LLexample-TOCHANGE.txt
+    │       LLexample-tokeep.txt
+    │
+    ├───metadata-dir
+    │
+    │
+    ├───replica-files
+    │
+    │
+    └───replica-metadata
+</code></pre>
+
+<p>Subdirectories in 'll-example' are used as follows:</p>
+<p><strong>'files-dir'</strong><br />
+Contains three example data files that will be preserved and replicated.</p>
+<p><strong>'metadata-dir'</strong><br />
+Empty at start of tutorial; metadata files about the data files in 'files-dir' will be stored and automatically updated in this directory during Register and Preserve actions.</p>
+<p><strong>'replica-files'</strong><br />
+Empty at start of tutorial; replicated data files (copies) created during Preserve actions run on the data files in 'files-dir' will be stored in this directory.</p>
+<p><strong>'replica-metadata'</strong><br />
+Empty at start of tutorial; metadata files about the replicated data files in 'replica-files' will be stored in this directory.</p>
+<h3 id="set-up-your-local-sandbox-copy-the-example-data-directory-to-your-desktop">Set up your local sandbox: copy the example data directory to your Desktop</h3>
+<p>Copy the 'll-example' directory to a location where it will be easy to access and work with. For example,it might be convenient to copy 'll-example' to your 'Desktop' location.</p>
+<p>Note: All paths in the commands in this tutorial are relative to the 'll-example' folder itself, so if you execute commands from within 'll-example,' you can use the paths as shown with no alterations.</p>
+<h3 id="review-the-example-longleaf-configuration-file">Review the example Longleaf configuration file</h3>
+<p><strong>Locations</strong><br />
+The example configuration file references storage locations based on the subdirectory names in 'll-example':</p>
+<ul>
+<li>The 'data-directory' location points to 'files-dir' as the location of the original data files to be preserved, and 'metadata-dir' for storing metadata files created about these original data files.</li>
+<li>The 'backup-directory' location refers to the 'replica-files' folder as the storage location where the copies of the original files will be stored, and 'replica-metadata' for metadata files.</li>
+</ul>
+<p><strong>Services</strong><br />
+The 'services' area in the configuration file defines characteristics of work scripts, such as the target storage location for the replication script, and the checksum algorithm for the fixity script.  </p>
+<p><strong>Service Mappings</strong><br />
+The 'service-mappings' area specifies which services will run at a particular storage location. In the example configuration file, for example, the services 'example_replication' and 'example_fixity' are assigned to run at location 'data-directory'. At location 'backup_directory', however, only 'example_fixity' is assigned to run, so files there will have fixity checks, but will not get replicated.  </p>
+<pre><code class="yml">locations: data-directory
+  services:
+    - example_replication
+    - example_fixity
+- locations: backup-directory
+  services:
+      - example_fixity
+</code></pre>
+
+<p><strong>Relative Paths in the Configuration File</strong><br />
+Storage locations in this configuration file specify paths relative to the location of the configuration file itself, and will also be evaluated relative to the location of the configuration file itself when Longleaf commands are run. In this tutorial, the configuration file is located inside 'll-example', at the same level as the data and metadata folders.  </p>
+<h3 id="check-that-you-can-run-longleaf-by-viewing-the-help-text-page">Check that you can run Longleaf, by viewing the help text page</h3>
+<p>Once you have copied the 'll-example' directory to an accessible working location, and have familiarized yourself with the configuration yaml file, you are ready to start using Longleaf!</p>
+<p>First confirm that you can run Longleaf, as you did in the <a href="../install/">"Installation Instructions" page</a> of this site. Open a terminal window and <code>cd</code> into the 'll-example' directory,  then enter the command 'longleaf', with no arguments:    </p>
+<pre><code>longleaf
+</code></pre>
+
+<p>This command will output the help page text, showing all available commands.</p>
+<h3 id="validate-the-example-configuration-file">Validate the example configuration file</h3>
+<p>Next, you will validate the Longleaf configuration file, to ensure that storage locations and paths are correctly specified and accessible.</p>
+<p>As noted above, all paths in this tutorial are relative to the 'll-example' directory, so make sure that you execute commands from within that directory, or amend paths accordingly.</p>
+<p>Command for validating configuration file:</p>
+<pre><code>longleaf validate_config -c config-example-relative.yml
+</code></pre>
+
+<p>Successful validation of the configuration file outputs the following message in terminal:</p>
+<pre><code>SUCCESS: Application configuration passed validation: config-example-relative.yml
+</code></pre>
+
+<h3 id="register-example-data-files">Register example data files</h3>
+<p>Once the configuration file has been validated, you can proceed to registering the example data files, so that they are ready for further preservation actions with Longleaf.</p>
+<p>Note that Longleaf commands can be run on directories, or individual files. For example, when using the Register command, you can either:  </p>
+<ol>
+<li>register a whole directory at once, which will individually register every file in that directory <br />
+<strong>or</strong></li>
+<li>register individual files.</li>
+</ol>
+<p>In this example of using the Register command, we will register an entire directory of files by specifying the directory path.</p>
+<p>Use command:   </p>
+<pre><code>longleaf register -c config-example-relative.yml -f files-dir
+</code></pre>
+
+<p>If files successfully registered, Longleaf will list the registration outcome for each file within the directory:</p>
+<pre><code>SUCCESS register /data/ll-example/files-dir/LLexample-PDF.pdf
+SUCCESS register /data/ll-example/files-dir/LLexample-TOCHANGE.txt
+SUCCESS register /data/ll-example/files-dir/LLexample-tokeep.txt
+
+</code></pre>
+
+<h3 id="validate-the-new-metadata-files">Validate the new metadata files</h3>
+<p>Validate the metadata files that were created for the files you just registered.
+Use command:     </p>
+<pre><code>longleaf validate_metadata -c config-example-relative.yml -f files-dir
+</code></pre>
+
+<p>Confirmation of validation for the metadata files:</p>
+<pre><code>SUCCESS: Metadata for file passed validation: /data/ll-example/files-dir/LLexample-PDF.pdf
+SUCCESS: Metadata for file passed validation: /data/ll-example/files-dir/LLexample-TOCHANGE.txt
+SUCCESS: Metadata for file passed validation: /data/ll-example/files-dir/LLexample-tokeep.txt
+
+</code></pre>
+
+<h3 id="run-the-preserve-command-to-replicate-and-check-fixity-on-the-registered-files">Run the Preserve command, to replicate and check fixity on the registered files.</h3>
+<p>Use command:   </p>
+<pre><code>longleaf preserve -c config-example-relative.yml -f files-dir
+</code></pre>
+
+<p>Confirmation of successful Preservation action completed on all files in the files-dir directory:</p>
+<pre><code>SUCCESS register /data/ll-example/replica-files/LLexample-PDF.pdf
+SUCCESS preserve[example_replication] /data/ll-example/files-dir/LLexample-PDF.pdf
+SUCCESS preserve[example_fixity] /data/ll-example/files-dir/LLexample-PDF.pdf
+SUCCESS register /data/ll-example/replica-files/LLexample-TOCHANGE.txt
+SUCCESS preserve[example_replication] /data/ll-example/files-dir/LLexample-TOCHANGE.txt
+SUCCESS preserve[example_fixity] /data/ll-example/files-dir/LLexample-TOCHANGE.txt
+SUCCESS register /data/ll-example/replica-files/LLexample-tokeep.txt
+SUCCESS preserve[example_replication] /data/ll-example/files-dir/LLexample-tokeep.txt
+SUCCESS preserve[example_fixity] /data/ll-example/files-dir/LLexample-tokeep.txt
+
+</code></pre>
+
+<h3 id="look-at-the-output-of-the-preserve-command">Look at the output of the Preserve command</h3>
+<p>Take a look at the SUCCESS output messages from the <code>preserve</code> command above.</p>
+<p>Notice that for each file included in the Preservation action, Longleaf indicates "SUCCESS" for the "register" and "preserve" components of the Preservation action, as well as the individual scripts within the "preserve" component.</p>
+<p>Also take a look inside the subfolders in your 'll-example' sandbox folder, using Finder or command-line tools.</p>
+<p>You'll notice that there are newly-created data files and metadata files in the 'replica-' directories. The original data files from 'files-dir' have been copied to the 'replica-files' directory, and metadata files for those copies have been created in the 'replica-metadata' directory.</p>
+<p><img alt="preserve files folders output" src="../img/ll-example-preserved.png" /></p>
+<h3 id="re-run-the-preserve-command-to-check-the-integrity-of-the-files-that-are-being-preserved">Re-run the Preserve command, to check the integrity of the files that are being preserved.</h3>
+<p>Since the 'example_fixity' script in our example configuration file is set to frequency: 30 seconds, we can check fixity on the preserved files once 30 seconds have elapsed since the last preservation action.</p>
+<p>Use command:   </p>
+<pre><code>longleaf preserve -c config-example-relative.yml -f files-dir
+</code></pre>
+
+<p>Success output message:</p>
+<pre><code>SUCCESS preserve[example_fixity] /data/ll-example/files-dir/LLexample-PDF.pdf
+SUCCESS preserve[example_fixity] /data/ll-example/files-dir/LLexample-TOCHANGE.txt
+SUCCESS preserve[example_fixity] /data/ll-example/files-dir/LLexample-tokeep.txt
+
+</code></pre>
+
+<p>Note that the output in terminal window is much shorter than the first <code>preserve</code> command. This output only shows "SUCCESS" and preserve[example_fixity] for each file. This time register and replication are not included because those actions already ran, and do not need to run this time. Only fixity checks ran in this Preserve action.</p>
+<p>In the finder window, notice that the Date Modified is updated on the metadata files in the metadata-dir. The metadata files for the original data files are updated to reflect these Preservation actions running.</p>
+<h3 id="cause-a-change-to-a-file-and-catch-the-change-with-the-preservation-command">Cause a change to a file, and catch the change with the Preservation command.</h3>
+<p>Now make a change to one of the files that is being preserved, which you will then catch by re-running <code>preserve</code> on the storage directory for that file.</p>
+<p>Open up the file: 'll-example/files-dir/LLexample-TOCHANGE.txt'. On line 4 of the text file, you'll see "( insert changed text    ) ". Insert your cursor near this line, and type something to make a change to the file. Then save the file and close it. In your 'll-example/files-dir' directory, notice that the Date Modified has changed for this file.</p>
+<p>Run the <code>preserve</code> command again. This time it will fail, because one of the files under preservation has been altered since the file's last checksums were recorded.   </p>
+<p>Use command:   </p>
+<pre><code>longleaf preserve -c config-example-relative.yml -f files-dir
+</code></pre>
+
+<p>Output showing failed fixity check on the file 'll-example/files-dir/LLexample-TOCHANGE.txt':</p>
+<pre><code>SUCCESS preserve[example_fixity] /data/ll-example/files-dir/LLexample-PDF.pdf
+FAILURE preserve[example_fixity] /data/ll-example/files-dir/LLexample-TOCHANGE.txt: Fixity check using algorithm 'sha1' failed for file /data/ll-example/files-dir/LLexample-TOCHANGE.txt: expected 'effa1bfc1b93f1260a36044bcd668240cf14738a', calculated 'cd5e53f6945ceda2d90b003a39af509d7acb068f.'
+SUCCESS preserve[example_fixity] /data/ll-example/files-dir/LLexample-tokeep.txt
+
+</code></pre>
+
+<h3 id="re-register-the-altered-file">Re-register the altered file.</h3>
+<p>Now you will re-register the altered file, using the <code>--force</code> option for the <code>register</code> command. Run this registration command at the file level so that only this file is re-registered, not the entire directory.</p>
+<p>Re-registration will update the file's preservation metadata to the new state of 'LLexample-TOCHANGE.txt'.</p>
+<p>Note, however, that the re-registered altered file (ll-example/files-dir/LLexample-TOCHANGE.txt) will still not match the copy of LLexample-TOCHANGE.txt that is stored in "replica-files" (ll-example/replica-files/LLexample-TOCHANGE.txt), because the replica copy was created earlier, from the unaltered original file.</p>
+<p>Use command:   </p>
+<pre><code>longleaf register -c config-example-relative.yml -f files-dir/LLexample-TOCHANGE.txt --force
+</code></pre>
+
+<p>Success output message:</p>
+<pre><code>SUCCESS register /data/ll-example/files-dir/LLexample-TOCHANGE.txt
+</code></pre>
+
+<h3 id="run-preserve-on-the-re-registered-file">Run Preserve on the re-registered file.</h3>
+<p>Running <code>preserve</code> on the re-registered altered file will replicate the new state of this file to the copied data location. As with <code>register --force</code>, run <code>preserve</code> at the file level, not the directory.</p>
+<p>Use command:   </p>
+<pre><code>longleaf preserve -c config-example-relative.yml -f files-dir/LLexample-TOCHANGE.txt
+</code></pre>
+
+<p>The terminal output shows the new registration of the file, and the replication and fixity scripts running on this file.
+In finder, you can see that the Date Modified of the 'll-example-TOCHANGE.txt' file in the 'replica-files' directory now matches the original file. Open up 'replica-files/ll-example-TOCHANGE.txt' and you'll see the added line of text in this file.</p>
+<p>Successful preservation of re-registered changed file:</p>
+<pre><code>SUCCESS register /data/ll-example/replica-files/LLexample-TOCHANGE.txt
+SUCCESS preserve[example_replication] /data/ll-example/files-dir/LLexample-TOCHANGE.txt
+SUCCESS preserve[example_fixity] /data/ll-example/files-dir/LLexample-TOCHANGE.txt
+
+</code></pre>
+
+<h3 id="re-run-preserve-at-the-directory-level-to-check-all-three-files">Re-run Preserve at the directory level to check all three files.</h3>
+<p>After the 30-sec fixity check interval has elapsed, re-run the <code>preserve</code> command at the directory level as before, and now all three files pass again.</p>
+<p>Use command:   </p>
+<pre><code>longleaf preserve -c config-example-relative.yml -f files-dir
+</code></pre>
+
+<p>Success output message:</p>
+<pre><code>SUCCESS preserve[example_fixity] /data/ll-example/files-dir/LLexample-PDF.pdf
+SUCCESS preserve[example_fixity] /data/ll-example/files-dir/LLexample-TOCHANGE.txt
+SUCCESS preserve[example_fixity] /data/ll-example/files-dir/LLexample-tokeep.txt
+
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../install/" class="btn btn-neutral" title="Installation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/UNC-Libraries/longleaf-preservation/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../install/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>

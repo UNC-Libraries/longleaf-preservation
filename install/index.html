@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Installation - Longleaf Documentation</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  <link href="../extra.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Installation";
+    var mkdocs_page_input_path = "install.md";
+    var mkdocs_page_url = "/longleaf-preservation/install/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Longleaf Documentation</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Welcome</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../aboutlongleaf/">About Longleaf</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Installation</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#installing-longleaf">Installing Longleaf</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#ruby-and-other-prerequisites">Ruby and other Prerequisites</a></li>
+        
+            <li><a class="toctree-l3" href="#download-longleaf">Download Longleaf</a></li>
+        
+            <li><a class="toctree-l3" href="#install-longleaf">Install Longleaf</a></li>
+        
+            <li><a class="toctree-l3" href="#confirm-longleaf-installation">Confirm Longleaf Installation</a></li>
+        
+            <li><a class="toctree-l3" href="#installation-success">Installation Success!</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../quickstart/">Basic Usage</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Longleaf Documentation</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Installation</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="installing-longleaf">Installing Longleaf</h1>
+<h3 id="ruby-and-other-prerequisites">Ruby and other Prerequisites</h3>
+<p>Longleaf requires Ruby 2.3 or higher.</p>
+<p>There also are optional gem dependencies if the user wishes to use an index to improve performance.</p>
+<p>Additionally, Longleaf scripts rely on common Unix programs. In Mac OS X and Linux operating systems, these programs will likely already be installed, but some of these tools, such as <code>rsync</code> may be missing from a Windows system unless you have installed them.</p>
+<h3 id="download-longleaf">Download Longleaf</h3>
+<p>Download Longleaf from UNC Chapel Hill's University Libraries <a href="https://github.com/UNC-Libraries/longleaf-preservation">Longleaf github repository</a>.</p>
+<h3 id="install-longleaf">Install Longleaf</h3>
+<p>There are two ways to install Longleaf, depending on how you intend to use it:</p>
+<p><strong>1. Standalone gem</strong></p>
+<p>To use Longleaf as a command-line application, the gem can be installed using:</p>
+<pre><code>$ gem install longleaf
+</code></pre>
+<p>Or it may be built from source:</p>
+<pre><code>$ git clone git@github.com:UNC-Libraries/longleaf-preservation.git
+$ cd longleaf-preservation
+$ bin/setup --system
+$ bundle exec rake install # builds the gem
+$ gem install --local pkg/longleaf* # installs gem
+</code></pre>
+<p><strong>2. Application dependency</strong></p>
+<p>To include longleaf as a dependency in an application, add this line to your application's Gemfile:</p>
+<pre><code class="ruby">gem 'longleaf'
+</code></pre>
+
+<p>And then execute:</p>
+<pre><code>$ bundle
+</code></pre>
+<h3 id="confirm-longleaf-installation">Confirm Longleaf Installation</h3>
+<p>If you have installed Longleaf using the "Standalone gem" approach, you can check to make sure that the installation succeeded by typing the following into your terminal:</p>
+<pre><code>longleaf
+</code></pre>
+
+<p>You should see the Longleaf help page:   </p>
+<pre><code>Commands:
+  longleaf --version          # Prints the Longleaf version number.
+  longleaf deregister         # Deregister files with Longleaf
+  longleaf help [COMMAND]     # Describe available commands or one specific command
+  longleaf preserve           # Perform preservation services on files with Longleaf
+  longleaf register           # Register files with Longleaf
+  longleaf reindex            # Perform a full reindex of file metadata stored within the configured storage locations.
+  longleaf setup_index        # Sets up the structure of the metadata index, if one is configured using the system configuration file provide...
+  longleaf validate_config    # Validate an application configuration file, provided using --config.
+  longleaf validate_metadata  # Validate metadata files.
+
+
+</code></pre>
+
+<h3 id="installation-success">Installation Success!</h3>
+<p>If the Longleaf Help page printed successfully, you are ready to proceed to the <a href="../quickstart/">Basic Usage tutorial</a> to try out basic Longleaf functionality.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../quickstart/" class="btn btn-neutral float-right" title="Basic Usage">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../aboutlongleaf/" class="btn btn-neutral" title="About Longleaf"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/UNC-Libraries/longleaf-preservation/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../aboutlongleaf/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../quickstart/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>
