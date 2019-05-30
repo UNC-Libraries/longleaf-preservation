@@ -25,8 +25,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            rvm-exec 2.6.3 bin/setup
-            rvm-exec 2.3.8 bin/setup
+            rvm 2.3.8,2.6.3 do bin/setup
 
       - run:
           name: install rsync
@@ -43,14 +42,7 @@ jobs:
             mkdir /tmp/test-results
             TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb")"
 
-            rvm-exec 2.6.3 bundle exec rspec \
-              --format progress \
-              --format RspecJunitFormatter \
-              --out /tmp/test-results/rspec.xml \
-              --format progress \
-              $TEST_FILES
-
-            rvm-exec 2.3.8 bundle exec rspec \
+            rvm 2.3.8,2.6.3 do bundle exec rspec \
               --format progress \
               --format RspecJunitFormatter \
               --out /tmp/test-results/rspec.xml \
