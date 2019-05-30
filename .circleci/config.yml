@@ -62,7 +62,7 @@ jobs:
     working_directory: ~/repo
 
     steps:
-      -build_and_run_tests
+      - build_and_run_tests
 
   test_with_ruby_263:
     docker:
@@ -73,7 +73,7 @@ jobs:
     working_directory: ~/repo
 
     steps:
-      -build_and_run_tests
+      - build_and_run_tests
 workflows:
   version: 2
   notify_deploy:
