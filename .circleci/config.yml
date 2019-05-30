@@ -55,9 +55,9 @@ commands:
           path: coverage
 
 jobs:
-  test_with_ruby_238:
+  test_with_ruby_23:
     docker:
-      - image: circleci/ruby:2.3.8
+      - image: circleci/ruby:2.3
         environment:
           BUNDLER_VERSION: 1.17.3
 
@@ -66,9 +66,9 @@ jobs:
     steps:
       - build_and_run_tests
 
-  test_with_ruby_263:
+  test_with_ruby_latest:
     docker:
-      - image: circleci/ruby:2.6.3
+      - image: circleci/ruby:latest
         environment:
           BUNDLER_VERSION: 1.17.3
 
@@ -80,5 +80,5 @@ workflows:
   version: 2.1
   notify_deploy:
     jobs:
-      - test_with_ruby_238
-      - test_with_ruby_263
+      - test_with_ruby_23
+      - test_with_ruby_latest
