@@ -8,3 +8,5 @@
 /tmp/
 .idea
 coverage
+# ignore site folder created by mkdocs
+site/
