@@ -15,7 +15,7 @@ This tutorial provides an introduction to the basic functionality of Longleaf by
 Longleaf scripts rely on common UNIX programs. In Mac OS X and Linux operating systems, these programs will likely already be installed, but some of these tools, such as `rsync` may be missing from a Windows system unless you have installed it.
 
 ### Example data directory for this tutorial
-The example data directory for this tutorial is named 'll-example'; it is located (at the top level within this repository).
+The example data directory for this tutorial is named 'll-example'; it is located in the 'docs' folder of the longleaf-preservation repository. 
 
 The 'll-example' directory contains all the materials required for completing this tutorial:
 
