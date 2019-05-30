@@ -1,0 +1,33 @@
+# Storage locations below use relative paths. When validating and using 
+# the configuration file, paths for the storage locations will be evaluated 
+# relative to the location of the configuration file. In this example tutorial, 
+# the storage locations are directories ('files-dir' and 'replica-files')
+# located at the same level as the config file, within the ll-example 
+# directory.
+
+locations:
+    data-directory:
+      path: files-dir
+      metadata_path: metadata-dir
+    backup-directory:
+      path: replica-files
+      metadata_path: replica-metadata
+services:
+  example_replication:
+    work_script: 'rsync_replication_service'
+    to:
+      - backup-directory
+  example_fixity:
+    work_script: 'fixity_check_service'
+    frequency: 30 seconds
+    absent_digest: generate
+    algorithms:
+      - sha1
+service_mappings:
+  - locations: data-directory
+    services:
+      - example_replication
+      - example_fixity
+  - locations: backup-directory
+    services:
+        - example_fixity

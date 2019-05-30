@@ -1,0 +1,20 @@
+site_name: Longleaf Documentation
+site_url: https://unc-libraries.github.io/longleaf-preservation
+theme: readthedocs
+#repo_name: 'UNC-Libraries/Longleaf-preservation'
+#setting edit_uri to empty string removes the "Edit in" link in upper right hand corner of pages, but keeps the Github link to repo in the bottom of sidepane
+repo_url: https://github.com/UNC-Libraries/longleaf-preservation/
+edit_uri: ''
+
+# include extra css file, in docs/
+extra_css: [extra.css]
+
+# docs markdown pages to include in sidepane navigation
+nav:
+    - Welcome: index.md
+    - About Longleaf: aboutlongleaf.md
+    - Installation: install.md
+    - Basic Usage: quickstart.md
+# pages to add and include later
+#    - Troubleshooting: trouble.md
+#    - FAQs: faq.md
