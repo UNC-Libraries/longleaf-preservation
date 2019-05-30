@@ -1,0 +1,32 @@
+ /* added link colors to text that's not in side nav menu */
+
+.rst-content a:link { color:#0000FF; text-decoration:none; font-weight:normal; }
+
+.rst-content a:visited { color:#800080; text-decoration:none; font-weight:normal; }
+
+.rst-content a:hover { color:aqua; text-decoration:none; font-weight:normal; }
+
+.rst-content a:active { color:seagreen; text-decoration:none; font-weight:normal; }
+
+
+/*  changed background colors in side nav menu */
+
+.wy-side-nav-search {
+  background-color: mediumseagreen;
+  }
+ 
+.wy-menu-vertical span {
+  /*  line-height: 18px;*/
+    line-height: 20px;
+
+    padding: 0.4045em 1.618em;
+    display: block;
+    position: relative;
+    font-size: 90%;
+    color: #838383;
+}
+
+.wy-nav-side {
+    background: ##404040;
+}
+/*
