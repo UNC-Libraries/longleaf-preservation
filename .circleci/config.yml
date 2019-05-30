@@ -77,8 +77,8 @@ jobs:
     steps:
       - build_and_run_tests
 workflows:
-  version: 2.1
+  version: 2.2
   notify_deploy:
     jobs:
-      - test_with_ruby_23
+      - test_with_ruby_22
       - test_with_ruby_latest
