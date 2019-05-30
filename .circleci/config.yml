@@ -2,16 +2,10 @@
 #
 # Check https://circleci.com/docs/2.0/language-ruby/ for more details
 #
-version: 2
-jobs:
-  build:
-    docker:
-      - image: circleci/ruby:2.4.6
-        environment:
-          BUNDLER_VERSION: 1.17.3
+version: 2.1
 
-    working_directory: ~/repo
-
+commands:
+  build_and_run_tests:
     steps:
       - checkout
 
@@ -52,14 +46,39 @@ jobs:
       # collect reports
       - store_test_results:
           path: /tmp/test-results
+
       - store_artifacts:
           path: /tmp/test-results
           destination: test-results
+
       - store_artifacts:
           path: coverage
 
+jobs:
+  test_with_ruby_23:
+    docker:
+      - image: circleci/ruby:2.3
+        environment:
+          BUNDLER_VERSION: 1.17.3
+
+    working_directory: ~/repo
+
+    steps:
+      - build_and_run_tests
+
+  test_with_ruby_latest:
+    docker:
+      - image: circleci/ruby:latest
+        environment:
+          BUNDLER_VERSION: 1.17.3
+
+    working_directory: ~/repo
+
+    steps:
+      - build_and_run_tests
 workflows:
-  version: 2
+  version: 2.2
   notify_deploy:
     jobs:
-      - build
+      - test_with_ruby_23
+      - test_with_ruby_latest

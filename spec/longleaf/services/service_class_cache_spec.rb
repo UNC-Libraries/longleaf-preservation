@@ -19,7 +19,7 @@ describe Longleaf::ServiceClassCache do
   describe '.service_class' do
     before { $LOAD_PATH.unshift(lib_dir) }
     after { $LOAD_PATH.delete(lib_dir) }
-    
+
     context 'work_script from standard library script' do
       let(:class_cache) { build(:service_class_cache, location_manager: app_manager) }
       let(:service_def) { build(:service_definition, work_script: 'fixity_check_service') }

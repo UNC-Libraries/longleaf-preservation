@@ -21,7 +21,7 @@ describe Longleaf::SequelIndexDriver do
 
   let(:md_dir) { Dir.mktmpdir('metadata') }
   let(:path_dir) { Dir.mktmpdir('path') }
-  
+
   let(:db_file) { create_test_file(name: 'index.db', content: '') }
 
   after do
