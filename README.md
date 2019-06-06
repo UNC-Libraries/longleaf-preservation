@@ -1,7 +1,7 @@
 # Longleaf
 Code: [![CircleCI](https://circleci.com/gh/UNC-Libraries/longleaf-preservation.svg?style=svg)](https://circleci.com/gh/UNC-Libraries/longleaf-preservation)
 
-Longleaf is a command-line tool which allows users to configure a set of storage locations and define custom sets of preservation services to run on their contents. These services are executed in response to applicable preservation events issued by clients. Its primary goal is to provide tools to create a simple and customizable preservation environment.  Longleaf:
+Longleaf is a command-line tool which allows users to configure a set of storage locations and define custom sets of preservation services to run on their contents. These services are executed in response to applicable preservation events issued by clients. Its primary goal is to provide tools to create a simple and customizable preservation environment. Longleaf:
 
 * Offers a predictable command-line interface and integrates with standard command-line tools.
 * Offers configurable and customizable criteria based preservation workflows.
