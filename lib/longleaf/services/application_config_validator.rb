@@ -10,13 +10,17 @@ module Longleaf
     # @param config [Hash] application configuration
     def self.validate(config)
       loc_result = StorageLocationValidator.new(config).validate_config
-      # Longleaf::ServiceDefinitionValidator::validate_config(config)
+      defs_result = ServiceDefinitionValidator.new(config).validate_config
 #       Longleaf::ServiceMappingValidator::validate_config(config)
 
-      if !loc_result.valid?
-        loc_errors = loc_result.errors.join("\n")
-        multiple = loc_errors.length > 1
-        raise ConfigurationError.new("Invalid application configuration due to the following issue#{'s' if multiple}:\n#{loc_errors}")
+      errors = Array.new
+      errors.concat(loc_result.errors) unless loc_result.valid?
+      errors.concat(defs_result.errors) unless defs_result.valid?
+
+      if errors.length > 0
+        formatted_errors = errors.join("\n")
+        multiple = errors.length > 1
+        raise ConfigurationError.new("Invalid application configuration due to the following issue#{'s' if multiple}:\n#{formatted_errors}")
       end
     end
   end
