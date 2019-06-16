@@ -2,8 +2,11 @@ require 'spec_helper'
 require 'longleaf/services/service_definition_validator'
 require 'longleaf/errors'
 require 'longleaf/specs/config_builder'
+require 'longleaf/specs/config_validator_helpers'
 
 describe Longleaf::ServiceDefinitionValidator do
+  include Longleaf::ConfigValidatorHelpers
+
   AF ||= Longleaf::AppFields
   ConfigBuilder ||= Longleaf::ConfigBuilder
 

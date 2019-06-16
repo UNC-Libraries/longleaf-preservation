@@ -9,4 +9,8 @@ FactoryBot.define do
   factory(:service_definition_validator, class: Longleaf::ServiceDefinitionValidator) do
     initialize_with { new(config) }
   end
+
+  factory(:service_mapping_validator, class: Longleaf::ServiceMappingValidator) do
+    initialize_with { new(config) }
+  end
 end

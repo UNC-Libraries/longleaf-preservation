@@ -3,10 +3,13 @@ require 'longleaf/specs/file_helpers'
 require 'longleaf/errors'
 require 'longleaf/specs/config_builder'
 require 'longleaf/services/storage_location_validator'
+require 'longleaf/specs/config_validator_helpers'
 require 'fileutils'
 
 describe Longleaf::StorageLocationValidator do
   include Longleaf::FileHelpers
+  include Longleaf::ConfigValidatorHelpers
+
   AF ||= Longleaf::AppFields
   ConfigBuilder ||= Longleaf::ConfigBuilder
 
