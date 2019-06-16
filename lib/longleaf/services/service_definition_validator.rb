@@ -10,21 +10,29 @@ module Longleaf
     SF ||= Longleaf::ServiceFields
     AF ||= Longleaf::AppFields
 
+    # @param config [Hash] hash containing the application configuration
+    def initialize(config)
+      super(config)
+    end
+
+    protected
     # Validates configuration to ensure that it is syntactically correct and does not violate
     # schema requirements.
     # @param config [Hash] hash containing the application configuration
-    def self.validate_config(config)
-      assert("Configuration must be a hash, but a #{config.class} was provided", config.class == Hash)
-      assert("Configuration must contain a root '#{AF::SERVICES}' key", config.key?(AF::SERVICES))
-      services = config[AF::SERVICES]
+    def validate
+      assert("Configuration must be a hash, but a #{@config.class} was provided", @config.class == Hash)
+      assert("Configuration must contain a root '#{AF::SERVICES}' key", @config.key?(AF::SERVICES))
+      services = @config[AF::SERVICES]
       assert("'#{AF::SERVICES}' must be a hash of services", services.class == Hash)
 
       services.each do |name, properties|
-        assert("Name of service definition must be a string, but was of type #{name.class}", name.instance_of?(String))
-        assert("Service definition '#{name}' must be a hash, but a #{properties.class} was provided", properties.is_a?(Hash))
+        register_on_failure do
+          assert("Name of service definition must be a string, but was of type #{name.class}", name.instance_of?(String))
+          assert("Service definition '#{name}' must be a hash, but a #{properties.class} was provided", properties.is_a?(Hash))
 
-        work_script = properties[SF::WORK_SCRIPT]
-        assert("Service definition '#{name}' must specify a '#{SF::WORK_SCRIPT}' property", !work_script.nil? && !work_script.empty?)
+          work_script = properties[SF::WORK_SCRIPT]
+          assert("Service definition '#{name}' must specify a '#{SF::WORK_SCRIPT}' property", !work_script.nil? && !work_script.empty?)
+        end
       end
     end
   end

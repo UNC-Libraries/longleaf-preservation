@@ -7,80 +7,94 @@ describe Longleaf::ServiceDefinitionValidator do
   AF ||= Longleaf::AppFields
   ConfigBuilder ||= Longleaf::ConfigBuilder
 
-  let(:validator) { Longleaf::ServiceDefinitionValidator }
+  let(:validator) { build(:service_definition_validator, config: config) }
 
   describe '#validate_config' do
     context 'with non-hash config' do
-      it { expect { validator::validate_config('bad') }.to raise_error(Longleaf::ConfigurationError, /must be a hash/) }
+      let(:config) { 'bad' }
+
+      it { fails_validation_with_error(validator, /must be a hash/) }
     end
 
     context 'with no services field' do
-      it {
-        expect { validator::validate_config({}) }.to raise_error(Longleaf::ConfigurationError,
-          /must contain a root 'services'/)
-      }
+      let(:config) { {} }
+
+      it { fails_validation_with_error(validator, /must contain a root 'services'/) }
     end
 
     context 'with invalid services value' do
       let(:config) { ConfigBuilder.new.with_services('bad').get }
 
-      it { expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError, /must be a hash of services/) }
+      it { fails_validation_with_error(validator, /must be a hash of services/) }
     end
 
     context 'with empty services' do
       let(:config) { ConfigBuilder.new.with_services.get }
 
-      it { expect { validator::validate_config(config) }.to_not raise_error }
+      it { passes_validation(validator) }
     end
 
     context 'with service missing work_script' do
-      let(:config) { ConfigBuilder.new.with_services.with_service(name: 'serv1', work_script: nil).get }
+      let(:config) { ConfigBuilder.new.with_service(name: 'serv1', work_script: nil).get }
 
-      it {
-        expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
-          /Service definition 'serv1' must specify a 'work_script'/)
-      }
+      it { fails_validation_with_error(validator, /Service definition 'serv1' must specify a 'work_script'/) }
     end
 
     context 'service with empty work_script field' do
-      let(:config) { ConfigBuilder.new.with_services.with_service(name: 'serv1', work_script: '').get }
+      let(:config) { ConfigBuilder.new.with_service(name: 'serv1', work_script: '').get }
 
-      it {
-        expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
-          /Service definition 'serv1' must specify a 'work_script'/)
-      }
+      it { fails_validation_with_error(validator, /Service definition 'serv1' must specify a 'work_script'/) }
     end
 
     context 'service with invalid name' do
-      let(:config) {
-        ConfigBuilder.new.with_services
-          .with_service(name: { 'random' => 'stuff' } ).get
-      }
+      let(:config) { ConfigBuilder.new.with_service(name: { 'random' => 'stuff' } ).get }
 
-      it {
-        expect { validator::validate_config(config) }.to raise_error(Longleaf::ConfigurationError,
-          /Name of service definition must be a string/)
-      }
+      it { fails_validation_with_error(validator, /Name of service definition must be a string/) }
     end
 
     context 'with valid service' do
-      let(:config) {
-        ConfigBuilder.new.with_services
-          .with_service(name: 'serv1').get
-      }
+      let(:config) { ConfigBuilder.new.with_service(name: 'serv1').get }
 
-      it { expect { validator::validate_config(config) }.to_not raise_error }
+      it { passes_validation(validator) }
     end
 
     context 'with multiple valid services' do
       let(:config) {
-        ConfigBuilder.new.with_services
+        ConfigBuilder.new
           .with_service(name: 'serv1', work_script: 'script1.rb')
           .with_service(name: 'serv2', work_script: 'script2.rb')
           .get
       }
 
-      it { expect { validator::validate_config(config) }.to_not raise_error }
+      it { passes_validation(validator) }
     end
+
+    context 'with multiple invalid services' do
+      let(:config) {
+        ConfigBuilder.new
+          .with_service(name: 1, work_script: 'script1.rb')
+          .with_service(name: 'serv2', work_script: '')
+          .get
+      }
+
+      it 'returns both errors' do
+        fails_validation_with_error(validator,
+            /Name of service definition must be a string/,
+            /Service definition 'serv2' must specify a 'work_script' property/)
+      end
+    end
+  end
+
+  def fails_validation_with_error(validator, *error_messages)
+    result = validator.validate_config
+    expect(result.valid?).to be false
+    error_messages.each do |error_message|
+      expect(result.errors).to include(error_message)
+    end
+  end
+
+  def passes_validation(validator)
+    result = validator.validate_config
+    expect(result.valid?).to eq(true), "expected validation to pass, but received errors:\n#{result.errors&.join("\n")}"
   end
 end
