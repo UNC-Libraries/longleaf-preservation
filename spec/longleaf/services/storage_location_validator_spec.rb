@@ -233,17 +233,4 @@ describe Longleaf::StorageLocationValidator do
       it { fails_validation_with_error(validator, /Storage location 'loc1' specifies a 'metadata_path' directory which does not exist/) }
     end
   end
-
-  def fails_validation_with_error(validator, *error_messages)
-    result = validator.validate_config
-    expect(result.valid?).to be false
-    error_messages.each do |error_message|
-      expect(result.errors).to include(error_message)
-    end
-  end
-
-  def passes_validation(validator)
-    result = validator.validate_config
-    expect(result.valid?).to be true
-  end
 end

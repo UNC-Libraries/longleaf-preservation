@@ -55,7 +55,7 @@ describe 'validate_config', :type => :aruba do
     end
 
     it 'outputs invalid configuration error' do
-      expect(last_command_started).to have_output(/Invalid application configuration/)
+      expect(last_command_started).to have_output(/Application configuration invalid/)
       expect(last_command_started).to have_output(
               /Storage location 'loc1' specifies invalid 'path' property: Path must not be empty/)
       expect(last_command_started).to have_exit_status(1)
@@ -77,7 +77,7 @@ describe 'validate_config', :type => :aruba do
     end
 
     it 'outputs path does not exist configuration error' do
-      expect(last_command_started).to have_output(/Invalid application configuration/)
+      expect(last_command_started).to have_output(/Application configuration invalid/)
       expect(last_command_started).to have_output(/Storage location 'loc1' specifies a 'path' directory which does not exist/)
       expect(last_command_started).to have_exit_status(1)
     end
@@ -122,7 +122,7 @@ describe 'validate_config', :type => :aruba do
     end
 
     it 'outputs overlapping storage paths error' do
-      expect(last_command_started).to have_output(/Invalid application configuration/)
+      expect(last_command_started).to have_output(/Application configuration invalid/)
       expect(last_command_started).to have_output(/which overlaps with another configured path/)
       expect(last_command_started).to have_exit_status(1)
     end
@@ -142,7 +142,7 @@ describe 'validate_config', :type => :aruba do
     end
 
     it 'outputs missing field error' do
-      expect(last_command_started).to have_output(/Invalid application configuration/)
+      expect(last_command_started).to have_output(/Application configuration invalid/)
       expect(last_command_started).to have_output(/Service definition 'serv1' must specify a 'work_script' property/)
       expect(last_command_started).to have_exit_status(1)
     end
@@ -231,9 +231,11 @@ describe 'validate_config', :type => :aruba do
       run_command_and_stop("longleaf validate_config -c #{config_path} -I #{lib_dir}", fail_on_error: false)
     end
 
-    it 'outputs missing field error' do
-      expect(last_command_started).to have_output(/Invalid application configuration/)
-      expect(last_command_started).to have_output(/Service configuration missing option required by service class/)
+    it 'reports all errors' do
+      expect(last_command_started).to have_output(/Application configuration invalid/)
+      expect(last_command_started).to have_output(/Storage location 'loc1' specifies invalid 'metadata_path' property/)
+      expect(last_command_started).to have_output(/Service definition 'serv1' must specify a 'work_script' property/)
+      expect(last_command_started).to have_output(/Mapping specifies value 'serv_none'/)
       expect(last_command_started).to have_exit_status(1)
     end
   end
