@@ -19,8 +19,9 @@ module Longleaf
       config_md5 = Digest::MD5.hexdigest(content)
 
       make_paths_absolute(config_path, config)
-      Longleaf::ApplicationConfigValidator.validate(config)
-      Longleaf::ApplicationConfigManager.new(config, config_md5)
+
+      ApplicationConfigValidator.new(config).validate_config.raise_if_invalid
+      ApplicationConfigManager.new(config, config_md5)
     end
 
     def self.load_config_file(config_path)

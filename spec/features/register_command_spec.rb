@@ -49,7 +49,7 @@ describe 'register', :type => :aruba do
     end
 
     it 'outputs invalid configuration error' do
-      expect(last_command_started).to have_output(/Invalid application configuration/)
+      expect(last_command_started).to have_output(/Failed to load application configuration/)
       expect(last_command_started).to have_output(
               /Storage location 'loc1' specifies invalid 'path' property: Path must not be empty/)
       expect(last_command_started).to have_exit_status(1)

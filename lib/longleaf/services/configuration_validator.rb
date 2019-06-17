@@ -54,12 +54,19 @@ module Longleaf
       @errors = Array.new
     end
 
+    # Register an error with this validation result
     def register_error(error_message)
       @errors << error_message
     end
 
+    # @return [boolean] true if validation produced not errors
     def valid?
       @errors.length == 0
+    end
+
+    # @raise [ConfigurationError] if the result is not valid, which lists all failures
+    def raise_if_invalid
+      raise ConfigurationError.new(@errors.join("\n")) unless valid?
     end
   end
 end
