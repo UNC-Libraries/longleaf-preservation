@@ -214,6 +214,68 @@ describe Longleaf::SequelIndexDriver do
       end
     end
 
+    context 'Service with delay configured' do
+      let(:config_path) {
+        ConfigBuilder.new
+          .with_service(name: 'serv1', delay: '3 days')
+          .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+          .map_services('loc1', 'serv1')
+          .write_to_yaml_file
+      }
+      let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
+
+      context 'service has not previously run' do
+        let!(:file_rec1) { create_index_file_rec(storage_loc) }
+
+        it 'indexes with timestamp 3 days from now' do
+          driver.index(file_rec1)
+
+          expect(get_timestamp_from_index(file_rec1)).to be_within(5).of days_from_now(3)
+        end
+      end
+
+      context 'service has previously run' do
+        let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now) }
+
+        it 'No next run timestamp' do
+          driver.index(file_rec1)
+
+          expect(get_timestamp_from_index(file_rec1)).to be nil
+        end
+      end
+    end
+
+    context 'Service with frequency and delay configured' do
+      let(:config_path) {
+        ConfigBuilder.new
+          .with_service(name: 'serv1', delay: '3 days', frequency: '10 days')
+          .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+          .map_services('loc1', 'serv1')
+          .write_to_yaml_file
+      }
+      let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
+
+      context 'service has not previously run' do
+        let!(:file_rec1) { create_index_file_rec(storage_loc) }
+
+        it 'indexes with timestamp 3 days from now, based on delay' do
+          driver.index(file_rec1)
+
+          expect(get_timestamp_from_index(file_rec1)).to be_within(5).of days_from_now(3)
+        end
+      end
+
+      context 'service has previously run' do
+        let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now) }
+
+        it 'indexes with timestamp 10 days from now, based on frequency' do
+          driver.index(file_rec1)
+
+          expect(get_timestamp_from_index(file_rec1)).to be_within(5).of days_from_now(10)
+        end
+      end
+    end
+
     context 'deregistered file' do
       let(:file_path) { create_test_file(dir: path_dir) }
       let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_loc) }
