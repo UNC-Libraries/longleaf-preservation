@@ -2,13 +2,17 @@ require 'spec_helper'
 require 'longleaf/specs/file_helpers'
 require 'longleaf/services/service_manager'
 require 'longleaf/services/application_config_manager'
+require 'longleaf/helpers/service_date_helper'
 require 'longleaf/specs/config_builder'
+require 'longleaf/specs/metadata_builder'
 require 'longleaf/errors'
 require 'tmpdir'
 
 describe Longleaf::ServiceManager do
   include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
+  MetadataBuilder ||= Longleaf::MetadataBuilder
+  ServiceDateHelper ||= Longleaf::ServiceDateHelper
 
   let(:app_manager) { double(Longleaf::ApplicationConfigManager) }
 
@@ -223,6 +227,113 @@ describe Longleaf::ServiceManager do
 
         it 'raises error for replicate event' do
           expect { manager.perform_service('serv1', file_rec, 'replicate') }.to raise_error(Longleaf::PreservationServiceError)
+        end
+      end
+    end
+  end
+
+  describe '.service_needed?' do
+    let(:manager) { build(:service_manager, config: config, app_manager: app_manager) }
+
+    let(:md_dir) { Dir.mktmpdir('metadata') }
+    let(:path_dir) { Dir.mktmpdir('path') }
+
+    after do
+      FileUtils.rm_rf([md_dir, path_dir])
+    end
+
+    context 'service with delay' do
+      let(:config) {
+        ConfigBuilder.new
+          .with_service(name: 'serv1', work_script: 'fixity_check_service', delay: '10 days')
+          .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+          .map_services('loc1', 'serv1')
+          .get
+      }
+
+      context 'file registered more than 10 days ago' do
+        let(:registered) { ServiceDateHelper::formatted_timestamp(Time.new(2001, 1, 1)) }
+        let(:md_rec) do
+          MetadataBuilder.new(registered: registered)
+              .get_metadata_record
+        end
+
+        it 'determines that service is needed' do
+          expect(manager.service_needed?('serv1', md_rec)).to be true
+        end
+      end
+
+      context 'file registered now' do
+        let(:registered) { ServiceDateHelper::formatted_timestamp }
+        let(:md_rec) do
+          MetadataBuilder.new(registered: registered)
+              .get_metadata_record
+        end
+
+        it 'determines that service is not needed' do
+          expect(manager.service_needed?('serv1', md_rec)).to be false
+        end
+      end
+
+      context 'service ran more than 5 days ago' do
+        let(:last_timestamp) { ServiceDateHelper::formatted_timestamp(Time.new(2001, 1, 1)) }
+        let(:md_rec) do
+          MetadataBuilder.new
+              .with_service('serv1', timestamp: last_timestamp)
+              .get_metadata_record
+        end
+
+        it 'determines that service is not needed' do
+          expect(manager.service_needed?('serv1', md_rec)).to be false
+        end
+      end
+
+      context 'service record indicates a run is needed' do
+        let(:last_timestamp) { ServiceDateHelper::formatted_timestamp(Time.new(2001, 1, 1)) }
+        let(:md_rec) do
+          MetadataBuilder.new
+              .with_service('serv1', timestamp: last_timestamp, run_needed: true)
+              .get_metadata_record
+        end
+
+        it 'determines that service is needed' do
+          expect(manager.service_needed?('serv1', md_rec)).to be true
+        end
+      end
+    end
+
+    context 'service with frequency' do
+      let(:config) {
+        ConfigBuilder.new
+          .with_service(name: 'serv1', work_script: 'fixity_check_service', frequency: '5 days')
+          .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+          .map_services('loc1', 'serv1')
+          .get
+      }
+
+      context 'service ran more than 5 days ago' do
+        let(:last_timestamp) { ServiceDateHelper::formatted_timestamp(Time.new(2001, 1, 1)) }
+        let(:md_rec) do
+          MetadataBuilder.new
+              .with_service('serv1', timestamp: last_timestamp)
+              .get_metadata_record
+        end
+
+        it 'determines that service is needed' do
+          expect(manager.service_needed?('serv1', md_rec)).to be true
+        end
+      end
+
+      context 'service ran moments ago' do
+        let(:last_timestamp) { ServiceDateHelper::formatted_timestamp(Time.now - 1) }
+        let(:md_rec) do
+          MetadataBuilder.new
+              .with_service('serv1', timestamp: last_timestamp)
+              .get_metadata_record
+        end
+
+        it 'determines that service is not needed' do
+          expect(manager.service_needed?('serv1', md_rec)).to be false
         end
       end
     end

@@ -114,27 +114,9 @@ module Longleaf
 
       expected_services.each do |service_def|
         service_name = service_def.name
-        # Service has never run, set execution time to now
-        if !present_services.include?(service_name)
-          service_times << current_time
-          next
-        end
 
-        service_rec = md_rec.service(service_name)
-
-        # Service either needs a run or has no timestamp, so execution time of now
-        if service_rec.run_needed || service_rec.timestamp.nil?
-          service_times << current_time
-          next
-        end
-
-        # Calculate the next time this service should run based on frequency
-        frequency = service_def.frequency
-        unless frequency.nil?
-          service_timestamp = service_rec.timestamp
-          service_times << ServiceDateHelper.add_to_timestamp(service_timestamp, frequency)
-          next
-        end
+        next_run = ServiceDateHelper.next_run_needed(md_rec, service_def)
+        service_times << next_run unless next_run.nil?
       end
       # Return the lowest service execution time
       service_times.min
