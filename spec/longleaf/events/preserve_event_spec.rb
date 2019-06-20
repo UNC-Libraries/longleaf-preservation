@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'longleaf/specs/file_helpers'
+require 'longleaf/specs/metadata_builder'
 require 'longleaf/events/preserve_event'
 require 'longleaf/services/service_manager'
 require 'longleaf/services/metadata_deserializer'
@@ -15,6 +16,7 @@ describe Longleaf::PreserveEvent do
   include Longleaf::FileHelpers
 
   ConfigBuilder ||= Longleaf::ConfigBuilder
+  MDBuilder ||= Longleaf::MetadataBuilder
 
   describe '.initialize' do
     context 'without a file record' do
@@ -123,7 +125,11 @@ describe Longleaf::PreserveEvent do
 
       context 'service has run previously' do
         let(:service_rec) { build(:service_record, timestamp: Longleaf::ServiceDateHelper.formatted_timestamp(Time.now.utc - 1)) }
-        let(:md_rec) { build(:metadata_record, services: { 'serv1' => service_rec } ) }
+        let(:md_rec) {
+          MDBuilder.new(file_path: file_path)
+              .with_service('serv1', timestamp: Longleaf::ServiceDateHelper.formatted_timestamp(Time.now.utc - 1))
+              .get_metadata_record
+        }
         let(:file_rec) {
           build(:file_record, file_path: file_path,
             storage_location: storage_loc, metadata_record: md_rec)
@@ -247,7 +253,7 @@ describe Longleaf::PreserveEvent do
   end
 
   def register(file_rec)
-    md_rec = file_rec.metadata_record || build(:metadata_record)
+    md_rec = file_rec.metadata_record || MDBuilder.new(file_path: file_rec.path).get_metadata_record
     metadata_path = file_rec.storage_location.get_metadata_path_for(file_path)
     Longleaf::MetadataSerializer.write(file_path: metadata_path, metadata: md_rec)
     file_rec.metadata_record = md_rec
