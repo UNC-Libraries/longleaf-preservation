@@ -68,26 +68,18 @@ module Longleaf
     # @param md_rec [MetadataRecord] metadata record for the file being evaluated
     # @return [Boolean] true if the service should be run.
     def service_needed?(service_name, md_rec)
-      # If service not recorded for file, then it is needed
-      present_services = md_rec.list_services
-      return true unless present_services.include?(service_name)
-
       service_rec = md_rec.service(service_name)
-
-      return true if service_rec.run_needed
-      return true if service_rec.timestamp.nil?
+      return true if !service_rec.nil? && service_rec.run_needed
 
       definition = @definition_manager.services[service_name]
 
-      # Check if the amount of time defined in frequency has passed since the service timestamp
-      frequency = definition.frequency
-      unless frequency.nil?
-        service_timestamp = service_rec.timestamp
-        now = ServiceDateHelper.formatted_timestamp
+      next_run = ServiceDateHelper.next_run_needed(md_rec, definition)
 
-        return true if now > ServiceDateHelper.add_to_timestamp(service_timestamp, frequency)
-      end
-      false
+      return false if next_run.nil?
+
+      # If next run timestamp has passed then service is needed
+      now = ServiceDateHelper.formatted_timestamp
+      now >= next_run
     end
 
     # Perform the specified service on the file record, in the context of the specified event
