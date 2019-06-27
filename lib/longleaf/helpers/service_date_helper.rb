@@ -37,7 +37,7 @@ module Longleaf
       end
 
       modified_time = datetime + (value * unit_modifier)
-      modified_time.iso8601
+      modified_time.iso8601(3)
     end
 
     # Get a timestamp in the format expected for service timestamps.
@@ -45,6 +45,34 @@ module Longleaf
     # @return [String] the time formatted as iso8601
     def self.formatted_timestamp(timestamp = Time.now)
       timestamp.utc.iso8601(3).to_s
+    end
+
+    # Get the timestamp for the next time the provided service would need to be run
+    # for the object described by md_rec
+    # @param md_rec [MetadataRecord] metadata record for the file
+    # @param service_def [ServiceDefinition] definition for the service
+    # @return [String] iso8601 timestamp for the next time the service will need to run, or
+    #    nil if the service does not need to run again.
+    def self.next_run_needed(md_rec, service_def)
+      raise ArgumentError.new('Must provide a md_rec parameter') if md_rec.nil?
+      raise ArgumentError.new('Must provide a service_def parameter') if service_def.nil?
+
+      service_name = service_def.name
+      service_rec = md_rec.service(service_name)
+
+      if service_rec.nil? || service_rec.timestamp.nil?
+        if service_def.delay.nil?
+          return md_rec.registered
+        else
+          return ServiceDateHelper.add_to_timestamp(md_rec.registered, service_def.delay)
+        end
+      end
+
+      if service_def.frequency.nil?
+        return nil
+      else
+        return ServiceDateHelper.add_to_timestamp(service_rec.timestamp, service_def.frequency)
+      end
     end
   end
 end
