@@ -8,6 +8,7 @@ require 'longleaf/services/metadata_serializer'
 require 'longleaf/errors'
 require 'longleaf/specs/config_builder'
 require 'longleaf/specs/file_helpers'
+require 'longleaf/specs/metadata_builder'
 require 'fileutils'
 require 'tmpdir'
 require 'tempfile'
@@ -15,6 +16,7 @@ require 'tempfile'
 describe Longleaf::DeregisterEvent do
   include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
+  MDBuilder ||= Longleaf::MetadataBuilder
 
   describe '.initialize' do
     context 'without a file record' do
@@ -68,8 +70,11 @@ describe Longleaf::DeregisterEvent do
     }
     let(:app_config) { build(:application_config_manager, config: config) }
 
-    let(:service_rec) { build(:service_record) }
-    let(:md_rec) { build(:metadata_record, services: { 'serv1' => service_rec } ) }
+    let(:md_rec) {
+      MDBuilder.new(file_path: file_path)
+          .with_service('serv1')
+          .get_metadata_record
+    }
     let(:file_path) { create_test_file(dir: path_dir) }
     let(:storage_location) { app_config.location_manager.get_location_by_path(file_path) }
     let(:file_rec) {
@@ -95,11 +100,11 @@ describe Longleaf::DeregisterEvent do
     context 'on a deregistered file' do
       let(:deregistered_timestamp) { Longleaf::ServiceDateHelper.formatted_timestamp(Time.now - 1) }
       let(:md_rec) {
-        build(:metadata_record,
-        deregistered: deregistered_timestamp,
-        services: { 'serv1' => service_rec },
-        properties: { 'custom' => 'value' }
-        )
+        MDBuilder.new(file_path: file_path)
+            .deregistered(deregistered_timestamp)
+            .with_service('serv1')
+            .with_properties({ 'custom' => 'value' })
+            .get_metadata_record
       }
 
       context 'without force flag' do

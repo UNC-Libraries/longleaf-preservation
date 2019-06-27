@@ -1,6 +1,7 @@
 require 'yaml'
 require 'longleaf/models/metadata_record'
 require 'longleaf/models/md_fields'
+require 'longleaf/services/metadata_validator'
 require 'longleaf/errors'
 require 'longleaf/logging'
 
@@ -15,15 +16,13 @@ module Longleaf
     # @param file_path [String] path of the file to read. Required.
     # @param format [String] format the file is stored in. Default is 'yaml'.
     def self.deserialize(file_path:, format: 'yaml', digest_algs: [])
+      file_path = file_path.path if file_path.is_a?(File)
+
       case format
       when 'yaml'
         md = from_yaml(file_path, digest_algs)
       else
         raise ArgumentError.new("Invalid deserialization format #{format} specified")
-      end
-
-      if !md || !md.is_a?(Hash) || !md.key?(MDF::DATA) || !md.key?(MDF::SERVICES)
-        raise Longleaf::MetadataError.new("Invalid metadata file, did not contain data or services fields: #{file_path}")
       end
 
       data = Hash.new.merge(md[MDF::DATA])
@@ -37,7 +36,7 @@ module Longleaf
       services = md[MDF::SERVICES]
       service_records = Hash.new
       services&.each do |name, props|
-        raise Longleaf::MetadataError.new("Value of service #{name} must be a hash") unless props.class == Hash
+        raise MetadataError.new("Value of service #{name} must be a hash") unless props.class == Hash
 
         service_props = Hash.new.merge(props)
 
@@ -66,12 +65,45 @@ module Longleaf
       File.open(file_path, 'r:bom|utf-8') do |f|
         contents = f.read
 
-        verify_digests(file_path, contents, digest_algs)
+        checksum_error = nil
+        begin
+          verify_digests(file_path, contents, digest_algs)
+        rescue ChecksumMismatchError => err
+          # Hold onto the checksum error, in case we can identify the underlying cause
+          checksum_error = err
+        end
 
         begin
-          YAML.safe_load(contents, [], [], true)
-        rescue => err
-          raise Longleaf::MetadataError.new("Failed to parse metadata file #{file_path}: #{err.message}")
+          md = nil
+          begin
+            md = YAML.safe_load(contents, [], [], true)
+          rescue => err
+            raise MetadataError.new("Failed to parse metadata file #{file_path}: #{err.message}")
+          end
+
+          validation_result = MetadataValidator.new(md).validate_config
+          if !validation_result.valid?
+            if checksum_error.nil?
+              raise MetadataError.new("Invalid metadata file #{file_path.to_s}:\n#{validation_result.errors.join("\n")}")
+            else
+              raise MetadataError.new(validation_result.errors.join("\n"))
+            end
+          end
+
+          # Either return the valid metadata, or raise the checksum error as is
+          if checksum_error.nil?
+            md
+          else
+            raise checksum_error
+          end
+        rescue MetadataError => err
+          if checksum_error.nil?
+            raise err
+          else
+            # Add underlying cause from the metadata error to the checksum mismatch error
+            msg = checksum_error.message + "\nWith related issue(s):\n#{err.message}"
+            raise ChecksumMismatchError.new(msg)
+          end
         end
       end
     end

@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'longleaf/helpers/service_date_helper'
 require 'longleaf/services/metadata_serializer'
 require 'longleaf/services/metadata_deserializer'
 require 'longleaf/candidates/service_candidate_filesystem_iterator'
@@ -393,8 +394,10 @@ describe Longleaf::ServiceCandidateFilesystemIterator do
 
   def create_metadata(file_path, services, app_config, deregistered: nil)
     md = build(:metadata_record,
-        registered: Longleaf::ServiceDateHelper::formatted_timestamp,
-        deregistered: deregistered)
+        deregistered: deregistered,
+        registered: Longleaf::ServiceDateHelper.formatted_timestamp,
+        last_modified: Longleaf::ServiceDateHelper.formatted_timestamp,
+        file_size: File.size(file_path))
     services&.each do |name, record|
       md.add_service(name, record)
     end

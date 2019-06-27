@@ -1,4 +1,5 @@
 require 'longleaf/services/application_config_validator'
+require 'longleaf/services/metadata_validator'
 require 'longleaf/services/service_definition_validator'
 require 'longleaf/services/service_mapping_validator'
 require 'longleaf/services/storage_location_validator'
@@ -17,6 +18,10 @@ FactoryBot.define do
   end
 
   factory(:service_mapping_validator, class: Longleaf::ServiceMappingValidator) do
+    initialize_with { new(config) }
+  end
+
+  factory(:metadata_validator, class: Longleaf::MetadataValidator) do
     initialize_with { new(config) }
   end
 end

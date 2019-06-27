@@ -45,6 +45,7 @@ module Longleaf
 
     def with_properties(properties)
       @properties = properties
+      self
     end
 
     # @return the constructed metadata record

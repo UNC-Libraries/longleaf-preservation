@@ -3,11 +3,13 @@ require 'aruba/rspec'
 require 'longleaf/specs/config_builder'
 require 'longleaf/services/metadata_serializer'
 require 'longleaf/specs/file_helpers'
+require 'longleaf/models/md_fields'
 require 'fileutils'
 
 describe 'validate_metadata', :type => :aruba do
   include Longleaf::FileHelpers
   ConfigBuilder ||= Longleaf::ConfigBuilder
+  MDF ||= Longleaf::MDFields
 
   let(:path_dir) { Dir.mktmpdir('path') }
   let(:md_dir) { Dir.mktmpdir('metadata') }
@@ -83,7 +85,7 @@ describe 'validate_metadata', :type => :aruba do
     context 'file with checksum mismatch' do
       before do
         run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
-        change_metadata(file_path, md_dir)
+        append_to_metadata(file_path, md_dir)
         run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
@@ -99,7 +101,7 @@ describe 'validate_metadata', :type => :aruba do
 
       before do
         run_command_and_stop("longleaf register -c #{config_path} -f #{path_dir}/", fail_on_error: false)
-        change_metadata(file_path2, md_dir)
+        append_to_metadata(file_path2, md_dir)
         run_command_and_stop("longleaf validate_metadata -c #{config_path} -s loc1", fail_on_error: false)
       end
 
@@ -109,6 +111,38 @@ describe 'validate_metadata', :type => :aruba do
         expect(last_command_started).to_not have_output(/SUCCESS: Metadata for file passed validation: #{file_path2}/)
         expect(last_command_started).to have_output(/FAILURE: Metadata digest of type sha1 did not match the contents of #{get_metadata_path(file_path2, md_dir)}/)
         expect(last_command_started).to have_exit_status(2)
+      end
+    end
+
+    context 'file with changed last-modified date' do
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        change_metadata(file_path, md_dir) do |md|
+          md[MDF::DATA][MDF::LAST_MODIFIED] = 'never'
+        end
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+      end
+
+      it 'fails with checksum mismatch and underlying reason about missing field' do
+        expect(last_command_started).to have_output(/FAILURE: Metadata digest of type sha1 did not match the contents/)
+        expect(last_command_started).to have_output(/With related issue/)
+        expect(last_command_started).to have_output(/Field 'last-modified' must be a valid ISO8601 timestamp/)
+        expect(last_command_started).to have_exit_status(1)
+      end
+    end
+
+    context 'metadata file is not valid yaml' do
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        append_to_metadata(file_path, md_dir, "this file is garbage")
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+      end
+
+      it 'fails validation with checksum and parse errors' do
+        expect(last_command_started).to have_output(/FAILURE: Metadata digest of type sha1 did not match the contents/)
+        expect(last_command_started).to have_output(/With related issue/)
+        expect(last_command_started).to have_output(/Failed to parse metadata file/)
+        expect(last_command_started).to have_exit_status(1)
       end
     end
   end
@@ -150,12 +184,28 @@ describe 'validate_metadata', :type => :aruba do
 
     context 'metadata file is not valid yaml' do
       before do
-        change_metadata(file_path, md_dir, "this file is garbage")
+        append_to_metadata(file_path, md_dir, "this file is garbage")
         run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
       end
 
       it 'fails validation' do
-        expect(last_command_started).to have_output(/FAILURE: Invalid metadata file, did not contain data or services fields: #{md_dir}.*/)
+        expect(last_command_started).to have_output(/FAILURE: Invalid metadata file #{md_dir}/)
+        expect(last_command_started).to have_exit_status(1)
+      end
+    end
+
+    context 'file without date registered field' do
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        change_metadata(file_path, md_dir) do |md|
+          md[MDF::DATA].delete(MDF::REGISTERED_TIMESTAMP)
+        end
+        run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+      end
+
+      it 'fails with warning about missing field' do
+        expect(last_command_started).to have_output(/FAILURE: Invalid metadata file/)
+        expect(last_command_started).to have_output(/Metadata must contain a 'registered' field/)
         expect(last_command_started).to have_exit_status(1)
       end
     end
@@ -225,11 +275,21 @@ describe 'validate_metadata', :type => :aruba do
     end
   end
 
-  def change_metadata(file_path, md_dir, append_content = "\n")
+  def append_to_metadata(file_path, md_dir, append_content = "\n")
     md_path = get_metadata_path(file_path, md_dir)
     # Add content to the metadata to change it
     File.open(md_path, 'a') do |f|
       f.write(append_content)
     end
   end
+
+  def change_metadata(file_path, md_dir)
+    md_path = get_metadata_path(file_path, md_dir)
+    md = YAML.load_file(get_metadata_path(file_path, md_dir))
+    yield md
+    File.open(md_path, 'w') do |f|
+      f.write(md.to_yaml)
+    end
+  end
+
 end

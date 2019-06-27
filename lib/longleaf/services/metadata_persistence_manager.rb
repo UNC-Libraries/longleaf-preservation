@@ -1,4 +1,5 @@
 require 'longleaf/services/metadata_serializer'
+require 'longleaf/services/metadata_deserializer'
 require 'longleaf/errors'
 
 module Longleaf
