@@ -1,17 +1,18 @@
 require 'spec_helper'
 require 'tmpdir'
-require 'longleaf/models/storage_location'
+require 'longleaf/models/filesystem_storage_location'
+require 'longleaf/models/metadata_location'
 require 'longleaf/errors'
 require 'fileutils'
 require 'tempfile'
 
-describe Longleaf::StorageLocation do
+describe Longleaf::FilesystemStorageLocation do
   describe '.initialize' do
-    context 'with no metadata_path' do
-      it { expect { build(:storage_location, metadata_path: nil) }.to raise_error(ArgumentError) }
+    context 'with no config' do
+      it { expect { build(:storage_location, config: nil) }.to raise_error(ArgumentError) }
     end
-    context 'with no path' do
-      it { expect { build(:storage_location, path: nil) }.to raise_error(ArgumentError) }
+    context 'with no metadata location' do
+      it { expect { build(:storage_location, md_loc: nil) }.to raise_error(ArgumentError) }
     end
     context 'with no name' do
       it { expect { build(:storage_location, name: nil) }.to raise_error(ArgumentError) }
@@ -24,58 +25,15 @@ describe Longleaf::StorageLocation do
     it { expect(location.path).to eq '/file/path/' }
   end
 
-  describe '.metadata_path' do
+  describe '.metadata_location' do
     let(:location) { build(:storage_location) }
 
-    it { expect(location.metadata_path).to eq '/metadata/path/' }
-  end
-
-  describe '.metadata_digests' do
-    context 'with nil digests' do
-      let(:location) { build(:storage_location, metadata_digests: []) }
-
-      it { expect(location.metadata_digests).to eq [] }
-    end
-
-    context 'with no digests' do
-      let(:location) { build(:storage_location, metadata_digests: []) }
-
-      it { expect(location.metadata_digests).to eq [] }
-    end
-
-    context 'with string digest' do
-      let(:location) { build(:storage_location, metadata_digests: 'sha1') }
-
-      it { expect(location.metadata_digests).to contain_exactly('sha1') }
-    end
-
-    context 'with array digest' do
-      let(:location) { build(:storage_location, metadata_digests: ['sha1']) }
-
-      it { expect(location.metadata_digests).to contain_exactly('sha1') }
-    end
-
-    context 'with non-normalized case array digest' do
-      let(:location) { build(:storage_location, metadata_digests: ['SHA1', 'Sha512']) }
-
-      it { expect(location.metadata_digests).to contain_exactly('sha1', 'sha512') }
-    end
-
-    context 'with multiple digests' do
-      let(:location) { build(:storage_location, metadata_digests: ['sha1', 'sha512']) }
-
-      it { expect(location.metadata_digests).to contain_exactly('sha1', 'sha512') }
-    end
-
-    context 'with invalid digest' do
-      let(:location) { build(:storage_location, metadata_digests: ['indigestion']) }
-
-      it { expect { location.get_metadata_path_for }.to raise_error(Longleaf::InvalidDigestAlgorithmError) }
-    end
+    it { expect(location.metadata_location).to be_a(Longleaf::MetadataLocation) }
   end
 
   describe '.get_metadata_path_for' do
-    let(:location) { build(:storage_location) }
+    let(:md_loc) { build(:metadata_location) }
+    let(:location) { build(:storage_location, md_loc: md_loc) }
 
     context 'no file_path' do
       it { expect { location.get_metadata_path_for }.to raise_error(ArgumentError) }
@@ -141,7 +99,7 @@ describe Longleaf::StorageLocation do
     context 'path not in storage location' do
       it {
         expect { location.get_path_from_metadata_path('/some/other/path/file') }.to raise_error(ArgumentError,
-          /Provided metadata path is not contained by storage location/)
+          /Metadata path must be contained by this location/)
       }
     end
 
@@ -222,6 +180,48 @@ describe Longleaf::StorageLocation do
       end
 
       it { expect { location.available? }.to_not raise_error }
+    end
+  end
+
+  describe '.relativize' do
+    context 'path not in location' do
+      let(:location) { build(:storage_location) }
+
+      let(:file_path) { '/some/other/path/file' }
+
+      it { expect { location.relativize(file_path) }.to raise_error(ArgumentError, /must be contained by this location/ ) }
+    end
+
+    context 'relative path' do
+      let(:location) { build(:storage_location) }
+
+      let(:file_path) { 'path/file' }
+
+      it { expect(location.relativize(file_path)).to eq file_path }
+    end
+
+    context 'path in location' do
+      let(:location) { build(:storage_location) }
+
+      let(:file_path) { '/file/path/sub/myfile.txt' }
+
+      it { expect(location.relativize(file_path)).to eq 'sub/myfile.txt' }
+    end
+  end
+
+  describe '.contains?' do
+    let(:location) { build(:storage_location) }
+
+    context 'path in location' do
+      let(:file_path) { '/file/path/sub/myfile.txt' }
+
+      it { expect(location.contains?(file_path)).to be true }
+    end
+
+    context 'path not in location' do
+      let(:file_path) { '/other/path/to/somefile.txt' }
+
+      it { expect(location.contains?(file_path)).to be false }
     end
   end
 end

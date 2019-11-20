@@ -77,7 +77,7 @@ describe Longleaf::ApplicationConfigDeserializer do
         loc = result.location_manager.locations['loc1']
 
         expect(loc.path).to eq path_dir + '/'
-        expect(loc.metadata_path).to eq md_dir + '/'
+        expect(loc.metadata_location.path).to eq md_dir + '/'
       end
 
       context 'with relative path to config file' do
@@ -90,7 +90,7 @@ describe Longleaf::ApplicationConfigDeserializer do
           loc = result.location_manager.locations['loc1']
 
           expect(loc.path).to eq path_dir + '/'
-          expect(loc.metadata_path).to eq md_dir + '/'
+          expect(loc.metadata_location.path).to eq md_dir + '/'
         end
       end
     end
@@ -119,7 +119,7 @@ describe Longleaf::ApplicationConfigDeserializer do
         loc = result.location_manager.locations['loc1']
 
         expect(loc.path).to eq path_pathname.to_s + '/'
-        expect(loc.metadata_path).to eq md_pathname.to_s + '/'
+        expect(loc.metadata_location.path).to eq md_pathname.to_s + '/'
       end
     end
 

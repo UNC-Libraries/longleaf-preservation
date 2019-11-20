@@ -21,7 +21,7 @@ module Longleaf
 
       MetadataSerializer::write(metadata: file_rec.metadata_record,
           file_path: file_rec.metadata_path,
-          digest_algs: file_rec.storage_location.metadata_digests)
+          digest_algs: file_rec.storage_location.metadata_location.digests)
 
       index(file_rec)
     end
@@ -39,7 +39,7 @@ module Longleaf
     # @return [MetadataRecord] the metadata record for the file record
     def load(file_rec)
       md_rec = MetadataDeserializer.deserialize(file_path: file_rec.metadata_path,
-                  digest_algs: file_rec.storage_location.metadata_digests)
+                  digest_algs: file_rec.storage_location.metadata_location.digests)
       file_rec.metadata_record = md_rec
       md_rec
     end

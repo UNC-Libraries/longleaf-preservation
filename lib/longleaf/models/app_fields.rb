@@ -7,7 +7,11 @@ module Longleaf
     SYSTEM = 'system'
 
     LOCATION_PATH = 'path'
-    METADATA_PATH = 'metadata_path'
-    METADATA_DIGESTS = 'metadata_digests'
+    METADATA_CONFIG = 'metadata'
+    METADATA_DIGESTS = 'digests'
+
+    STORAGE_TYPE = 'type'
+
+    FILESYSTEM_STORAGE_TYPE = 'filesystem'
   end
 end

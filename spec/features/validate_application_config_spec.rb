@@ -57,7 +57,7 @@ describe 'validate_config', :type => :aruba do
     it 'outputs invalid configuration error' do
       expect(last_command_started).to have_output(/Application configuration invalid/)
       expect(last_command_started).to have_output(
-              /Storage location 'loc1' specifies invalid 'path' property: Path must not be empty/)
+              /Storage location 'loc1' specifies invalid location 'path' property: Path must not be empty/)
       expect(last_command_started).to have_exit_status(1)
     end
   end
@@ -78,7 +78,7 @@ describe 'validate_config', :type => :aruba do
 
     it 'outputs path does not exist configuration error' do
       expect(last_command_started).to have_output(/Application configuration invalid/)
-      expect(last_command_started).to have_output(/Storage location 'loc1' specifies a 'path' directory which does not exist/)
+      expect(last_command_started).to have_output(/Storage location 'loc1' specifies a location 'path' directory which does not exist/)
       expect(last_command_started).to have_exit_status(1)
     end
   end
@@ -233,7 +233,7 @@ describe 'validate_config', :type => :aruba do
 
     it 'reports all errors' do
       expect(last_command_started).to have_output(/Application configuration invalid/)
-      expect(last_command_started).to have_output(/Storage location 'loc1' specifies invalid 'metadata_path' property/)
+      expect(last_command_started).to have_output(/Metadata location must be present for location 'loc1'/)
       expect(last_command_started).to have_output(/Service definition 'serv1' must specify a 'work_script' property/)
       expect(last_command_started).to have_output(/Mapping specifies value 'serv_none'/)
       expect(last_command_started).to have_exit_status(1)

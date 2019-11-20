@@ -1,5 +1,6 @@
 require 'longleaf/models/app_fields'
-require 'longleaf/models/storage_location'
+require 'longleaf/models/filesystem_storage_location'
+require 'longleaf/models/filesystem_metadata_location'
 require 'longleaf/errors'
 
 module Longleaf
@@ -9,6 +10,9 @@ module Longleaf
 
     # Hash mapping storage location names to {StorageLocation} objects
     attr_reader :locations
+    # Mapping of storage types to storage location classes
+    @@storage_type_mappings = { AF::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemStorageLocation }
+    @@metadata_type_mappings = { AF::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemMetadataLocation }
 
     # @param config [Hash] has representation of the application configuration
     def initialize(config)
@@ -16,15 +20,9 @@ module Longleaf
 
       @locations = Hash.new
       config[AF::LOCATIONS].each do |name, properties|
-        path = properties[AF::LOCATION_PATH]
-        md_path = properties[AF::METADATA_PATH]
-        md_digests = properties[AF::METADATA_DIGESTS]
-        location = Longleaf::StorageLocation.new(name: name,
-            path: path,
-            metadata_path: md_path,
-            metadata_digests: md_digests)
+        md_loc = instantiate_metadata_location(properties)
 
-        @locations[name] = location
+        @locations[name] = instantiate_storage_location(name, properties, md_loc)
       end
       @locations.freeze
     end
@@ -35,7 +33,7 @@ module Longleaf
     def get_location_by_path(path)
       raise ArgumentError.new("Path parameter is required") if path.nil? || path.empty?
       @locations.each do |name, location|
-        return location if path.start_with?(location.path)
+        return location if location.contains?(path)
       end
 
       nil
@@ -47,7 +45,7 @@ module Longleaf
     def get_location_by_metadata_path(md_path)
       raise ArgumentError.new("Metadata path parameter is required") if md_path.nil? || md_path.empty?
       @locations.each do |name, location|
-        return location if md_path.start_with?(location.metadata_path)
+        return location if location.metadata_location.contains?(md_path)
       end
 
       nil
@@ -67,6 +65,28 @@ module Longleaf
         raise StorageLocationUnavailableError.new("Path #{path} is not contained by storage location #{expected_loc}.")
       end
       location
+    end
+
+    private
+    def instantiate_metadata_location(loc_properties)
+      m_config = loc_properties[AF::METADATA_CONFIG]
+      m_type = m_config[AF::STORAGE_TYPE]
+      m_type = AF::FILESYSTEM_STORAGE_TYPE if m_type.nil?
+
+      m_class = @@metadata_type_mappings[m_type]
+      raise ArgumentError.new("Unknown metadata location type #{m_type}") if m_class.nil?
+
+      m_class.new(m_config)
+    end
+
+    def instantiate_storage_location(name, properties, md_loc)
+      s_type = properties[AF::STORAGE_TYPE]
+      s_type = AF::FILESYSTEM_STORAGE_TYPE if s_type.nil?
+
+      s_class = @@storage_type_mappings[s_type]
+      raise ArgumentError.new("Unknown storage location type #{s_type}") if s_class.nil?
+
+      s_class.new(name, properties, md_loc)
     end
   end
 end

@@ -68,7 +68,7 @@ describe 'rsync replication service', :type => :aruba do
       end
 
       it 'reports failure and does not replicate' do
-        expect(last_command_started).to have_output(/Storage location 'loc2' specifies a 'metadata_path' directory which does not exist/)
+        expect(last_command_started).to have_output(/Storage location 'loc2' specifies a metadata 'path' directory which does not exist/)
         expect(last_command_started).to have_exit_status(1)
 
         repl_path = File.join(path_dir2, File.basename(file_path))

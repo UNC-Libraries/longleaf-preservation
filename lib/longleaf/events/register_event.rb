@@ -77,7 +77,7 @@ module Longleaf
       md_rec = @file_rec.metadata_record
 
       old_md = MetadataDeserializer.deserialize(file_path: @file_rec.metadata_path,
-              digest_algs: @file_rec.storage_location.metadata_digests)
+              digest_algs: @file_rec.storage_location.metadata_location.digests)
       # Copy custom properties
       old_md.properties.each { |name, value| md_rec.properties[name] = value }
       # Copy stale-replicas flag per service
