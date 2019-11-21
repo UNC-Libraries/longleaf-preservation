@@ -60,7 +60,15 @@ module Longleaf
       config[AF::LOCATIONS].each do |name, properties|
         properties[AF::LOCATION_PATH] = absolution(base_pathname, properties[AF::LOCATION_PATH])
 
-        properties[AF::METADATA_PATH] = absolution(base_pathname, properties[AF::METADATA_PATH])
+        # Resolve single field metadata location into expanded form
+        md_config = properties[AF::METADATA_CONFIG]
+        if md_config.nil?
+          next
+        end
+        if md_config.is_a?(String)
+          md_config = { AF::LOCATION => m_config }
+        end
+        md_config[AF::LOCATION_PATH] = absolution(base_pathname, md_config[AF::LOCATION_PATH])
       end
     end
 

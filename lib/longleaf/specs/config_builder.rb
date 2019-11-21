@@ -27,14 +27,21 @@ module Longleaf
     # @param path [String] value for the 'path' field
     # @param md_path [String] value for the 'metadata_path' field
     # @return this builder
-    def with_location(name:, path: '/file/path/', md_path: '/metadata/path/', md_digests: nil)
+    def with_location(name:, path: '/file/path/', s_type: nil, md_path: '/metadata/path/', md_type: nil, md_digests: nil)
       @config[AF::LOCATIONS] = Hash.new unless @config.key?(AF::LOCATIONS)
 
       location = {}
       @config[AF::LOCATIONS][name] = location
       location[AF::LOCATION_PATH] = path unless path.nil?
-      location[AF::METADATA_PATH] = md_path unless md_path.nil?
-      location[AF::METADATA_DIGESTS] = md_digests unless md_digests.nil?
+      location[AF::STORAGE_TYPE] = s_type unless s_type.nil?
+
+      if !md_path.nil?
+        md_loc = { AF::LOCATION_PATH => md_path }
+        location[AF::METADATA_CONFIG] = md_loc
+
+        md_loc[AF::METADATA_DIGESTS] = md_digests unless md_digests.nil?
+        md_loc[AF::STORAGE_TYPE] = md_type unless md_type.nil?
+      end
       self
     end
 

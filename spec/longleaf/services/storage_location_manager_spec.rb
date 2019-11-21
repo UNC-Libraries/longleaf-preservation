@@ -36,7 +36,7 @@ describe Longleaf::StorageLocationManager do
 
         expect(location.name).to eq 's_loc'
         expect(location.path).to eq '/file/path/'
-        expect(location.metadata_path).to eq '/metadata/path/'
+        expect(location.metadata_location.path).to eq '/metadata/path/'
       end
     end
 
@@ -57,7 +57,7 @@ describe Longleaf::StorageLocationManager do
 
         expect(location.name).to eq 'loc1'
         expect(location.path).to eq '/file/path1/'
-        expect(location.metadata_path).to eq '/metadata/path1/'
+        expect(location.metadata_location.path).to eq '/metadata/path1/'
       end
 
       it 'returns location loc2' do
@@ -65,7 +65,7 @@ describe Longleaf::StorageLocationManager do
 
         expect(location.name).to eq 'loc2'
         expect(location.path).to eq '/file/path2/'
-        expect(location.metadata_path).to eq '/metadata/path2/'
+        expect(location.metadata_location.path).to eq '/metadata/path2/'
       end
     end
 
@@ -77,7 +77,7 @@ describe Longleaf::StorageLocationManager do
         location = manager.locations['loc1']
 
         expect(location.name).to eq 'loc1'
-        expect(location.metadata_digests).to contain_exactly('sha1')
+        expect(location.metadata_location.digests).to contain_exactly('sha1')
       end
     end
 
@@ -89,7 +89,7 @@ describe Longleaf::StorageLocationManager do
         location = manager.locations['loc1']
 
         expect(location.name).to eq 'loc1'
-        expect(location.metadata_digests).to contain_exactly('sha1', 'sha256')
+        expect(location.metadata_location.digests).to contain_exactly('sha1', 'sha256')
       end
     end
   end

@@ -29,7 +29,7 @@ describe Longleaf::ApplicationConfigValidator do
           .get
       }
 
-      it { fails_validation_with_error(validator, /'loc1' specifies invalid 'path' property/) }
+      it { fails_validation_with_error(validator, /'loc1' specifies invalid location 'path' property/) }
     end
 
     context 'invalid service configuration' do
@@ -79,7 +79,7 @@ describe Longleaf::ApplicationConfigValidator do
 
       it 'reports all failures' do
         fails_validation_with_error(validator,
-            /'loc1' specifies invalid 'path' property/,
+            /'loc1' specifies invalid location 'path' property/,
             /'serv1' must specify a 'work_script' property/,
             /'serv_none', but no services with that name exist/)
       end

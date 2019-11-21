@@ -30,8 +30,10 @@ module Longleaf
           assert("Name of storage location must be a string, but was of type #{name.class}", name.instance_of?(String))
           assert("Storage location '#{name}' must be a hash, but a #{properties.class} was provided", properties.is_a?(Hash))
 
-          register_on_failure { assert_path_property_valid(name, AF::LOCATION_PATH, properties) }
-          assert_path_property_valid(name, AF::METADATA_PATH, properties)
+          register_on_failure { assert_path_property_valid(name, AF::LOCATION_PATH, properties, 'location') }
+
+          assert("Metadata location must be present for location '#{name}'", properties.key?(AF::METADATA_CONFIG))
+          assert_path_property_valid(name, AF::LOCATION_PATH, properties[AF::METADATA_CONFIG], 'metadata')
         end
       end
 
@@ -39,26 +41,27 @@ module Longleaf
     end
 
     private
-    def assert_path_property_valid(name, path_prop, properties)
+    def assert_path_property_valid(name, path_prop, properties, section_name)
       path = properties[path_prop]
       begin
         StoragePathValidator::validate(path)
       rescue InvalidStoragePathError => err
-        fail("Storage location '#{name}' specifies invalid '#{path_prop}' property: #{err.message}")
+        fail("Storage location '#{name}' specifies invalid #{section_name} '#{path_prop}' property: #{err.message}")
       end
-      assert("Storage location '#{name}' must specify a '#{path_prop}' property", !path.nil? && !path.empty?)
-      assert("Storage location '#{name}' must specify an absolute path for property '#{path_prop}'",
+      assert("Storage location '#{name}' must specify a #{section_name} '#{path_prop}' property", !path.nil? && !path.empty?)
+      assert("Storage location '#{name}' must specify an absolute path for property #{section_name} '#{path_prop}'",
           Pathname.new(path).absolute? && !path.include?('/..'))
-      assert("Storage location '#{name}' specifies a '#{path_prop}' directory which does not exist", Dir.exist?(path))
+      assert("Storage location '#{name}' specifies a #{section_name} '#{path_prop}' directory which does not exist",
+          Dir.exist?(path))
 
       # Ensure paths have trailing slash to avoid matching on partial directory names
       path += '/' unless path.end_with?('/')
       # Verify that the (metadata_)path property's value is not inside of another storage location or vice versa
       @existing_paths.each do |existing|
         if existing.start_with?(path) || path.start_with?(existing)
-          msg = "Location '#{name}' defines property #{path_prop} with value '#{path}'" \
+          msg = "Location '#{name}' defines property #{section_name} #{path_prop} with value '#{path}'" \
                 " which overlaps with another configured path '#{existing}'." \
-                " Storage locations must not define #{AF::LOCATION_PATH} or #{AF::METADATA_PATH}" \
+                " Storage locations must not define #{AF::LOCATION_PATH}" \
                 " properties which are contained by another location property"
           fail(msg)
         end

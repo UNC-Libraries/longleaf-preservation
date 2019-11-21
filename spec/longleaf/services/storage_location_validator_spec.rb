@@ -50,21 +50,27 @@ describe Longleaf::StorageLocationValidator do
     context 'with location missing path' do
       let(:config) { ConfigBuilder.new.with_location(name: 'loc1', path: nil, md_path: md_dir1).get }
 
-      it { fails_validation_with_error(validator, /'path' property: Path must not be empty/) }
+      it { fails_validation_with_error(validator, /location 'path' property: Path must not be empty/) }
+    end
+
+    context 'with location missing metadata config' do
+      let(:config) { ConfigBuilder.new.with_location(name: 'loc1', path: path_dir1, md_path: nil).get }
+
+      it { fails_validation_with_error(validator, /Metadata location must be present for location/) }
     end
 
     context 'with location missing metadata path' do
-      let(:config) { ConfigBuilder.new.with_location(name: 'loc1', path: path_dir1, md_path: nil).get }
+      let(:config) { ConfigBuilder.new.with_location(name: 'loc1', path: path_dir1, md_path: '').get }
 
-      it { fails_validation_with_error(validator, /'metadata_path' property: Path must not be empty/) }
+      it { fails_validation_with_error(validator, /metadata 'path' property: Path must not be empty/) }
     end
 
     context 'with location missing path and metadata path' do
       let(:config) { ConfigBuilder.new.with_location(name: 'loc1', path: nil, md_path: nil).get }
 
       it 'returns errors for path and metadata path' do
-        fails_validation_with_error(validator, /'path' property: Path must not be empty/,
-            /'metadata_path' property: Path must not be empty/)
+        fails_validation_with_error(validator, /location 'path' property: Path must not be empty/,
+            /Metadata location must be present for location/)
       end
     end
 
@@ -86,19 +92,19 @@ describe Longleaf::StorageLocationValidator do
     context 'with location with non-absolute path' do
       let(:config) { ConfigBuilder.new.with_location(name: 'loc1', path: 'path/').get }
 
-      it { fails_validation_with_error(validator, /'path' property: Path must be absolute/) }
+      it { fails_validation_with_error(validator, /location 'path' property: Path must be absolute/) }
     end
 
     context 'with location with path modifiers' do
       let(:config) { ConfigBuilder.new.with_location(name: 'loc1', path: '/file/../path/').get }
 
-      it { fails_validation_with_error(validator, /'path' property: Path must not contain any relative modifiers/) }
+      it { fails_validation_with_error(validator, /location 'path' property: Path must not contain any relative modifiers/) }
     end
 
     context 'with location with non-absolute metadata_path' do
       let(:config) { ConfigBuilder.new.with_location(name: 'loc1', path: path_dir1, md_path: 'md_path/').get }
 
-      it { fails_validation_with_error(validator, /'metadata_path' property: Path must be absolute/) }
+      it { fails_validation_with_error(validator, /metadata 'path' property: Path must be absolute/) }
     end
 
     context 'with location with non-hash location' do
@@ -115,7 +121,7 @@ describe Longleaf::StorageLocationValidator do
           .get
       }
 
-      it { fails_validation_with_error(validator, /defines property metadata_path.*overlaps with another configured path/) }
+      it { fails_validation_with_error(validator, /defines property metadata path.*overlaps with another configured path/) }
     end
 
     context 'with location path contained by another location path' do
@@ -129,7 +135,7 @@ describe Longleaf::StorageLocationValidator do
           .get
       }
 
-      it { fails_validation_with_error(validator, /defines property path.*overlaps with another configured path/) }
+      it { fails_validation_with_error(validator, /defines property location path.*overlaps with another configured path/) }
     end
 
     context 'with location path contained by another location path without trailing slash' do
@@ -143,7 +149,7 @@ describe Longleaf::StorageLocationValidator do
           .get
       }
 
-      it { fails_validation_with_error(validator, /defines property path.*overlaps with another configured path/) }
+      it { fails_validation_with_error(validator, /defines property location path.*overlaps with another configured path/) }
     end
 
     # Ensuring problem is caught in either direction
@@ -158,7 +164,7 @@ describe Longleaf::StorageLocationValidator do
           .get
       }
 
-      it { fails_validation_with_error(validator, /defines property path.*overlaps with another configured path/) }
+      it { fails_validation_with_error(validator, /defines property location path.*overlaps with another configured path/) }
     end
 
     context 'with location path contained by another location metadata_path' do
@@ -172,7 +178,7 @@ describe Longleaf::StorageLocationValidator do
           .get
       }
 
-      it { fails_validation_with_error(validator, /defines property metadata_path.*overlaps with another configured path/) }
+      it { fails_validation_with_error(validator, /defines property metadata path.*overlaps with another configured path/) }
     end
 
     context 'location with invalid name' do
@@ -217,7 +223,7 @@ describe Longleaf::StorageLocationValidator do
           .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1).get
       }
 
-      it { fails_validation_with_error(validator, /Storage location 'loc1' specifies a 'path' directory which does not exist/) }
+      it { fails_validation_with_error(validator, /Storage location 'loc1' specifies a location 'path' directory which does not exist/) }
     end
 
     context 'with metadata path that does not exist' do
@@ -230,7 +236,7 @@ describe Longleaf::StorageLocationValidator do
           .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1).get
       }
 
-      it { fails_validation_with_error(validator, /Storage location 'loc1' specifies a 'metadata_path' directory which does not exist/) }
+      it { fails_validation_with_error(validator, /Storage location 'loc1' specifies a metadata 'path' directory which does not exist/) }
     end
   end
 end
