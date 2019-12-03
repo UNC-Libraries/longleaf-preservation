@@ -1,5 +1,6 @@
 require 'longleaf/models/app_fields'
 require 'longleaf/models/filesystem_storage_location'
+require 'longleaf/models/s3_storage_location'
 require 'longleaf/models/filesystem_metadata_location'
 require 'longleaf/errors'
 
@@ -11,7 +12,10 @@ module Longleaf
     # Hash mapping storage location names to {StorageLocation} objects
     attr_reader :locations
     # Mapping of storage types to storage location classes
-    @@storage_type_mappings = { AF::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemStorageLocation }
+    @@storage_type_mappings = {
+        AF::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemStorageLocation,
+        AF::S3_STORAGE_TYPE => Longleaf::S3StorageLocation
+      }
     @@metadata_type_mappings = { AF::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemMetadataLocation }
 
     # @param config [Hash] has representation of the application configuration

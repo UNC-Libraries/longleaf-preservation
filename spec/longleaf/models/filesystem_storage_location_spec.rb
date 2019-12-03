@@ -224,4 +224,10 @@ describe Longleaf::FilesystemStorageLocation do
       it { expect(location.contains?(file_path)).to be false }
     end
   end
+
+  describe '.type' do
+    let(:location) { build(:storage_location) }
+
+    it { expect(location.type).to eq 'filesystem' }
+  end
 end

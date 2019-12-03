@@ -17,8 +17,6 @@ module Longleaf
       @path = config[AF::LOCATION_PATH]
       @name = name
       raise ArgumentError.new("Parameters name, path and metadata location are required") unless @name && @path && md_loc
-
-      @path += '/' unless @path.end_with?('/')
       @metadata_location = md_loc
     end
 
