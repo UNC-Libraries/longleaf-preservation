@@ -36,7 +36,7 @@ describe Longleaf::MetadataRecord do
       it 'adds a checksum' do
         record.checksums['MD5'] = 'digest'
 
-        expect(record.checksums).to include('MD5' => 'digest')
+        expect(record.checksums).to include('md5' => 'digest')
       end
 
       it 'removes a checksum' do
@@ -47,10 +47,18 @@ describe Longleaf::MetadataRecord do
     end
 
     context 'with checksum properties' do
-      let(:expected_checksums) { {'SHA1' => '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83' } }
+      let(:expected_checksums) { {'sha1' => '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83' } }
       let(:record) { build(:metadata_record, checksums: expected_checksums ) }
 
       it { expect(record.checksums).to include(expected_checksums) }
+      it { expect(record.checksums.length).to eq 1 }
+    end
+
+    context 'with caps checksum properties' do
+      let(:expected_checksums) { {'SHA1' => '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83' } }
+      let(:record) { build(:metadata_record, checksums: expected_checksums ) }
+
+      it { expect(record.checksums).to include('sha1' => '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83') }
       it { expect(record.checksums.length).to eq 1 }
     end
   end

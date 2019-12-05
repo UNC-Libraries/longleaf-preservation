@@ -1,5 +1,6 @@
 require_relative 'md_fields'
 require_relative 'service_record'
+require 'longleaf/helpers/case_insensitive_hash'
 
 module Longleaf
   # Metadata record for a single file
@@ -22,7 +23,8 @@ module Longleaf
       @properties = properties || Hash.new
       @registered = registered
       @deregistered = deregistered
-      @checksums = checksums || Hash.new
+      @checksums = CaseInsensitiveHash.new
+      @checksums.merge!(checksums) unless checksums.nil?
       @services = services || Hash.new
       @file_size = file_size
       @last_modified = last_modified
