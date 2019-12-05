@@ -223,7 +223,7 @@ describe Longleaf::StorageLocationValidator do
           .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1).get
       }
 
-      it { fails_validation_with_error(validator, /Storage location 'loc1' specifies a location 'path' directory which does not exist/) }
+      it { fails_validation_with_error(validator, /Storage location 'loc1' specifies invalid location 'path' property: Path does not exist/) }
     end
 
     context 'with metadata path that does not exist' do
@@ -236,7 +236,13 @@ describe Longleaf::StorageLocationValidator do
           .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1).get
       }
 
-      it { fails_validation_with_error(validator, /Storage location 'loc1' specifies a metadata 'path' directory which does not exist/) }
+      it { fails_validation_with_error(validator, /Storage location 'loc1' specifies invalid metadata 'path' property: Path does not exist/) }
+    end
+
+    context 'with s3 location with no bucket' do
+      let(:config) { ConfigBuilder.new.with_location(name: 'loc1', path: 'http://s3.example.com/', s_type: 's3').get }
+
+      it { fails_validation_with_error(validator, /location 'path' property: Path must specify a bucket/) }
     end
   end
 end

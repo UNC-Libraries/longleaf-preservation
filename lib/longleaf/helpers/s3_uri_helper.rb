@@ -14,7 +14,7 @@ module Longleaf
 
       matches = ENDPOINT_PATTERN.match(uri.host)
       if matches.nil?
-        raise ArgumentError.new("Provided URI is not a s3")
+        raise ArgumentError.new("Provided URI does match the expected pattern for an S3 URI")
       end
 
       prefix = matches[1]
@@ -47,14 +47,14 @@ module Longleaf
 
     def self.s3_uri(url)
       if url.nil?
-        raise ArgumentError.new("url cannot be null")
+        raise ArgumentError.new("url cannot be empty")
       end
       uri = URI(url)
       if !ALLOWED_SCHEMES.include?(uri.scheme&.downcase)
         raise ArgumentError.new("Invalid scheme for s3 URI #{url}, only http, https and s3 are permitted")
       end
       if uri.host.nil?
-        raise ArgumentError.new("Invalid S3 URI: no hostname: #{url}")
+        raise ArgumentError.new("Invalid S3 URI, no hostname: #{url}")
       end
       uri
     end
