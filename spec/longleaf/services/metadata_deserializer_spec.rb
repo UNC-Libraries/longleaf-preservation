@@ -88,7 +88,7 @@ describe Longleaf::MetadataDeserializer do
         result = Deserializer.deserialize(file_path: md_file)
 
         expect(result.registered).to eq '2018-01-01T00:00:00.000Z'
-        expect(result.checksums).to include('SHA1' => '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83')
+        expect(result.checksums).to include('sha1' => '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83')
         expect(result.file_size).to eq 1500
         expect(result.last_modified).to eq '2016-01-01T20:38:45Z'
         expect(result.properties['special']).to eq 'value'
