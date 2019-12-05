@@ -1,4 +1,5 @@
 require 'longleaf/models/app_fields'
+require 'longleaf/models/storage_types'
 require 'longleaf/models/filesystem_storage_location'
 require 'longleaf/models/s3_storage_location'
 require 'longleaf/models/filesystem_metadata_location'
@@ -8,15 +9,16 @@ module Longleaf
   # Manager which loads and provides access to {StorageLocation} objects
   class StorageLocationManager
     AF ||= Longleaf::AppFields
+    ST ||= Longleaf::StorageTypes
 
     # Hash mapping storage location names to {StorageLocation} objects
     attr_reader :locations
     # Mapping of storage types to storage location classes
     @@storage_type_mappings = {
-        AF::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemStorageLocation,
-        AF::S3_STORAGE_TYPE => Longleaf::S3StorageLocation
+        ST::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemStorageLocation,
+        ST::S3_STORAGE_TYPE => Longleaf::S3StorageLocation
       }
-    @@metadata_type_mappings = { AF::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemMetadataLocation }
+    @@metadata_type_mappings = { ST::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemMetadataLocation }
 
     # @param config [Hash] has representation of the application configuration
     def initialize(config)
@@ -75,7 +77,7 @@ module Longleaf
     def instantiate_metadata_location(loc_properties)
       m_config = loc_properties[AF::METADATA_CONFIG]
       m_type = m_config[AF::STORAGE_TYPE]
-      m_type = AF::FILESYSTEM_STORAGE_TYPE if m_type.nil?
+      m_type = ST::FILESYSTEM_STORAGE_TYPE if m_type.nil?
 
       m_class = @@metadata_type_mappings[m_type]
       raise ArgumentError.new("Unknown metadata location type #{m_type}") if m_class.nil?
@@ -85,7 +87,7 @@ module Longleaf
 
     def instantiate_storage_location(name, properties, md_loc)
       s_type = properties[AF::STORAGE_TYPE]
-      s_type = AF::FILESYSTEM_STORAGE_TYPE if s_type.nil?
+      s_type = ST::FILESYSTEM_STORAGE_TYPE if s_type.nil?
 
       s_class = @@storage_type_mappings[s_type]
       raise ArgumentError.new("Unknown storage location type #{s_type}") if s_class.nil?

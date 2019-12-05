@@ -8,5 +8,9 @@ module Longleaf
 
     REPLICATE_TO = 'to'
     DIGEST_ALGORITHMS = 'algorithms'
+
+    COLLISION_PROPERTY = "replica_collision_policy"
+    DEFAULT_COLLISION_POLICY = "replace"
+    VALID_COLLISION_POLICIES = ["replace"]
   end
 end

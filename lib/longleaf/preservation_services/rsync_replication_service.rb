@@ -21,10 +21,7 @@ module Longleaf
   #     "help", etc. Command will always include "-R". Default "-a".
   class RsyncReplicationService
     include Longleaf::Logging
-
-    COLLISION_PROPERTY = "replica_collision_policy"
-    DEFAULT_COLLISION_POLICY = "replace"
-    VALID_COLLISION_POLICIES = ["replace"]
+    SF ||= Longleaf::ServiceFields
 
     RSYNC_COMMAND_PROPERTY = "rsync_command"
     DEFAULT_COMMAND = "rsync"
@@ -57,14 +54,14 @@ module Longleaf
       @options = @options + " -R"
 
       # Set and validate the replica collision policy
-      @collision_policy = @service_def.properties[COLLISION_PROPERTY] || DEFAULT_COLLISION_POLICY
-      if !VALID_COLLISION_POLICIES.include?(@collision_policy)
-        raise ArgumentError.new("Service #{service_def.name} received invalid #{COLLISION_PROPERTY}" \
-            + " value #{collision_policy}")
+      @collision_policy = @service_def.properties[SF::COLLISION_PROPERTY] || SF::DEFAULT_COLLISION_POLICY
+      if !SF::VALID_COLLISION_POLICIES.include?(@collision_policy)
+        raise ArgumentError.new("Service #{service_def.name} received invalid #{SF::COLLISION_PROPERTY}" \
+            + " value #{@collision_policy}")
       end
 
       # Store and validate destinations
-      replicate_to = @service_def.properties[ServiceFields::REPLICATE_TO]
+      replicate_to = @service_def.properties[SF::REPLICATE_TO]
       if replicate_to.nil? || replicate_to.empty?
         raise ArgumentError.new("Service #{service_def.name} must provide one or more replication destinations.")
       end
@@ -105,7 +102,7 @@ module Longleaf
         end
 
         # Determine the path to the file being replicated relative to its storage location
-        rel_path = file_rec.path.sub(/\A#{file_rec.storage_location.path}/, "")
+        rel_path = file_rec.storage_location.relativize(file_rec.path)
         # source path with . so that rsync will only create destination directories starting from that point
         source_path = File.join(file_rec.storage_location.path, "./#{rel_path}")
 

@@ -9,6 +9,7 @@ require 'fileutils'
 describe Longleaf::RsyncReplicationService do
   include Longleaf::FileHelpers
 
+  SF ||= Longleaf::ServiceFields
   RsyncService ||= Longleaf::RsyncReplicationService
   ConfigBuilder ||= Longleaf::ConfigBuilder
   PRESERVE_EVENT ||= Longleaf::EventNames::PRESERVE
@@ -315,8 +316,8 @@ describe Longleaf::RsyncReplicationService do
   private
   def make_service_def(destinations, collision: nil, command: nil, options: nil)
     properties = Hash.new
-    properties[Longleaf::ServiceFields::REPLICATE_TO] = destinations
-    properties[RsyncService::COLLISION_PROPERTY] = collision unless collision.nil?
+    properties[SF::REPLICATE_TO] = destinations
+    properties[SF::COLLISION_PROPERTY] = collision unless collision.nil?
     properties[RsyncService::RSYNC_COMMAND_PROPERTY] = command unless command.nil?
     properties[RsyncService::RSYNC_OPTIONS_PROPERTY] = options unless options.nil?
     build(:service_definition, properties: properties)
