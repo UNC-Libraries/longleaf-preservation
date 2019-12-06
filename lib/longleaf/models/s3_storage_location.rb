@@ -66,8 +66,9 @@ module Longleaf
     def available?
       begin
         s3_client().head_bucket({ bucket: @bucket_name, use_accelerate_endpoint: false })
-      rescue StandardError
-        raise StorageLocationUnavailableError.new("Destination bucket #{@bucket_name} does not exist or is not accessible")
+      rescue StandardError => e
+        raise StorageLocationUnavailableError.new("Destination bucket #{@bucket_name} does not exist " \
+            + "or is not accessible: #{e.message}")
       end
       @metadata_location.available?
     end

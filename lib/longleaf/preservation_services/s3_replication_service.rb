@@ -11,7 +11,8 @@ module Longleaf
   # Preservation service which performs replication of a file to one or more s3 destinations.
   #
   # The service definition must contain one or more destinations, specified with the "to" property.
-  # These destinations must be either a known s3 storage location.
+  # These destinations must be either a known s3 storage location. The s3 client configuration
+  # is controlled by the storage location.
   #
   # Optional service configuration properties:
   # * replica_collision_policy = specifies the desired outcome if the service attempts to replicate
@@ -73,8 +74,8 @@ module Longleaf
       if file_rec.storage_location.type == ST::FILESYSTEM_STORAGE_TYPE
         replicate_from_fs(file_rec)
       else
-        raise PreservationServiceError.new("Replication from storage location of type #{file_rec.storage_location.type}" \
-            + " to s3 is not supported")
+        raise PreservationServiceError.new("Replication from storage location of type " \
+            + "#{file_rec.storage_location.type} to s3 is not supported")
       end
     end
 
@@ -90,7 +91,15 @@ module Longleaf
           verify_destination_available(destination, file_rec)
 
           file_obj = destination.s3_bucket.object(rel_path)
-          file_obj.put(body: file, content_md5: content_md5)
+          begin
+            file_obj.put(body: file, content_md5: content_md5)
+          rescue Aws::S3::Errors::BadDigest => e
+            raise ChecksumMismatchError.new("Transfer to bucket '#{destination.s3_bucket.name}' failed, " \
+                + "MD5 provided did not match the received content for #{file_rec.path}")
+          rescue Aws::Errors::ServiceError => e
+            raise PreservationServiceError.new("Failed to transfer #{file_rec.path} to bucket " \
+                + "'#{destination.s3_bucket.name}': #{e.message}")
+          end
 
           logger.info("Replicated #{file_rec.path} to destination #{file_obj.public_url}")
 
@@ -112,6 +121,7 @@ module Longleaf
       end
     end
 
+    private
     def verify_destination_available(destination, file_rec)
       begin
         destination.available?

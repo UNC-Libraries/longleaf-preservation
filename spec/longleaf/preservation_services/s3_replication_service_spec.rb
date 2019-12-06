@@ -160,6 +160,23 @@ describe Longleaf::S3ReplicationService do
         end
       end
 
+      context 'with invalid md5' do
+        before do
+          md_rec.checksums['MD5'] = '9a0364b9e99bohnodd25e1f0284c8555'
+          dest1.s3_client.stub_responses(:put_object, 'BadDigest')
+        end
+
+        it { expect { service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(Longleaf::ChecksumMismatchError) }
+      end
+
+      context 'with transfer error' do
+        before do
+          dest1.s3_client.stub_responses(:put_object, 'NoSuchUpload')
+        end
+
+        it { expect { service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(Longleaf::PreservationServiceError) }
+      end
+
       context 'with nested file' do
         let(:nested_src_dir) do
           nested_path = File.join(path_src_dir, 'nested')
