@@ -1,4 +1,5 @@
 require 'longleaf/models/storage_location'
+require 'longleaf/models/storage_types'
 require 'longleaf/helpers/s3_uri_helper'
 require 'uri'
 require 'aws-sdk-s3'
@@ -46,7 +47,7 @@ module Longleaf
 
     # @return the storage type for this location
     def type
-      AppFields::S3_STORAGE_TYPE
+      StorageTypes::S3_STORAGE_TYPE
     end
 
     # Get that absolute path to the file associated with the provided metadata path

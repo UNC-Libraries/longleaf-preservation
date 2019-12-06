@@ -1,5 +1,5 @@
 require 'longleaf/models/storage_location'
-require 'longleaf/models/app_fields'
+require 'longleaf/models/storage_types'
 
 module Longleaf
   # A storage location in a local filesystem
@@ -14,7 +14,7 @@ module Longleaf
 
     # @return the storage type for this location
     def type
-      AppFields::FILESYSTEM_STORAGE_TYPE
+      StorageTypes::FILESYSTEM_STORAGE_TYPE
     end
 
     # Get that absolute path to the file associated with the provided metadata path

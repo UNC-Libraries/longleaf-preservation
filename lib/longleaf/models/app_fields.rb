@@ -11,8 +11,5 @@ module Longleaf
     METADATA_DIGESTS = 'digests'
 
     STORAGE_TYPE = 'type'
-
-    FILESYSTEM_STORAGE_TYPE = 'filesystem'
-    S3_STORAGE_TYPE = 's3'
   end
 end
