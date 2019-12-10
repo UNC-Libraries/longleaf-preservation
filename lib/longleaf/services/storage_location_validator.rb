@@ -1,14 +1,21 @@
 require 'pathname'
-require 'longleaf/models/storage_location'
 require 'longleaf/models/app_fields'
+require 'longleaf/models/storage_types'
 require 'longleaf/errors'
 require_relative 'configuration_validator'
-require 'longleaf/services/storage_path_validator'
+require 'longleaf/services/filesystem_location_validator'
+require 'longleaf/services/s3_location_validator'
 
 module Longleaf
   # Validates application configuration of storage locations
   class StorageLocationValidator < ConfigurationValidator
     AF ||= Longleaf::AppFields
+    ST ||= Longleaf::StorageTypes
+
+    @@storage_type_mappings = {
+        ST::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemLocationValidator,
+        ST::S3_STORAGE_TYPE => Longleaf::S3LocationValidator
+      }
 
     # @param config [Hash] hash containing the application configuration
     def initialize(config)
@@ -43,16 +50,10 @@ module Longleaf
     private
     def assert_path_property_valid(name, path_prop, properties, section_name)
       path = properties[path_prop]
-      begin
-        StoragePathValidator::validate(path)
-      rescue InvalidStoragePathError => err
-        fail("Storage location '#{name}' specifies invalid #{section_name} '#{path_prop}' property: #{err.message}")
-      end
-      assert("Storage location '#{name}' must specify a #{section_name} '#{path_prop}' property", !path.nil? && !path.empty?)
-      assert("Storage location '#{name}' must specify an absolute path for property #{section_name} '#{path_prop}'",
-          Pathname.new(path).absolute? && !path.include?('/..'))
-      assert("Storage location '#{name}' specifies a #{section_name} '#{path_prop}' directory which does not exist",
-          Dir.exist?(path))
+
+      storage_type = properties[AF::STORAGE_TYPE] || ST::DEFAULT_STORAGE_TYPE
+      type_validator = @@storage_type_mappings[storage_type]
+      type_validator.validate(self, name, path_prop, section_name, path)
 
       # Ensure paths have trailing slash to avoid matching on partial directory names
       path += '/' unless path.end_with?('/')

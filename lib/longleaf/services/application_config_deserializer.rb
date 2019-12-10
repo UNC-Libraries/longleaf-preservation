@@ -58,7 +58,7 @@ module Longleaf
       base_pathname = Pathname.new(config_path).expand_path.parent
 
       config[AF::LOCATIONS].each do |name, properties|
-        properties[AF::LOCATION_PATH] = absolution(base_pathname, properties[AF::LOCATION_PATH])
+        properties[AF::LOCATION_PATH] = make_file_paths_absolute(base_pathname, properties)
 
         # Resolve single field metadata location into expanded form
         md_config = properties[AF::METADATA_CONFIG]
@@ -68,7 +68,20 @@ module Longleaf
         if md_config.is_a?(String)
           md_config = { AF::LOCATION => m_config }
         end
-        md_config[AF::LOCATION_PATH] = absolution(base_pathname, md_config[AF::LOCATION_PATH])
+        md_config[AF::LOCATION_PATH] = make_file_paths_absolute(base_pathname, md_config)
+      end
+    end
+
+    def self.make_file_paths_absolute(base_pathname, properties)
+      path = properties[AF::LOCATION_PATH]
+      return nil if path.nil?
+
+      uri = URI(path)
+
+      if uri.scheme.nil? || uri.scheme.casecmp("file") == 0
+        absolution(base_pathname, uri.path)
+      else
+        path
       end
     end
 

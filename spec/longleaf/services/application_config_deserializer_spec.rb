@@ -123,6 +123,32 @@ describe Longleaf::ApplicationConfigDeserializer do
       end
     end
 
+    context 'with uri location paths' do
+      let(:md_dir) { Dir.mktmpdir('metadata') }
+      let(:path_dir) { 'http://s3.example.com/stuff' }
+      let!(:config_path) {
+        ConfigBuilder.new
+          .with_service(name: 'serv1')
+          .with_location(name: 'loc1', path: path_dir, s_type: 's3', md_path: md_dir)
+          .map_services('loc1', 'serv1')
+          .write_to_yaml_file
+      }
+
+      after(:each) do
+        FileUtils.rmdir([md_dir])
+      end
+
+      it 'returns location loc1 with unmodified uris' do
+        result = AppDeserializer::deserialize(config_path)
+        expect(result.location_manager).to_not be_nil
+
+        loc = result.location_manager.locations['loc1']
+
+        expect(loc.path).to eq path_dir + '/'
+        expect(loc.metadata_location.path).to eq md_dir + '/'
+      end
+    end
+
     context 'minimal service configuration' do
       let(:md_dir) { Dir.mktmpdir('metadata') }
       let(:path_dir) { Dir.mktmpdir('path') }

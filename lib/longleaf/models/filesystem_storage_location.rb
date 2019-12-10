@@ -1,8 +1,22 @@
 require 'longleaf/models/storage_location'
+require 'longleaf/models/storage_types'
 
 module Longleaf
   # A storage location in a local filesystem
   class FilesystemStorageLocation < StorageLocation
+    # @param name [String] the name of this storage location
+    # @param config [Hash] hash containing the configuration options for this location
+    # @param md_loc [MetadataLocation] metadata location associated with this storage location
+    def initialize(name, config, md_loc)
+      super(name, config, md_loc)
+      @path += File::SEPARATOR unless @path.end_with?(File::SEPARATOR)
+    end
+
+    # @return the storage type for this location
+    def type
+      StorageTypes::FILESYSTEM_STORAGE_TYPE
+    end
+
     # Get that absolute path to the file associated with the provided metadata path
     # @param md_path [String] metadata file path
     # @raise [ArgumentError] if the md_path is not in this storage location

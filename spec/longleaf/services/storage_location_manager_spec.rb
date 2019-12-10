@@ -40,6 +40,24 @@ describe Longleaf::StorageLocationManager do
       end
     end
 
+    context 'with s3 location' do
+      let(:config) do
+        ConfigBuilder.new.with_locations
+            .with_location(name: 's3_loc', s_type: 's3', path: 'https://example.s3-amazonaws.com/path/')
+            .get
+      end
+      let(:manager) { build(:storage_location_manager, config: config) }
+
+      it { expect(manager.locations).to_not be_empty }
+      it 'returns location s_loc' do
+        location = manager.locations['s3_loc']
+
+        expect(location.name).to eq 's3_loc'
+        expect(location.path).to eq 'https://example.s3-amazonaws.com/path/'
+        expect(location.metadata_location.path).to eq '/metadata/path/'
+      end
+    end
+
     context 'with multiple locations' do
       let(:config) {
         ConfigBuilder.new.with_locations

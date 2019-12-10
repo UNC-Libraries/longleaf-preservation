@@ -29,10 +29,12 @@ Gem::Specification.new do |spec|
   spec.add_dependency "thor", "~> 0.20.0"
   spec.add_dependency "yard", "~> 0.9.16"
   spec.add_dependency "sequel", "~> 5.20"
+  spec.add_dependency "aws-sdk-s3", "~> 1.56"
 
-  spec.add_development_dependency "bundler", "~> 1.16"
+  spec.add_development_dependency "bundler", "~> 1.17"
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "rspec", "~> 3.8"
+  spec.add_development_dependency "rspec-core", "~> 3.8"
   spec.add_development_dependency "rspec_junit_formatter", "~> 0.4"
   spec.add_development_dependency "factory_bot", "~> 5.0"
   spec.add_development_dependency "aruba", "~> 0.14.9"

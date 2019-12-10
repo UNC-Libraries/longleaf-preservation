@@ -11,7 +11,5 @@ module Longleaf
     METADATA_DIGESTS = 'digests'
 
     STORAGE_TYPE = 'type'
-
-    FILESYSTEM_STORAGE_TYPE = 'filesystem'
   end
 end

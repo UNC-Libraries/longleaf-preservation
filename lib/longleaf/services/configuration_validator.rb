@@ -16,7 +16,6 @@ module Longleaf
       @result
     end
 
-    protected
     # Asserts that the given conditional is true, raising a ConfigurationError if it is not.
     def assert(fail_message, assertion_passed)
       fail(fail_message) unless assertion_passed

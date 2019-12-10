@@ -1,5 +1,6 @@
 require 'longleaf/services/metadata_serializer'
 require 'longleaf/models/metadata_location'
+require 'longleaf/models/storage_types'
 
 module Longleaf
   # A filesystem based location in which metadata associated with registered files is stored.
@@ -8,6 +9,11 @@ module Longleaf
 
     def initialize(config)
       super(config)
+    end
+
+    # @return the storage type for this location
+    def type
+      StorageTypes::FILESYSTEM_STORAGE_TYPE
     end
 
     # Get the absolute path for the metadata file for the given file path located in this storage location.
