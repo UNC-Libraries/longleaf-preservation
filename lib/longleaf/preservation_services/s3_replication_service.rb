@@ -85,26 +85,24 @@ module Longleaf
 
       content_md5 = get_content_md5(file_rec)
 
-      File.open(file_rec.path, 'rb') do |file|
-        @destinations.each do |destination|
-          # Check that the destination is available because attempting to write
-          verify_destination_available(destination, file_rec)
+      @destinations.each do |destination|
+        # Check that the destination is available because attempting to write
+        verify_destination_available(destination, file_rec)
 
-          file_obj = destination.s3_bucket.object(rel_path)
-          begin
-            file_obj.put(body: file, content_md5: content_md5)
-          rescue Aws::S3::Errors::BadDigest => e
-            raise ChecksumMismatchError.new("Transfer to bucket '#{destination.s3_bucket.name}' failed, " \
-                + "MD5 provided did not match the received content for #{file_rec.path}")
-          rescue Aws::Errors::ServiceError => e
-            raise PreservationServiceError.new("Failed to transfer #{file_rec.path} to bucket " \
-                + "'#{destination.s3_bucket.name}': #{e.message}")
-          end
-
-          logger.info("Replicated #{file_rec.path} to destination #{file_obj.public_url}")
-
-          # TODO register file in destination
+        file_obj = destination.s3_bucket.object(rel_path)
+        begin
+          file_obj.upload_file(file_rec.path, { :content_md5 => content_md5 })
+        rescue Aws::S3::Errors::BadDigest => e
+          raise ChecksumMismatchError.new("Transfer to bucket '#{destination.s3_bucket.name}' failed, " \
+              + "MD5 provided did not match the received content for #{file_rec.path}")
+        rescue Aws::Errors::ServiceError => e
+          raise PreservationServiceError.new("Failed to transfer #{file_rec.path} to bucket " \
+              + "'#{destination.s3_bucket.name}': #{e.message}")
         end
+
+        logger.info("Replicated #{file_rec.path} to destination #{file_obj.public_url}")
+
+        # TODO register file in destination
       end
     end
 
