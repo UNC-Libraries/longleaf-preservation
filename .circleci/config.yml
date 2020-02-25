@@ -17,10 +17,6 @@ commands:
             - v1-dependencies-
 
       - run:
-          name: install bundler 1.17
-          command: sudo gem install bundler:1.17.3
-
-      - run:
           name: install dependencies
           command: |
             bin/setup
@@ -57,6 +53,11 @@ commands:
 
       - store_artifacts:
           path: coverage
+  install_old_bundler:
+    steps:
+      - run:
+          name: install bundler 1.17
+          command: sudo gem install bundler:1.17.3
 
 jobs:
   test_with_ruby_23:
@@ -79,6 +80,7 @@ jobs:
     working_directory: ~/repo
 
     steps:
+      - install_old_bundler
       - build_and_run_tests
 workflows:
   version: 2.2
