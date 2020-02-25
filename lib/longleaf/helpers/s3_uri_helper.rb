@@ -31,7 +31,7 @@ module Longleaf
         return prefix[0..-2]
       end
     end
-    
+
     def self.extract_path(url)
       uri = s3_uri(url)
 
@@ -41,18 +41,18 @@ module Longleaf
       end
 
       path = uri.path
-      return nil if path == '/'
-      
+      return nil if path == '/' || path.empty?
+
       # trim off the first slash
       path = path.partition('/').last
-      
+
       # Determine if the first part of the path is the bucket name
       prefix = matches[1]
       if prefix.nil? || prefix.empty?
         # trim off the bucket name
         path = path.partition('/').last
       end
-      
+
       path
     end
 

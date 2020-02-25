@@ -86,7 +86,7 @@ module Longleaf
       content_md5 = get_content_md5(file_rec)
 
       @destinations.each do |destination|
-        # Check that the destination is available because attempting to write
+        # Check that the destination is available before attempting to write
         verify_destination_available(destination, file_rec)
 
         rel_to_bucket = destination.relative_to_bucket_path(rel_path)
