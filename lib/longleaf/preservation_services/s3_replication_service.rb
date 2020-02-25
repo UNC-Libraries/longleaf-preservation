@@ -89,7 +89,8 @@ module Longleaf
         # Check that the destination is available because attempting to write
         verify_destination_available(destination, file_rec)
 
-        file_obj = destination.s3_bucket.object(rel_path)
+        rel_to_bucket = destination.relative_to_bucket_path(rel_path)
+        file_obj = destination.s3_bucket.object(rel_to_bucket)
         begin
           file_obj.upload_file(file_rec.path, { :content_md5 => content_md5 })
         rescue Aws::S3::Errors::BadDigest => e
