@@ -43,6 +43,8 @@ module Longleaf
         region = S3UriHelper.extract_region(@path)
         @client_options[:region] = region unless region.nil?
       end
+      
+      @subpath_prefix = S3UriHelper.extract_path(@path)
     end
 
     # @return the storage type for this location
@@ -91,6 +93,24 @@ module Longleaf
           file_path
         end
       end
+    end
+    
+    # Prefixes the provided path with the query path portion of the location's path
+    # after the bucket uri, used to place relative paths into the same sub-URL of a bucket.
+    # For example:
+    # Given a location with 'path' http://example.s3-amazonaws.com/env/test/
+    # Where rel_path = 'path/to/text.txt'
+    # The result would be 'env/test/path/to/text.txt'
+    # @param rel_path relative path to work with
+    # @return the given relative path prefixed with the path portion of the storage location path
+    def relative_to_bucket_path(rel_path)
+      raise ArgumentError.new("Must provide a non-nil path") if rel_path.nil?
+      
+      if @subpath_prefix.nil?
+        return rel_path
+      end
+      
+      @subpath_prefix + rel_path
     end
 
     # @return the bucket used by this storage location

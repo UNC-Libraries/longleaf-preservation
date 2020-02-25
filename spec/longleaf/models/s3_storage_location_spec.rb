@@ -134,6 +134,36 @@ describe Longleaf::S3StorageLocation do
     end
   end
 
+  describe '.relative_to_bucket_path' do
+    context 'bucket in virtual host style with no path' do
+      let(:loc1) { build(:s3_storage_location, path: 'http://example.s3-my-region-amazonaws.com/') }
+      it 'returns the provided path' do
+        expect(loc1.relative_to_bucket_path('path/to/file.txt')).to eq 'path/to/file.txt'
+      end
+    end
+
+    context 'bucket in virtual host style with path' do
+      let(:loc1) { build(:s3_storage_location, path: 'http://example.s3-my-region-amazonaws.com/env/test') }
+      it 'returns the provided path' do
+        expect(loc1.relative_to_bucket_path('path/to/file.txt')).to eq 'env/test/path/to/file.txt'
+      end
+    end
+
+    context 'bucket in path style without additional path' do
+      let(:loc1) { build(:s3_storage_location, path: 'http://s3-my-region-amazonaws.com/pathexample/') }
+      it 'returns the provided path' do
+        expect(loc1.relative_to_bucket_path('path/to/file.txt')).to eq 'path/to/file.txt'
+      end
+    end
+
+    context 'bucket in path style with additional path' do
+      let(:loc1) { build(:s3_storage_location, path: 'http://s3-my-region-amazonaws.com/pathexample/env/qa') }
+      it 'returns the provided path' do
+        expect(loc1.relative_to_bucket_path('path/to/file.txt')).to eq 'env/qa/path/to/file.txt'
+      end
+    end
+  end
+
   describe '.get_metadata_path_for' do
     let(:loc1) { build(:s3_storage_location) }
 

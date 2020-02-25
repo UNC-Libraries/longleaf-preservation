@@ -32,6 +32,30 @@ module Longleaf
       end
     end
 
+    def self.extract_path(url)
+      uri = s3_uri(url)
+
+      matches = ENDPOINT_PATTERN.match(uri.host)
+      if matches.nil?
+        raise ArgumentError.new("Provided URI does match the expected pattern for an S3 URI")
+      end
+
+      path = uri.path
+      return nil if path == '/' || path.empty?
+
+      # trim off the first slash
+      path = path.partition('/').last
+
+      # Determine if the first part of the path is the bucket name
+      prefix = matches[1]
+      if prefix.nil? || prefix.empty?
+        # trim off the bucket name
+        path = path.partition('/').last
+      end
+
+      path
+    end
+
     def self.extract_region(url)
       uri = s3_uri(url)
 

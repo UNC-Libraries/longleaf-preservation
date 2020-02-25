@@ -137,7 +137,7 @@ describe Longleaf::S3ReplicationService do
           expect(s3_client.api_requests.size).to eq(2)
           expect(s3_client.api_requests.last[:params]).to include(
                   :bucket => "example",
-                  :key => 'test_file.txt'
+                  :key => 'path/test_file.txt'
                 )
         end
       end
@@ -154,7 +154,7 @@ describe Longleaf::S3ReplicationService do
           expect(s3_client.api_requests.size).to eq(2)
           expect(s3_client.api_requests.last[:params]).to include(
                   :bucket => "example",
-                  :key => 'test_file.txt',
+                  :key => 'path/test_file.txt',
                   :content_md5 => 'mgNkuembtIDdJeHwKEyFVQ=='
                 )
         end
@@ -192,7 +192,7 @@ describe Longleaf::S3ReplicationService do
           expect(s3_client.api_requests.size).to eq(2)
           expect(s3_client.api_requests.last[:params]).to include(
                   :bucket => "example",
-                  :key => 'nested/test_file.txt'
+                  :key => 'path/nested/test_file.txt'
                 )
         end
       end
@@ -228,7 +228,7 @@ describe Longleaf::S3ReplicationService do
           expect(s3_client.api_requests.size).to eq(2)
           expect(s3_client.api_requests.last[:params]).to include(
                   :bucket => "example",
-                  :key => 'test_file.txt'
+                  :key => 'path/test_file.txt'
                 )
 
           s3_client2 = dest2.s3_client
