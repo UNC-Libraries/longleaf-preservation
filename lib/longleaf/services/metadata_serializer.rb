@@ -5,6 +5,7 @@ require 'longleaf/helpers/digest_helper'
 require 'longleaf/errors'
 require 'longleaf/logging'
 require 'pathname'
+require "tempfile"
 
 module Longleaf
   # Service which serializes MetadataRecord objects
@@ -30,12 +31,7 @@ module Longleaf
         raise ArgumentError.new("Invalid serialization format #{format} specified")
       end
 
-      # Fill in parent directories if they do not exist
-      parent_dir = Pathname(file_path).parent
-      parent_dir.mkpath unless parent_dir.exist?
-
-      File.write(file_path, content)
-      write_digests(file_path, content, digest_algs)
+      atomic_write(file_path, content, digest_algs)
     end
 
     # @param metadata [MetadataRecord] metadata record to transform
@@ -85,24 +81,109 @@ module Longleaf
       end
     end
 
+    # Safely writes the new metadata file and its digests.
+    # It does so by first writing the content and its digests to temp files,
+    # then making the temp files the current version of the file.
+    # Attempts to clean up new data in the case of failure.
+    def self.atomic_write(file_path, content, digest_algs)
+      # Fill in parent directories if they do not exist
+      parent_dir = Pathname(file_path).parent
+      parent_dir.mkpath unless parent_dir.exist?
+
+      file_path = file_path.path if file_path.respond_to?(:path)
+
+      # If file does not already exist, then simply write it
+      if !File.exist?(file_path)
+        File.write(file_path, content)
+        write_digests(file_path, content, digest_algs)
+        return
+      end
+
+      # Updating file, use safe atomic write
+      File.open(file_path) do |original_file|
+        original_file.flock(File::LOCK_EX)
+
+        base_name = File.basename(file_path)
+        Tempfile.open(base_name, parent_dir) do |temp_file|
+          begin
+            # Write content to temp file
+            temp_file.write(content)
+            temp_file.close
+
+            temp_path = temp_file.path
+
+            # Set permissions of new file to match old if it exists
+            old_stat = File.stat(file_path)
+            set_perms(temp_path, old_stat)
+
+            begin
+              digest_paths = write_digests(temp_path, content, digest_algs)
+
+              File.rename(temp_path, file_path)
+            rescue => e
+              cleanup_digests(temp_path)
+              raise e
+            end
+          rescue => e
+            temp_file.delete
+            raise e
+          end
+
+          # Cleanup all existing digest files, in case the set of algorithms has changed
+          cleanup_digests(file_path)
+          # Move new digests into place
+          digest_paths.each do |digest_path|
+            File.rename(digest_path, digest_path.sub(temp_path, file_path))
+          end
+        end
+      end
+    end
+
+    def self.set_perms(file_path, stat_info)
+      if stat_info
+        # Set correct permissions on new file
+        begin
+          File.chown(stat_info.uid, stat_info.gid, file_path)
+          # This operation will affect filesystem ACL's
+          File.chmod(stat_info.mode, file_path)
+        rescue Errno::EPERM, Errno::EACCES
+          # Changing file ownership failed, moving on.
+          return false
+        end
+      end
+      true
+    end
+
+    # Deletes all known digest files for the provided file path
+    def self.cleanup_digests(file_path)
+      DigestHelper::KNOWN_DIGESTS.each do |alg|
+        digest_path = "#{file_path}.#{alg}"
+        File.delete(digest_path) if File.exist?(digest_path)
+      end
+    end
+
     def self.write_digests(file_path, content, digests)
-      return if digests.nil? || digests.empty?
+      return [] if digests.nil? || digests.empty?
+
+      digest_paths = Array.new
 
       digests.each do |alg|
         digest_class = DigestHelper::start_digest(alg)
         result = digest_class.hexdigest(content)
-        if file_path.respond_to?(:path)
-          digest_path = "#{file_path.path}.#{alg}"
-        else
-          digest_path = "#{file_path}.#{alg}"
-        end
+        digest_path = "#{file_path}.#{alg}"
 
         File.write(digest_path, result)
 
-        self.logger.debug("Generated #{alg} digest for metadata file #{file_path}: #{result}")
+        digest_paths.push(digest_path)
+
+        self.logger.debug("Generated #{alg} digest for metadata file #{file_path}: #{digest_path} #{result}")
       end
+
+      digest_paths
     end
 
+    private_class_method :cleanup_digests
     private_class_method :write_digests
+    private_class_method :atomic_write
   end
 end
