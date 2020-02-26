@@ -2,15 +2,21 @@ require 'spec_helper'
 require 'longleaf/services/metadata_serializer'
 require 'longleaf/models/metadata_record'
 require 'longleaf/models/md_fields'
+require 'longleaf/specs/file_helpers'
 require 'yaml'
-require 'tempfile'
-require 'tmpdir'
+require 'fileutils'
 
 describe Longleaf::MetadataSerializer do
+  include Longleaf::FileHelpers
   MDF ||= Longleaf::MDFields
 
   describe '.write' do
-    let(:dest_file) { Tempfile.new('md_file') }
+    let(:dest_dir) { make_test_dir }
+    let(:dest_file) { File.new(create_test_file(dir: dest_dir, name: 'md_file.yml')) }
+
+    after do
+      FileUtils.rm_rf([dest_dir])
+    end
 
     context 'with empty record' do
       let(:record) { build(:metadata_record) }
@@ -79,6 +85,96 @@ describe Longleaf::MetadataSerializer do
           expect(File.exist?(digest_path_sha512)).to be true
           expect(IO.read(digest_path_sha512)).to eq '5b77efa7db605378a42b273bc0650df1fd7e5db4ab2e735ee8afc7c9a0e1c4836d7bfb942416c83f21def18538937f99051c467504616f2a2a07bcee48fa3031'
         end
+      end
+
+      it 'updates metadata and digests on subsequent calls' do
+        Longleaf::MetadataSerializer.write(metadata: record, file_path: dest_file, digest_algs: ['sha1'])
+
+        # update a service before re-serializing
+        record.update_service_as_performed("some_service")
+
+        Longleaf::MetadataSerializer.write(metadata: record, file_path: dest_file, digest_algs: ['sha1'])
+
+        md = YAML.load_file(dest_file)
+
+        expect(md.dig(MDF::SERVICES)).to include("some_service")
+        # Just the new metadata file and its digest should exist
+        expect(Dir[File.join(dest_dir, '*')].length).to eq 2
+
+        # New digest file must exist
+        digest_path = "#{dest_file.path}.sha1"
+        expect(File.exist?(digest_path)).to be true
+        # digest must have changed
+        expect(IO.read(digest_path)).to_not eq '1b3ff89cbdc5b6ea85c981f78111aae377dfbea1'
+      end
+
+      it 'updates metadata and removes out of date digests on subsequent calls' do
+        Longleaf::MetadataSerializer.write(metadata: record, file_path: dest_file, digest_algs: ['sha1', 'md5'])
+        # Should be 2 digest files at this point
+        expect(Dir[File.join(dest_dir, '*')].length).to eq 3
+
+        # update a service before re-serializing
+        record.update_service_as_performed("some_service")
+
+        Longleaf::MetadataSerializer.write(metadata: record, file_path: dest_file, digest_algs: ['sha1'])
+
+        md = YAML.load_file(dest_file)
+
+        expect(md.dig(MDF::SERVICES)).to include("some_service")
+        # Just the new metadata file and one digest should exist now
+        expect(Dir[File.join(dest_dir, '*')].length).to eq 2
+
+        # New digest file must exist
+        digest_path = "#{dest_file.path}.sha1"
+        expect(File.exist?(digest_path)).to be true
+        # digest must have changed
+        expect(IO.read(digest_path)).to_not eq '1b3ff89cbdc5b6ea85c981f78111aae377dfbea1'
+      end
+
+      it 'preserves original during failed update' do
+        Longleaf::MetadataSerializer.write(metadata: record, file_path: dest_file, digest_algs: ['sha1'])
+
+        # update a service before re-serializing
+        record.update_service_as_performed("some_service")
+
+        allow_any_instance_of(Tempfile).to receive(:write) { raise Errno::ENOSPC }
+
+        expect { Longleaf::MetadataSerializer.write(metadata: record, file_path: dest_file, digest_algs: ['sha1'])} \
+            .to raise_error(Errno::ENOSPC)
+
+        md = YAML.load_file(dest_file)
+
+        expect(md.dig(MDF::SERVICES)).to_not include("some_service")
+        # Just the original metadata file and its digest should exist
+        expect(Dir[File.join(dest_dir, '*')].length).to eq 2
+
+        # Expect original digest to still be present
+        digest_path = "#{dest_file.path}.sha1"
+        expect(File.exist?(digest_path)).to be true
+        expect(IO.read(digest_path)).to eq '1b3ff89cbdc5b6ea85c981f78111aae377dfbea1'
+      end
+
+      it 'preserves original and cleans up when fail during rename' do
+        Longleaf::MetadataSerializer.write(metadata: record, file_path: dest_file, digest_algs: ['sha1'])
+
+        # update a service before re-serializing
+        record.update_service_as_performed("some_service")
+
+        allow(File).to receive(:rename) { raise Errno::ENOLCK }
+
+        expect { Longleaf::MetadataSerializer.write(metadata: record, file_path: dest_file, digest_algs: ['sha1'])} \
+            .to raise_error(Errno::ENOLCK)
+
+        md = YAML.load_file(dest_file)
+
+        expect(md.dig(MDF::SERVICES)).to_not include("some_service")
+        # Just the original metadata file and its digest should exist
+        expect(Dir[File.join(dest_dir, '*')].length).to eq 2
+
+        # Expect original digest to still be present
+        digest_path = "#{dest_file.path}.sha1"
+        expect(File.exist?(digest_path)).to be true
+        expect(IO.read(digest_path)).to eq '1b3ff89cbdc5b6ea85c981f78111aae377dfbea1'
       end
     end
 
