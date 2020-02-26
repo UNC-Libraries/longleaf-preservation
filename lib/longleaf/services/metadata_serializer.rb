@@ -148,8 +148,10 @@ module Longleaf
           File.chmod(stat_info.mode, file_path)
         rescue Errno::EPERM, Errno::EACCES
           # Changing file ownership failed, moving on.
+          return false
         end
       end
+      true
     end
 
     # Deletes all known digest files for the provided file path
