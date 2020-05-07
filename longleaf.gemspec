@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "sequel", "~> 5.20"
   spec.add_dependency "aws-sdk-s3", "~> 1.56"
 
-  spec.add_development_dependency "bundler", "~> 1.17"
+  spec.add_development_dependency "bundler", "~> 2.1"
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "rspec", "~> 3.8"
   spec.add_development_dependency "rspec-core", "~> 3.8"
