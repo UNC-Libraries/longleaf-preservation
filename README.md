@@ -108,6 +108,16 @@ bundle install --with postgres
 
 Options include: postgres, mysql2, mysql, sqlite, amalgalite
 
+To setup an index, you will need to add a `system > index` section to your configuration with the details of the database to use for the index. Then to setup the database, run:
+
+```
+longleaf setup_index -c <config_file>
+```
+And for a one-time indexing:
+```
+longleaf reindex -c <config_file>
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/UNC-Libraries/longleaf-preservation.
