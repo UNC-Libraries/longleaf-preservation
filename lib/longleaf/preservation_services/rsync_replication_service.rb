@@ -4,6 +4,7 @@ require 'longleaf/errors'
 require 'longleaf/models/file_record'
 require 'longleaf/models/service_fields'
 require 'longleaf/events/register_event'
+require 'longleaf/candidates/single_digest_provider'
 require 'open3'
 
 module Longleaf
@@ -174,7 +175,7 @@ module Longleaf
       register_event = RegisterEvent.new(file_rec: dest_file_rec,
           app_manager: @app_manager,
           force: true,
-          checksums: file_rec.metadata_record.checksums)
+          digest_provider: SingleDigestProvider.new(file_rec.metadata_record.checksums))
       register_event.perform
     end
   end

@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'longleaf/candidates/single_digest_provider'
 require 'longleaf/models/file_record'
 require 'longleaf/events/register_event'
 require 'longleaf/services/application_config_deserializer'
@@ -152,8 +153,8 @@ describe Longleaf::RegisterEvent do
       it 'persists metadata with checksums' do
         event = Longleaf::RegisterEvent.new(file_rec: file_rec,
             app_manager: app_config,
-            checksums: { 'md5' => 'digestvalue',
-              'sha1' => 'shadigest' } )
+            digest_provider: Longleaf::SingleDigestProvider.new({ 'md5' => 'digestvalue',
+              'sha1' => 'shadigest' }) )
         status = event.perform
         expect(status).to eq 0
 
