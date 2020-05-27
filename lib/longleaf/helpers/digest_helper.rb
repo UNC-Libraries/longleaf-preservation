@@ -24,10 +24,10 @@ module Longleaf
       end
     end
 
-    # @param [String] identifier of digest algorithm
+    # @param alg [String] identifier of digest algorithm
     # @return [Boolean] true if the digest is a valid known algorithm
     def self.is_known_algorithm?(alg)
-      KNOWN_DIGESTS.include?(algs)
+      KNOWN_DIGESTS.include?(alg)
     end
 
     # Get a Digest class for the specified algorithm
