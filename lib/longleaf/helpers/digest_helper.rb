@@ -13,7 +13,7 @@ module Longleaf
     def self.validate_algorithms(algs)
       return if algs.nil?
       if algs.is_a?(String)
-        unless KNOWN_DIGESTS.include?(algs)
+        unless self.is_known_algorithm?(algs)
           raise InvalidDigestAlgorithmError.new("Unknown digest algorithm #{algs}")
         end
       else
@@ -22,6 +22,12 @@ module Longleaf
           raise InvalidDigestAlgorithmError.new("Unknown digest algorithm(s): #{unknown}")
         end
       end
+    end
+
+    # @param [String] identifier of digest algorithm
+    # @return [Boolean] true if the digest is a valid known algorithm
+    def self.is_known_algorithm?(alg)
+      KNOWN_DIGESTS.include?(algs)
     end
 
     # Get a Digest class for the specified algorithm

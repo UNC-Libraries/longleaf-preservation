@@ -86,10 +86,17 @@ module Longleaf
         :desc => %q{Checksum manifests of files to register. Supports the following formats:
           To submit a md5 manifest from a file
           '-m md5:/path/to/manifest.txt'
-          To read a sha1 manifest from STDIN
+
+          To provide a sha1 manifest from STDIN
           '-m sha1:@-'
+          Where the content in STDIN adheres to the format:
+          <digest> <path>
+          <digest> <path>
+          ...
+
           To submit multiple manifests from files
           '-m md5:/path/to/manifest1.txt sha1:/path/to/manifest2.txt'
+
           To provide multiple digests via STDIN
           '-m @-'
           Where the content in STDIN adheres to the following format:

@@ -14,7 +14,7 @@ module Longleaf
     # @param file_rec [FileRecord] file record
     # @param app_manager [ApplicationConfigManager] the application configuration
     # @param force [boolean] if true, then already registered files will be re-registered
-    # @param digest_provider [DigestProvider] object which provides digests for files being registered
+    # @param digest_provider [#get_digests] object which provides digests for files being registered
     def initialize(file_rec:, app_manager:, force: false, digest_provider: nil)
       raise ArgumentError.new('Must provide a file_rec parameter') if file_rec.nil?
       raise ArgumentError.new('Parameter file_rec must be a FileRecord') \

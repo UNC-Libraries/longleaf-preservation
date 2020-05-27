@@ -12,15 +12,15 @@ module Longleaf
     # use in registration commands.
     # @param options [Hash] command options
     # @param app_config_manager [ApplicationConfigManager] app config manager
-    # @return The file select and digest provider.
+    # @return The file selector and digest provider.
     def self.parse_registration_selection_options(options, app_config_manager)
-      there_can_only_be_one("Only one of the following selection options may be provided: -m, -f, -s",
+      there_can_be_only_one("Only one of the following selection options may be provided: -m, -f, -s",
           options, :file, :manifest, :location)
 
       if !options[:manifest].nil?
-        path_to_digests = self.manifests_to_digest_mapping(options[:manifest])
-        selector = FileSelector.new(file_paths: path_to_digests.keys, app_config: app_config_manager)
-        digest_provider = ManifestDigestProvider.new(path_to_digests)
+        digests_mapping = self.manifests_to_digest_mapping(options[:manifest])
+        selector = FileSelector.new(file_paths: digests_mapping.keys, app_config: app_config_manager)
+        digest_provider = ManifestDigestProvider.new(digests_mapping)
       elsif !options[:file].nil?
         if options[:checksums]
           checksums = options[:checksums]
@@ -49,7 +49,7 @@ module Longleaf
       [selector, digest_provider]
     end
 
-    def self.there_can_only_be_one(failure_msg, options, *names)
+    def self.there_can_be_only_one(failure_msg, options, *names)
       got_one = false
       names.each do |name|
         if !options[name].nil?
@@ -77,7 +77,7 @@ module Longleaf
           manifest_parts = manifest_val.split(':', 2)
           alg_manifest_pairs << manifest_parts
         else
-          # algorithm no specified in option value
+          # algorithm not specified in option value
           alg_manifest_pairs << [nil, manifest_val]
         end
       end
@@ -86,7 +86,7 @@ module Longleaf
       end
 
       # read the provided manifests to build a mapping from file uri to all supplied digests
-      path_to_digests = Hash.new { |h,k| h[k] = Hash.new }
+      digests_mapping = Hash.new { |h,k| h[k] = Hash.new }
       alg_manifest_pairs.each do |mpair|
         source_stream = nil
         # Determine if reading from a manifest file or stdin
@@ -97,45 +97,31 @@ module Longleaf
         end
 
         current_alg = mpair[0]
-        if current_alg.nil?
-          # No algorithm specified, manifest must specify algorithms internally using headers
-          source_stream.each_line do |line|
-            line = line.strip
-            if /[a-zA-Z0-9]+:/ =~ line
-              # Found a digest algorithm header, assuming succeeding entries are of this type
-              current_alg = line.chomp(':')
-              # Verify that the digest algorithm is known to longleaf
-              DigestHelper.validate_algorithms(current_alg)
-            else
-              if current_alg.nil?
-                self.fail("Manifest with unknown checksums encountered, an algorithm must be specified")
-              end
-              entry_parts = line.split(' ', 2)
-              if entry_parts.length != 2
-                self.fail("Invalid manifest entry: #{line}")
-              end
-
-              path_to_digests[entry_parts[1]][current_alg] = entry_parts[0]
+        multi_digest_manifest = current_alg.nil?
+        source_stream.each_line do |line|
+          line = line.strip
+          if multi_digest_manifest && /^[a-zA-Z0-9]+:$/ =~ line
+            # Found a digest algorithm header, assuming succeeding entries are of this type
+            current_alg = line.chomp(':')
+            # Verify that the digest algorithm is known to longleaf
+            if !DigestHelper.is_known_algorithm?(current_alg)
+              self.fail("Manifest specifies unknown digest algorithm: #{current_alg}")
             end
-          end
-        else
-          # Verify that the selected digest algorithm is known to longleaf
-          DigestHelper.validate_algorithms(current_alg)
-
-          # algorithm stated in option, assume all digests in manifest are of this type
-          source_stream.each_line do |line|
-            line = line.strip
+          else
+            if current_alg.nil?
+              self.fail("Manifest with unknown checksums encountered, an algorithm must be specified")
+            end
             entry_parts = line.split(' ', 2)
             if entry_parts.length != 2
               self.fail("Invalid manifest entry: #{line}")
             end
 
-            path_to_digests[entry_parts[1]][current_alg] = entry_parts[0]
+            digests_mapping[entry_parts[1]][current_alg] = entry_parts[0]
           end
         end
       end
 
-      path_to_digests
+      digests_mapping
     end
 
     # Parses the provided options to create a selector for registered files
