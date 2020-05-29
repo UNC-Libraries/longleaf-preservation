@@ -65,6 +65,7 @@ describe 'register', :type => :aruba do
         .write_to_yaml_file
     }
     let!(:file_path) { create_test_file(dir: path_dir) }
+    let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
 
     context 'empty file path' do
       before do
@@ -147,8 +148,6 @@ describe 'register', :type => :aruba do
     end
 
     context 'register multiple files' do
-      let(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
-
       before do
         run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path},#{file_path2}'")
       end
@@ -163,8 +162,6 @@ describe 'register', :type => :aruba do
     end
 
     context 'register multiple files by storage location' do
-      let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
-
       before do
         run_command_and_stop("longleaf register -c #{config_path} -s 'loc1' --log-level 'DEBUG'", fail_on_error: false)
       end
@@ -179,8 +176,6 @@ describe 'register', :type => :aruba do
     end
 
     context 'register directory of files' do
-      let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
-
       before do
         run_command_and_stop("longleaf register -c #{config_path} -f '#{path_dir}/' --log_level DEBUG", fail_on_error: false)
       end
@@ -213,7 +208,7 @@ describe 'register', :type => :aruba do
 
       it 'registers the file' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
-        expect(metadata_created(file_path, md_dir)).to be true
+        expect_digests(file_path, md5: 'digest')
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -225,15 +220,15 @@ describe 'register', :type => :aruba do
 
       it 'registers the file' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
-        expect(metadata_created(file_path, md_dir)).to be true
+        expect_digests(file_path, sha1: 'anotherdigest',
+                                  md5: 'digest')
         expect(last_command_started).to have_exit_status(0)
       end
     end
 
     context 'register multiple from checksum manifest' do
-      let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
-      let!(:manifest_path) { create_test_file(dir: path_dir, name: 'manifest.txt',
-          content: "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}\n" +
+      let!(:manifest_path) { create_manifest_file(
+                   "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}\n" +
                    "013d5696728f086b8d2424b14beebc2695f926f7   #{file_path2}\n") }
 
       before do
@@ -242,24 +237,22 @@ describe 'register', :type => :aruba do
 
       it 'registers the files with digest' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
-        md_rec1 = get_metadata_record(file_path, md_dir)
-        expect(md_rec1.checksums['sha1']).to eq 'e8241901910dac399e9fcd5fb5661e6923a0ce0a'
+        expect_digests(file_path, sha1: 'e8241901910dac399e9fcd5fb5661e6923a0ce0a')
         expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
         md_rec2 = get_metadata_record(file_path2, md_dir)
-        expect(md_rec2.checksums['sha1']).to eq '013d5696728f086b8d2424b14beebc2695f926f7'
+        expect_digests(file_path2, sha1: '013d5696728f086b8d2424b14beebc2695f926f7')
         expect(last_command_started).to have_exit_status(0)
       end
     end
 
     context 'register multiple files with multiple checks from multiple manifests' do
-      let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
-      let!(:manifest_path) { create_test_file(dir: path_dir, name: 'manifest1.txt',
-          content: "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}\n" +
-                   "013d5696728f086b8d2424b14beebc2695f926f7   #{file_path2}\n") }
+      let!(:manifest_path) { create_manifest_file(
+                   "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}\n" +
+                   "013d5696728f086b8d2424b14beebc2695f926f7   #{file_path2}") }
 
-      let!(:manifest_path2) { create_test_file(dir: path_dir, name: 'manifest2.txt',
-          content: "9f753c302ffa359ddb9a93fe979d6de1   #{file_path}\n" +
-                   "ce6320a83ead310ae30d43ae0f338bcc   #{file_path2}\n") }
+      let!(:manifest_path2) { create_manifest_file(
+                   "9f753c302ffa359ddb9a93fe979d6de1   #{file_path}\n" +
+                   "ce6320a83ead310ae30d43ae0f338bcc   #{file_path2}") }
 
       before do
         run_command_and_stop("longleaf register -c #{config_path} -m sha1:#{manifest_path} md5:#{manifest_path2}", fail_on_error: false)
@@ -267,22 +260,19 @@ describe 'register', :type => :aruba do
 
       it 'registers the files with digests' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
-        md_rec1 = get_metadata_record(file_path, md_dir)
-        expect(md_rec1.checksums['sha1']).to eq 'e8241901910dac399e9fcd5fb5661e6923a0ce0a'
-        expect(md_rec1.checksums['md5']).to eq '9f753c302ffa359ddb9a93fe979d6de1'
+        expect_digests(file_path, sha1: 'e8241901910dac399e9fcd5fb5661e6923a0ce0a',
+                                  md5: '9f753c302ffa359ddb9a93fe979d6de1')
         expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
-        md_rec2 = get_metadata_record(file_path2, md_dir)
-        expect(md_rec2.checksums['sha1']).to eq '013d5696728f086b8d2424b14beebc2695f926f7'
-        expect(md_rec2.checksums['md5']).to eq 'ce6320a83ead310ae30d43ae0f338bcc'
+        expect_digests(file_path2, sha1: '013d5696728f086b8d2424b14beebc2695f926f7',
+                                  md5: 'ce6320a83ead310ae30d43ae0f338bcc')
 
         expect(last_command_started).to have_exit_status(0)
       end
     end
 
     context 'register multiple files with multiple checks from combined manifest' do
-      let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
-      let!(:manifest_path) { create_test_file(dir: path_dir, name: 'manifest1.txt',
-          content: "sha1:\n" +
+      let!(:manifest_path) { create_manifest_file(
+                   "sha1:\n" +
                    "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}\n" +
                    "013d5696728f086b8d2424b14beebc2695f926f7   #{file_path2}\n" +
                    "md5:\n" +
@@ -295,21 +285,17 @@ describe 'register', :type => :aruba do
 
       it 'registers the files with digests' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
-        md_rec1 = get_metadata_record(file_path, md_dir)
-        expect(md_rec1.checksums['sha1']).to eq 'e8241901910dac399e9fcd5fb5661e6923a0ce0a'
-        expect(md_rec1.checksums['md5']).to eq '9f753c302ffa359ddb9a93fe979d6de1'
+        expect_digests(file_path, sha1: 'e8241901910dac399e9fcd5fb5661e6923a0ce0a',
+                                  md5: '9f753c302ffa359ddb9a93fe979d6de1')
         expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
-        md_rec2 = get_metadata_record(file_path2, md_dir)
-        expect(md_rec2.checksums['sha1']).to eq '013d5696728f086b8d2424b14beebc2695f926f7'
-        expect(md_rec2.checksums).not_to include('md5')
-
+        expect_digests(file_path2, sha1: '013d5696728f086b8d2424b14beebc2695f926f7')
         expect(last_command_started).to have_exit_status(0)
       end
     end
 
     context 'register from manifest without specifying algorithm' do
-      let!(:manifest_path) { create_test_file(dir: path_dir, name: 'manifest.txt',
-          content: "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}") }
+      let!(:manifest_path) { create_manifest_file(
+                   "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}") }
 
       before do
         run_command_and_stop("longleaf register -c #{config_path} -m #{manifest_path}", fail_on_error: false)
@@ -323,9 +309,8 @@ describe 'register', :type => :aruba do
     end
 
     context 'register files from piped checksum manifest' do
-      let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
-      let!(:manifest_path) { create_test_file(dir: path_dir, name: 'manifest1.txt',
-          content: "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}\n" +
+      let!(:manifest_path) { create_manifest_file(
+                   "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}\n" +
                    "013d5696728f086b8d2424b14beebc2695f926f7   #{file_path2}\n") }
 
       before do
@@ -336,19 +321,16 @@ describe 'register', :type => :aruba do
 
       it 'registers the files with digest' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
-        md_rec1 = get_metadata_record(file_path, md_dir)
-        expect(md_rec1.checksums['sha1']).to eq 'e8241901910dac399e9fcd5fb5661e6923a0ce0a'
+        expect_digests(file_path, sha1: 'e8241901910dac399e9fcd5fb5661e6923a0ce0a')
         expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
-        md_rec2 = get_metadata_record(file_path2, md_dir)
-        expect(md_rec2.checksums['sha1']).to eq '013d5696728f086b8d2424b14beebc2695f926f7'
+        expect_digests(file_path2, sha1: '013d5696728f086b8d2424b14beebc2695f926f7')
         expect(last_command_started).to have_exit_status(0)
       end
     end
 
     context 'register files from piped combined manifest' do
-      let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
-      let!(:manifest_path) { create_test_file(dir: path_dir, name: 'manifest1.txt',
-          content: "sha1:\n" +
+      let!(:manifest_path) { create_manifest_file(
+                   "sha1:\n" +
                    "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}\n" +
                    "013d5696728f086b8d2424b14beebc2695f926f7   #{file_path2}\n" +
                    "md5:\n" +
@@ -363,21 +345,17 @@ describe 'register', :type => :aruba do
 
       it 'registers the files with digest' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
-        md_rec1 = get_metadata_record(file_path, md_dir)
-        expect(md_rec1.checksums['sha1']).to eq 'e8241901910dac399e9fcd5fb5661e6923a0ce0a'
-        expect(md_rec1.checksums['md5']).to eq '9f753c302ffa359ddb9a93fe979d6de1'
+        expect_digests(file_path, sha1: 'e8241901910dac399e9fcd5fb5661e6923a0ce0a',
+                                  md5: '9f753c302ffa359ddb9a93fe979d6de1')
         expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
-        md_rec2 = get_metadata_record(file_path2, md_dir)
-        expect(md_rec2.checksums['sha1']).to eq '013d5696728f086b8d2424b14beebc2695f926f7'
-        expect(md_rec2.checksums).not_to include('md5')
+        expect_digests(file_path2, sha1: '013d5696728f086b8d2424b14beebc2695f926f7')
         expect(last_command_started).to have_exit_status(0)
       end
     end
 
     context 'register files from multiple stdin manifests' do
-      let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
-      let!(:manifest_path) { create_test_file(dir: path_dir, name: 'manifest1.txt',
-          content: "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}\n" +
+      let!(:manifest_path) { create_manifest_file(
+                   "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}\n" +
                    "013d5696728f086b8d2424b14beebc2695f926f7   #{file_path2}\n") }
 
       before do
@@ -394,9 +372,8 @@ describe 'register', :type => :aruba do
     end
 
     context 'register files from invalid manifest' do
-      let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
-      let!(:manifest_path) { create_test_file(dir: path_dir, name: 'manifest1.txt',
-          content: "what is\n" +
+      let!(:manifest_path) { create_manifest_file(
+                   "what is\n" +
                    "even happening\n" +
                    "here") }
 
@@ -411,10 +388,21 @@ describe 'register', :type => :aruba do
       end
     end
 
-    # test from stdin sha1:-
-    # test from stdin -
-    # test failure from invalid manifest format
-    # test failure from multiple stdin
+    context 'register files manifest param listing algorithm with combined manifest' do
+      let!(:manifest_path) { create_manifest_file(
+                   "sha1:\n" +
+                   "e8241901910dac399e9fcd5fb5661e6923a0ce0a   #{file_path}"
+                   ) }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -m sha1:#{manifest_path}", fail_on_error: false)
+      end
+
+      it 'returns error' do
+        expect(last_command_started).to have_output(/FAILURE: Invalid manifest entry: sha1:/)
+        expect(last_command_started).to have_exit_status(1)
+      end
+    end
   end
 
   def get_metadata_record_path(file_path, md_dir)
@@ -433,5 +421,24 @@ describe 'register', :type => :aruba do
     metadata_path = get_metadata_record_path(file_path, md_dir)
     md_rec = Longleaf::MetadataDeserializer.deserialize(file_path: metadata_path)
     md_rec.checksums[alg]
+  end
+
+  def expect_digests(file_path, md5: nil, sha1: nil)
+    md_rec = get_metadata_record(file_path, md_dir)
+    if md5.nil?
+      expect(md_rec.checksums).not_to include('md5')
+    else
+      expect(md_rec.checksums['md5']).to eq md5
+    end
+    if sha1.nil?
+      expect(md_rec.checksums).not_to include('sha1')
+    else
+      expect(md_rec.checksums['sha1']).to eq sha1
+    end
+  end
+
+  def create_manifest_file(body)
+    @m_index = @m_index.nil? ? 0 : @m_index + 1
+    create_test_file(dir: path_dir, name: "manifest#{@m_index}.txt", content: body)
   end
 end
