@@ -16,9 +16,9 @@ module Longleaf
     # Execute the register command on the given parameters
     # @param file_selector [FileSelector] selector for files to register
     # @param force [Boolean] force flag
-    # @param checksums [Array] array of checksums
+    # @param digest_provider [DigestProvider] object which provides digests for files being registered
     # @return [Integer] status code
-    def execute(file_selector:, force: false, checksums: nil)
+    def execute(file_selector:, force: false, digest_provider: nil)
       start_time = Time.now
       logger.info('Performing register command')
       begin
@@ -32,7 +32,7 @@ module Longleaf
           file_rec = FileRecord.new(f_path, storage_location)
 
           register_event = RegisterEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager,
-              checksums: checksums)
+              digest_provider: digest_provider)
           track_status(register_event.perform)
         end
       rescue InvalidStoragePathError, StorageLocationUnavailableError => err

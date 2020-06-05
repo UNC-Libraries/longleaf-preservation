@@ -9,8 +9,7 @@ require 'longleaf/commands/validate_metadata_command'
 require 'longleaf/commands/register_command'
 require 'longleaf/commands/reindex_command'
 require 'longleaf/commands/preserve_command'
-require 'longleaf/candidates/file_selector'
-require 'longleaf/candidates/registered_file_selector'
+require 'longleaf/helpers/selection_options_parser'
 
 module Longleaf
   # Main commandline interface setup for Longleaf using Thor.
@@ -81,12 +80,39 @@ module Longleaf
 
     desc "register", "Register files with Longleaf"
     shared_options_group(:file_selection)
+    method_option(:manifest,
+        :aliases => "-m",
+        :type => :array,
+        :desc => %q{Checksum manifests of files to register. Supports the following formats:
+          To submit a md5 manifest from a file
+          '-m md5:/path/to/manifest.txt'
+
+          To provide a sha1 manifest from STDIN
+          '-m sha1:@-'
+          Where the content in STDIN adheres to the format:
+          <digest> <path>
+          <digest> <path>
+          ...
+
+          To submit multiple manifests from files
+          '-m md5:/path/to/manifest1.txt sha1:/path/to/manifest2.txt'
+
+          To provide multiple digests via STDIN
+          '-m @-'
+          Where the content in STDIN adheres to the following format:
+          sha1:
+          <digest> <path>
+          ...
+          md5:
+          <digest> <path>
+          ...})
     method_option(:force,
         :type => :boolean,
         :default => false,
         :desc => 'Force the registration of already registered files.')
     method_option(:checksums,
-        :desc => %q{Checksums for the submitted file. Each checksum must be prefaced with an algorithm prefix. Multiple checksums must be comma separated. If multiple files were submitted, they will be provided with the same checksums. For example:
+        :desc => %q{Checksums for the submitted file. Only applicable with the -f option.
+          Each checksum must be prefaced with an algorithm prefix. Multiple checksums must be comma separated. If multiple files were submitted, they will be provided with the same checksums. For example:
           '--checksums "md5:d8e8fca2dc0f896fd7cb4cb0031ba249,sha1:4e1243bd22c66e76c2ba9eddc1f91394e57f9f83"'})
     shared_options_group(:common)
     # Register event command
@@ -96,21 +122,11 @@ module Longleaf
 
       app_config_manager = load_application_config(options)
 
-      file_selector = create_file_selector(options, app_config_manager)
-      if options[:checksums]
-        checksums = options[:checksums]
-        # validate checksum list format, must a comma delimited list of prefix:checksums
-        if /^[^:,]+:[^:,]+(,[^:,]+:[^:,]+)*$/.match(checksums)
-          # convert checksum list into hash with prefix as key
-          checksums = Hash[*checksums.split(/\s*[:,]\s*/)]
-        else
-          logger.failure("Invalid checksums parameter format, see `longleaf help <command>` for more information")
-          exit 1
-        end
-      end
+      file_selector, digest_provider = SelectionOptionsParser.parse_registration_selection_options(
+          options, app_config_manager)
 
       command = RegisterCommand.new(app_config_manager)
-      exit command.execute(file_selector: file_selector, force: options[:force], checksums: checksums)
+      exit command.execute(file_selector: file_selector, force: options[:force], digest_provider: digest_provider)
     end
 
     desc "deregister", "Deregister files with Longleaf"
@@ -126,7 +142,7 @@ module Longleaf
       setup_logger(options)
 
       app_config_manager = load_application_config(options)
-      file_selector = create_registered_selector(options, app_config_manager)
+      file_selector = SelectionOptionsParser.create_registered_selector(options, app_config_manager)
 
       command = DeregisterCommand.new(app_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force])
@@ -145,7 +161,7 @@ module Longleaf
 
       extend_load_path(options[:load_path])
       app_config_manager = load_application_config(options)
-      file_selector = create_registered_selector(options, app_config_manager)
+      file_selector = SelectionOptionsParser.create_registered_selector(options, app_config_manager)
 
       command = PreserveCommand.new(app_config_manager)
       exit command.execute(file_selector: file_selector, force: options[:force])
@@ -171,7 +187,7 @@ module Longleaf
       setup_logger(options)
 
       app_config_manager = load_application_config(options)
-      file_selector = create_registered_selector(options, app_config_manager)
+      file_selector = SelectionOptionsParser.create_registered_selector(options, app_config_manager)
 
       exit Longleaf::ValidateMetadataCommand.new(app_config_manager).execute(file_selector: file_selector)
     end
@@ -229,22 +245,6 @@ module Longleaf
         if options[:config].nil? || options[:config].empty?
           raise "No value provided for required options '--config'"
         end
-      end
-
-      def create_file_selector(options, app_config_manager, selector_class: FileSelector)
-        file_paths = options[:file]&.split(/\s*,\s*/)
-        storage_locations = options[:location]&.split(/\s*,\s*/)
-
-        begin
-          selector_class.new(file_paths: file_paths, storage_locations: storage_locations, app_config: app_config_manager)
-        rescue ArgumentError => e
-          logger.failure(e.message)
-          exit 1
-        end
-      end
-
-      def create_registered_selector(options, app_config_manager)
-        create_file_selector(options, app_config_manager, selector_class: RegisteredFileSelector)
       end
 
       def extend_load_path(load_paths)
