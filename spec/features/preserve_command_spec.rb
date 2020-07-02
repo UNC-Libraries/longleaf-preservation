@@ -57,7 +57,7 @@ describe 'preserve', :type => :aruba do
       end
 
       it 'exits with failure' do
-        expect(last_command_started).to have_output(/Must provide either file paths or storage locations/)
+        expect(last_command_started).to have_output(/FAILURE: Must provide one of the following file selection options: -l, -f, or -s/)
         expect(last_command_started).to have_exit_status(1)
       end
     end
@@ -68,7 +68,7 @@ describe 'preserve', :type => :aruba do
       end
 
       it 'exits with failure' do
-        expect(last_command_started).to have_output(/Cannot provide both file paths and storage locations/)
+        expect(last_command_started).to have_output(/FAILURE: Only one of the following selection options may be provided: -l, -f, -s/)
         expect(last_command_started).to have_exit_status(1)
       end
     end

@@ -129,15 +129,56 @@ module Longleaf
     # @param app_config_manager [ApplicationConfigManager] app config manager
     # @return selector
     def self.create_registered_selector(options, app_config_manager)
-      file_paths = options[:file]&.split(/\s*,\s*/)
-      storage_locations = options[:location]&.split(/\s*,\s*/)
-
-      begin
-        RegisteredFileSelector.new(file_paths: file_paths, storage_locations: storage_locations, app_config: app_config_manager)
-      rescue ArgumentError => e
-        logger.failure(e.message)
+      there_can_be_only_one("Only one of the following selection options may be provided: -l, -f, -s",
+          options, :file, :location, :from_list)
+          
+      if !options[:from_list].nil?
+        file_paths = read_from_list(options[:from_list])
+        return RegisteredFileSelector.new(file_paths: file_paths, app_config: app_config_manager)
+      elsif !options[:file].nil?
+        file_paths = options[:file].split(/\s*,\s*/)
+        return RegisteredFileSelector.new(file_paths: file_paths, app_config: app_config_manager)
+      elsif !options[:location].nil?
+        storage_locations = options[:location].split(/\s*,\s*/)
+        return RegisteredFileSelector.new(storage_locations: storage_locations, app_config: app_config_manager)
+      else
+        logger.failure("Must provide one of the following file selection options: -l, -f, or -s")
         exit 1
       end
+    end
+    
+    # Parses the -l from_list option, reading the list of files specified either from the provided
+    # file path or STDIN
+    # @param from_list option value, either a file path or "@-"
+    # @return list of files from the from_list
+    def self.read_from_list(from_list)
+      from_list = from_list.strip
+      if from_list.empty?
+        logger.failure("List parameter must not be empty")
+        exit 1
+      end
+      
+      if from_list == '@-'
+        source_stream = $stdin
+      else
+        begin
+          source_stream = File.new(from_list)
+        rescue Errno::ENOENT
+          logger.failure("Specified list file does not exist: #{from_list}")
+          exit 1
+        end
+      end
+      
+      lines = []
+      source_stream.each_line do |line|
+        lines << line.strip
+      end
+      
+      if lines.empty?
+        logger.failure("File list is empty, must provide one or more files for this operation")
+        exit 1
+      end
+      lines
     end
 
     def self.fail(message)
