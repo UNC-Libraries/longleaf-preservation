@@ -48,9 +48,27 @@ describe 'deregister', :type => :aruba do
       end
 
       it 'rejects file which does not exist' do
+        puts last_command_started.stderr
         expect(last_command_started).to have_output(
           /FAILURE deregister: File .* does not exist./)
         expect(last_command_started).to have_exit_status(1)
+      end
+    end
+    
+    context 'file registered but does not exist' do
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        
+        File.delete(file_path)
+
+        run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+      end
+
+      it 'deregisters the file' do
+        expect(last_command_started).to have_output(/SUCCESS deregister #{file_path}/)
+        expect(file_deregistered?(file_path, md_dir)).to be true
+        expect(last_command_started).to have_exit_status(0)
+        expect(File).not_to exist(file_path)
       end
     end
     
