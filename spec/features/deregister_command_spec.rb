@@ -48,7 +48,6 @@ describe 'deregister', :type => :aruba do
       end
 
       it 'rejects file which does not exist' do
-        puts last_command_started.stderr
         expect(last_command_started).to have_output(
           /FAILURE deregister: File .* does not exist./)
         expect(last_command_started).to have_exit_status(1)
