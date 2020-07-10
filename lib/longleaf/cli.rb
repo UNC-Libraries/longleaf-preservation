@@ -71,6 +71,16 @@ module Longleaf
               :required => false,
               :desc => 'Name or comma separated names of storage locations to perform this operation over.' })
 
+    add_shared_option(
+        :from_list, :registered_selection, {
+              :aliases => "-l",
+              :required => false,
+              :desc => %q{Provide a list of files to perform this operation on. The list must be new line separated, one file per line.
+                To provide a list from a file:
+                '-l /path/to/file_list.txt'
+                To provide a list from STDIN:
+                '-l @-'}})
+
     # Commands
     map %w[--version] => :__print_version
     desc "--version", "Prints the Longleaf version number."
@@ -131,6 +141,7 @@ module Longleaf
 
     desc "deregister", "Deregister files with Longleaf"
     shared_options_group(:file_selection)
+    shared_options_group(:registered_selection)
     method_option(:force,
         :type => :boolean,
         :default => false,
@@ -150,6 +161,7 @@ module Longleaf
 
     desc "preserve", "Perform preservation services on files with Longleaf"
     shared_options_group(:file_selection)
+    shared_options_group(:registered_selection)
     method_option(:force,
         :type => :boolean,
         :default => false,
@@ -180,6 +192,7 @@ module Longleaf
 
     desc "validate_metadata", "Validate metadata files."
     shared_options_group(:file_selection)
+    shared_options_group(:registered_selection)
     shared_options_group(:common)
     # File metadata validation command
     def validate_metadata
