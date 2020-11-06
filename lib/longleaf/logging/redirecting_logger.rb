@@ -65,6 +65,10 @@ module Longleaf
       def unknown(progname = nil, &block)
         @stderr_log.unknown(progname, &block)
       end
+      
+      def <<(msg)
+        @stderr_log << msg
+      end
 
       # Logs a success message to STDOUT, as well as STDERR at info level.
       #

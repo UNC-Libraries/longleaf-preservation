@@ -142,33 +142,6 @@ describe Longleaf::S3ReplicationService do
         end
       end
 
-      context 'with md5' do
-        before do
-          md_rec.checksums['MD5'] = '9a0364b9e99bb480dd25e1f0284c8555'
-        end
-
-        it 'replicates file to s3 destination' do
-          service.perform(file_rec, PRESERVE_EVENT)
-
-          s3_client = dest1.s3_client
-          expect(s3_client.api_requests.size).to eq(2)
-          expect(s3_client.api_requests.last[:params]).to include(
-                  :bucket => "example",
-                  :key => 'path/test_file.txt',
-                  :content_md5 => 'mgNkuembtIDdJeHwKEyFVQ=='
-                )
-        end
-      end
-
-      context 'with invalid md5' do
-        before do
-          md_rec.checksums['MD5'] = '9a0364b9e99bohnodd25e1f0284c8555'
-          dest1.s3_client.stub_responses(:put_object, 'BadDigest')
-        end
-
-        it { expect { service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(Longleaf::ChecksumMismatchError) }
-      end
-
       context 'with transfer error' do
         before do
           dest1.s3_client.stub_responses(:put_object, 'NoSuchUpload')
