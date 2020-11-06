@@ -40,6 +40,7 @@ module Longleaf
         @client_options = Hash[custom_options.map { |(k,v)| [k.to_sym,v] } ]
       end
       @client_options[:logger] = logger
+      @client_options[:log_level] = :debug if @client_options[:log_level].nil?
       
       # If no region directly configured, use region from path
       if !@client_options.key?(:region)
