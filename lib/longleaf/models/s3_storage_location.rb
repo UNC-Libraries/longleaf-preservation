@@ -12,6 +12,7 @@ module Longleaf
   # https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Client.html#constructor_details
 
   class S3StorageLocation < StorageLocation
+    include Longleaf::Logging
 
     IS_URI_REGEX = /\A#{URI::regexp}\z/
 
@@ -38,6 +39,9 @@ module Longleaf
         # Clone options and convert keys to symbols
         @client_options = Hash[custom_options.map { |(k,v)| [k.to_sym,v] } ]
       end
+      @client_options[:logger] = logger
+      @client_options[:log_level] = :debug if @client_options[:log_level].nil?
+      
       # If no region directly configured, use region from path
       if !@client_options.key?(:region)
         region = S3UriHelper.extract_region(@path)

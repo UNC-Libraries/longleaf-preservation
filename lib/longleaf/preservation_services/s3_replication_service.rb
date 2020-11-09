@@ -83,8 +83,6 @@ module Longleaf
       # Determine the path to the file being replicated relative to its storage location
       rel_path = file_rec.storage_location.relativize(file_rec.path)
 
-      content_md5 = get_content_md5(file_rec)
-
       @destinations.each do |destination|
         # Check that the destination is available before attempting to write
         verify_destination_available(destination, file_rec)
@@ -92,7 +90,7 @@ module Longleaf
         rel_to_bucket = destination.relative_to_bucket_path(rel_path)
         file_obj = destination.s3_bucket.object(rel_to_bucket)
         begin
-          file_obj.upload_file(file_rec.path, { :content_md5 => content_md5 })
+          file_obj.upload_file(file_rec.path)
         rescue Aws::S3::Errors::BadDigest => e
           raise ChecksumMismatchError.new("Transfer to bucket '#{destination.s3_bucket.name}' failed, " \
               + "MD5 provided did not match the received content for #{file_rec.path}")
@@ -127,16 +125,6 @@ module Longleaf
       rescue StorageLocationUnavailableError => e
         raise StorageLocationUnavailableError.new("Cannot replicate #{file_rec.path} to destination #{destination.name}: " \
             + e.message)
-      end
-    end
-
-    def get_content_md5(file_rec)
-      md_rec = file_rec.metadata_record
-      if md_rec.checksums.key?('md5')
-        # base 64 encode the digest, as is required by the Content-Md5 header
-        [[md_rec.checksums['md5']].pack("H*")].pack("m0")
-      else
-        nil
       end
     end
   end
