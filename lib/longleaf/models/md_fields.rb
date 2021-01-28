@@ -9,6 +9,7 @@ module Longleaf
 
     LAST_MODIFIED = 'last-modified'
     FILE_SIZE = 'size'
+    PHYSICAL_PATH = 'physical-path'
 
     CHECKSUMS = 'checksums'
 

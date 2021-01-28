@@ -32,6 +32,7 @@ module Longleaf
       checksums = data.delete(MDFields::CHECKSUMS)
       file_size = data.delete(MDFields::FILE_SIZE)
       last_modified = data.delete(MDFields::LAST_MODIFIED)
+      physical_path = data.delete(MDFields::PHYSICAL_PATH)
 
       services = md[MDF::SERVICES]
       service_records = Hash.new
@@ -57,7 +58,8 @@ module Longleaf
                          deregistered: deregistered,
                          checksums: checksums,
                          file_size: file_size,
-                         last_modified: last_modified)
+                         last_modified: last_modified,
+                         physical_path: physical_path)
     end
 
     # Load configuration a yaml encoded configuration file

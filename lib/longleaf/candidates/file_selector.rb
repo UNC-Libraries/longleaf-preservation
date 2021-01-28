@@ -10,7 +10,7 @@ module Longleaf
     attr_reader :specificity
 
     # May only provide either file_paths or storage_locations
-    def initialize(file_paths: nil, storage_locations: nil, app_config:)
+    def initialize(file_paths: nil, storage_locations: nil, physical_provider: nil, app_config:)
       if nil_or_empty?(file_paths) && nil_or_empty?(storage_locations)
         raise ArgumentError.new("Must provide either file paths or storage locations")
       end
@@ -36,6 +36,7 @@ module Longleaf
       end
       # The set of storage locations to select file paths from
       @storage_locations = storage_locations
+      @physical_provider = physical_provider
       # Validate that the selected storage locations are known
       if @storage_locations.nil?
         @specificity = SPECIFICITY_PATH
@@ -63,7 +64,7 @@ module Longleaf
       @target_paths
     end
 
-    # Get the next file path for this selector.
+    # Get the next logical file path for this selector.
     # @return [String] an absolute path to the next file targeted by this selector,
     # or nil if no more files selected
     def next_path
@@ -80,9 +81,21 @@ module Longleaf
       path = @paths.pop
       until path.nil? do
         @app_config.location_manager.verify_path_in_location(path)
+        physical_path = @physical_provider.get_physical_path(path)
+        separate_logical = physical_path != path
+        # if using separate logical and physical paths, only the physical path should exist in the storage location
+        if separate_logical
+          if File.exist?(path)
+            raise InvalidStoragePathError.new("Logical path '#{path}' exists for physical file '#{physical_path}'")
+          end
+          @app_config.location_manager.verify_path_in_location(physical_path)
+        end
 
-        if File.exist?(path)
-          if File.directory?(path)
+        if File.exist?(physical_path)
+          if File.directory?(physical_path)
+            if separate_logical
+              raise InvalidStoragePathError.new("Cannot specify physical path to a directory: #{physical_path}")
+            end
             logger.debug("Expanding directory #{path}")
             # For a directory, add all children to file_paths
             Dir.entries(path).sort.reverse_each do |child|
@@ -93,7 +106,7 @@ module Longleaf
             return path
           end
         else
-          raise InvalidStoragePathError.new("File #{path} does not exist.")
+          raise InvalidStoragePathError.new("File #{physical_path} does not exist.")
         end
 
         # Returned path was not a suitable file, try the next path
