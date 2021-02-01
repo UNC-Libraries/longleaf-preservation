@@ -1,4 +1,5 @@
 require 'longleaf/logging'
+require 'longleaf/candidates/physical_path_provider'
 
 module Longleaf
   # Selects and allows for iteration over files which match a provided set of selection criteria
@@ -10,7 +11,8 @@ module Longleaf
     attr_reader :specificity
 
     # May only provide either file_paths or storage_locations
-    def initialize(file_paths: nil, storage_locations: nil, physical_provider: nil, app_config:)
+    def initialize(file_paths: nil, storage_locations: nil, physical_provider: Longleaf::PhysicalPathProvider.new,
+           app_config:)
       if nil_or_empty?(file_paths) && nil_or_empty?(storage_locations)
         raise ArgumentError.new("Must provide either file paths or storage locations")
       end
