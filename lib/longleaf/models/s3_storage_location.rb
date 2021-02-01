@@ -1,6 +1,7 @@
 require 'longleaf/models/storage_location'
 require 'longleaf/models/storage_types'
 require 'longleaf/helpers/s3_uri_helper'
+require 'longleaf/logging'
 require 'uri'
 require 'aws-sdk-s3'
 

@@ -65,9 +65,45 @@ describe 'fixity check service', :type => :aruba do
         run_command_and_stop("longleaf preserve -c #{config_path} -f #{file_path}", fail_on_error: false)
       end
 
-      it 'successfully runs service' do
+      it 'service report modification' do
         expect(last_command_started).to have_output(%r"FAILURE preserve\[serv1\] #{file_path}: Last modified timestamp for #{file_path} does not match the expected value")
         expect(last_command_started).to have_exit_status(1)
+      end
+    end
+    
+    context 'preserving registered file with separate physical path' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f #{logical_path} -p #{file_path}", fail_on_error: false)
+      end
+      
+      context 'with unchanged state' do
+        before do
+          run_command_and_stop("longleaf register -c #{config_path} -f #{logical_path} -p #{file_path}", fail_on_error: false)
+
+          run_command_and_stop("longleaf preserve -c #{config_path} -f #{logical_path}", fail_on_error: false)
+        end
+        
+        it 'successfully runs service' do
+          expect(last_command_started).to have_output(%r"SUCCESS preserve\[serv1\] #{logical_path}")
+          expect(last_command_started).to have_exit_status(0)
+        end
+      end
+      
+      context 'with modified state' do
+        before do
+          File.open(file_path, 'w') do |file|
+            file << 'check_me'
+          end
+
+          run_command_and_stop("longleaf preserve -c #{config_path} -f #{logical_path}", fail_on_error: false)
+        end
+
+        it 'service reports modification' do
+          expect(last_command_started).to have_output(%r"FAILURE preserve\[serv1\] #{logical_path}: Last modified timestamp for #{file_path} does not match the expected value")
+          expect(last_command_started).to have_exit_status(1)
+        end
       end
     end
   end

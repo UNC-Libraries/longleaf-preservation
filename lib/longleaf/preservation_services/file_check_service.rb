@@ -23,22 +23,23 @@ module Longleaf
     # @raise [PreservationServiceError] if the file system information does not match the stored details
     def perform(file_rec, event)
       file_path = file_rec.path
+      phys_path = file_rec.physical_path
       md_rec = file_rec.metadata_record
 
       logger.debug("Performing file information check of #{file_path}")
 
-      if !File.exist?(file_path)
-        raise PreservationServiceError.new("File does not exist: #{file_path}")
+      if !File.exist?(phys_path)
+        raise PreservationServiceError.new("File does not exist: #{phys_path}")
       end
 
-      file_size = File.size(file_rec.path)
+      file_size = File.size(phys_path)
       if file_size != md_rec.file_size
-        raise PreservationServiceError.new("File size for #{file_path} does not match the expected value: registered = #{md_rec.file_size} bytes, actual = #{file_size} bytes")
+        raise PreservationServiceError.new("File size for #{phys_path} does not match the expected value: registered = #{md_rec.file_size} bytes, actual = #{file_size} bytes")
       end
 
-      last_modified = File.mtime(file_rec.path).utc.iso8601(3)
+      last_modified = File.mtime(phys_path).utc.iso8601(3)
       if last_modified != md_rec.last_modified
-        raise PreservationServiceError.new("Last modified timestamp for #{file_path} does not match the expected value: registered = #{md_rec.last_modified}, actual = #{last_modified}")
+        raise PreservationServiceError.new("Last modified timestamp for #{phys_path} does not match the expected value: registered = #{md_rec.last_modified}, actual = #{last_modified}")
       end
     end
 

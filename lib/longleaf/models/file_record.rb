@@ -3,7 +3,6 @@ module Longleaf
   class FileRecord
     attr_accessor :metadata_record
     attr_reader :storage_location
-    attr_reader :physical_path
     attr_reader :path
 
     # @param file_path [String] path to the file
@@ -17,17 +16,24 @@ module Longleaf
       @path = file_path
       @storage_location = storage_location
       @metadata_record = metadata_record
-      if physical_path.nil?
-        @physical_path = file_path
-      else
-        @physical_path = physical_path
-      end
+      @physical_path = physical_path
     end
 
     # @return [String] path for the metadata file for this file
     def metadata_path
       @metadata_path = @storage_location.get_metadata_path_for(path) if @metadata_path.nil?
       @metadata_path
+    end
+    
+    def physical_path
+      if @physical_path.nil?
+        if @metadata_record.nil? || @metadata_record.physical_path.nil?
+          @physical_path = @path
+        else
+          @physical_path = @metadata_record.physical_path
+        end
+      end
+      @physical_path
     end
 
     def metadata_present?
