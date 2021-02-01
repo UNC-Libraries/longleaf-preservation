@@ -29,6 +29,11 @@ module Longleaf
       @checksums[alg] = value
       self
     end
+    
+    def with_physical_path(phys_path)
+      @physical_path = phys_path
+      self
+    end
 
     def with_service(name, timestamp: ServiceDateHelper::formatted_timestamp, run_needed: false, properties: nil,
           failure_timestamp: nil)
@@ -56,7 +61,8 @@ module Longleaf
           registered: @registered,
           checksums: @checksums,
           file_size: @file_size,
-          last_modified: @last_modified)
+          last_modified: @last_modified,
+          physical_path: @physical_path)
     end
 
     # Add the generated metadata record to the given file record

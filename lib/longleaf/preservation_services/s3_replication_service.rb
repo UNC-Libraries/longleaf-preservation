@@ -90,7 +90,7 @@ module Longleaf
         rel_to_bucket = destination.relative_to_bucket_path(rel_path)
         file_obj = destination.s3_bucket.object(rel_to_bucket)
         begin
-          file_obj.upload_file(file_rec.path)
+          file_obj.upload_file(file_rec.physical_path)
         rescue Aws::S3::Errors::BadDigest => e
           raise ChecksumMismatchError.new("Transfer to bucket '#{destination.s3_bucket.name}' failed, " \
               + "MD5 provided did not match the received content for #{file_rec.path}")
