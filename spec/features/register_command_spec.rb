@@ -235,7 +235,7 @@ describe 'register', :type => :aruba do
              fail_on_error: false)
       end
 
-      it 'registers files with physical paths' do
+      it 'rejects registration' do
         expect(last_command_started).to have_output(/FAILURE register: File #{physical_path} does not exist/)
         expect(metadata_created(logical_path, md_dir)).to be false
         expect(last_command_started).to have_exit_status(1)
@@ -251,7 +251,7 @@ describe 'register', :type => :aruba do
              fail_on_error: false)
       end
 
-      it 'registers files with physical paths' do
+      it 'rejects registration' do
         expect(last_command_started).to have_output(
             /FAILURE register: Path #{physical_path} is not from a known storage location/)
         expect(metadata_created(logical_path, md_dir)).to be false
@@ -265,10 +265,11 @@ describe 'register', :type => :aruba do
              fail_on_error: false)
       end
 
-      it 'rejects existing logical path' do
-        expect(last_command_started).to have_output(/FAILURE register: Logical path '#{file_path}' exists.*/)
-        expect(metadata_created(file_path, md_dir)).to be false
-        expect(last_command_started).to have_exit_status(1)
+      it 'register file with physical path' do
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
+        expect(metadata_created(file_path, md_dir)).to be true
+        expect_physical_path(file_path, file_path2)
+        expect(last_command_started).to have_exit_status(0)
       end
     end
 

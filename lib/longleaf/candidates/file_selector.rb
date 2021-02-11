@@ -85,11 +85,7 @@ module Longleaf
         @app_config.location_manager.verify_path_in_location(path)
         physical_path = @physical_provider.get_physical_path(path)
         separate_logical = physical_path != path
-        # if using separate logical and physical paths, only the physical path should exist in the storage location
         if separate_logical
-          if File.exist?(path)
-            raise InvalidStoragePathError.new("Logical path '#{path}' exists for physical file '#{physical_path}'")
-          end
           @app_config.location_manager.verify_path_in_location(physical_path)
         end
 
