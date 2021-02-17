@@ -80,8 +80,6 @@ describe 'fixity check service', :type => :aruba do
       
       context 'with unchanged state' do
         before do
-          run_command_and_stop("longleaf register -c #{config_path} -f #{logical_path} -p #{file_path}", fail_on_error: false)
-
           run_command_and_stop("longleaf preserve -c #{config_path} -f #{logical_path}", fail_on_error: false)
         end
         
