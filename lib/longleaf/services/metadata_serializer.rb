@@ -52,6 +52,7 @@ module Longleaf
       data[MDF::CHECKSUMS] = metadata.checksums unless metadata.checksums && metadata.checksums.empty?
       data[MDF::FILE_SIZE] = metadata.file_size unless metadata.file_size.nil?
       data[MDF::LAST_MODIFIED] = metadata.last_modified if metadata.last_modified
+      data[MDF::PHYSICAL_PATH] = metadata.physical_path if metadata.physical_path
 
       props[MDF::DATA] = data
 

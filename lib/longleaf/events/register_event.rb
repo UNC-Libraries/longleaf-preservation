@@ -70,10 +70,17 @@ module Longleaf
     private
     def populate_file_properties
       md_rec = @file_rec.metadata_record
+      physical_path = @file_rec.physical_path
 
       # Set file properties
-      md_rec.last_modified = File.mtime(@file_rec.path).utc.iso8601(3)
-      md_rec.file_size = File.size(@file_rec.path)
+      md_rec.last_modified = File.mtime(physical_path).utc.iso8601(3)
+      md_rec.file_size = File.size(physical_path)
+
+      if physical_path != @file_rec.path
+        md_rec.physical_path = physical_path
+      else
+        md_rec.physical_path = nil
+      end
     end
 
     # Copy a subset of properties from an existing metadata record to the new record

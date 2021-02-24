@@ -1,6 +1,7 @@
 require 'longleaf/candidates/file_selector'
 require 'longleaf/candidates/registered_file_selector'
 require 'longleaf/candidates/manifest_digest_provider'
+require 'longleaf/candidates/physical_path_provider'
 require 'longleaf/candidates/single_digest_provider'
 
 module Longleaf
@@ -18,8 +19,11 @@ module Longleaf
           options, :file, :manifest, :location)
 
       if !options[:manifest].nil?
-        digests_mapping = self.manifests_to_digest_mapping(options[:manifest])
-        selector = FileSelector.new(file_paths: digests_mapping.keys, app_config: app_config_manager)
+        digests_mapping, logical_phys_mapping = self.parse_manifest(options[:manifest])
+        physical_provider = PhysicalPathProvider.new(logical_phys_mapping)
+        selector = FileSelector.new(file_paths: digests_mapping.keys,
+             physical_provider: physical_provider,
+             app_config: app_config_manager)
         digest_provider = ManifestDigestProvider.new(digests_mapping)
       elsif !options[:file].nil?
         if options[:checksums]
@@ -35,18 +39,28 @@ module Longleaf
           end
         end
 
-        file_paths = options[:file].split(/\s*,\s*/)
-        selector = FileSelector.new(file_paths: file_paths, app_config: app_config_manager)
-      elsif !options[:location].nil?
-        storage_locations = options[:location].split(/\s*,\s*/)
-        selector = FileSelector.new(storage_locations: storage_locations, app_config: app_config_manager)
-        digest_provider = SingleDigestProvider.new(nil)
+        file_paths = self.split_quoted(options[:file], "\\s*,\\s*")
+        if !options[:physical_path].nil?
+          physical_paths = self.split_quoted(options[:physical_path], "\\s*,\\s*")
+          if physical_paths.length != file_paths.length
+            logger.failure("Invalid physical paths parameter, number of paths did not match number of logical paths")
+            exit 1
+          end
+          logical_phys_mapping = Hash[file_paths.zip physical_paths]
+          physical_provider = PhysicalPathProvider.new(logical_phys_mapping)
+        else
+          physical_provider = PhysicalPathProvider.new
+        end
+        
+        selector = FileSelector.new(file_paths: file_paths,
+             physical_provider: physical_provider,
+             app_config: app_config_manager)
       else
         logger.failure("Must provide one of the following file selection options: -f, l, or -m")
         exit 1
       end
 
-      [selector, digest_provider]
+      [selector, digest_provider, physical_provider]
     end
 
     def self.there_can_be_only_one(failure_msg, options, *names)
@@ -69,7 +83,7 @@ module Longleaf
     #.      <manifest_path> OR @-
     # @return a hash containing the aggregated contents of the provided manifests. The keys are
     #    paths to manifested files. The values are hashes, mapping digest algorithms to digest values.
-    def self.manifests_to_digest_mapping(manifest_vals)
+    def self.parse_manifest(manifest_vals)
       alg_manifest_pairs = []
       # interpret option inputs into a list of algorithms to manifest sources
       manifest_vals.each do |manifest_val|
@@ -87,6 +101,7 @@ module Longleaf
 
       # read the provided manifests to build a mapping from file uri to all supplied digests
       digests_mapping = Hash.new { |h,k| h[k] = Hash.new }
+      logical_phys_mapping = Hash.new
       alg_manifest_pairs.each do |mpair|
         source_stream = nil
         # Determine if reading from a manifest file or stdin
@@ -111,17 +126,28 @@ module Longleaf
             if current_alg.nil?
               self.fail("Manifest with unknown checksums encountered, an algorithm must be specified")
             end
-            entry_parts = line.split(' ', 2)
-            if entry_parts.length != 2
+            entry_parts = self.split_quoted(line)
+            if entry_parts.length != 2 && entry_parts.length != 3
               self.fail("Invalid manifest entry: #{line}")
             end
 
             digests_mapping[entry_parts[1]][current_alg] = entry_parts[0]
+            if (entry_parts.length == 3)
+              logical_phys_mapping[entry_parts[1]] = entry_parts[2]
+            end
           end
         end
       end
 
-      digests_mapping
+      [digests_mapping, logical_phys_mapping]
+    end
+    
+    # Splits a string of quoted or unquoted tokens separated by spaces
+    # @param
+    def self.split_quoted(text, delimiter = "\\s+", limit = -1)
+      text.split(/#{delimiter}(?=(?:[^'"]|'[^']*'|"[^"]*")*$)/, limit)
+          .select {|s| not s.empty? }
+          .map {|s| s.gsub(/(^ +)|( +$)|(^["']+)|(["']+$)/, '')}
     end
 
     # Parses the provided options to create a selector for registered files

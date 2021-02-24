@@ -5,6 +5,7 @@ require 'longleaf/models/service_fields'
 require 'longleaf/models/storage_types'
 require 'longleaf/specs/file_helpers'
 require 'longleaf/specs/config_builder'
+require 'longleaf/specs/metadata_builder'
 require 'fileutils'
 
 describe Longleaf::S3ReplicationService do
@@ -14,6 +15,7 @@ describe Longleaf::S3ReplicationService do
   ST ||= Longleaf::StorageTypes
   S3Service ||= Longleaf::S3ReplicationService
   ConfigBuilder ||= Longleaf::ConfigBuilder
+  MetadataBuilder ||= Longleaf::MetadataBuilder
   PRESERVE_EVENT ||= Longleaf::EventNames::PRESERVE
 
   let(:md_dest_dir) { Dir.mktmpdir('dest_metadata') }
@@ -212,6 +214,44 @@ describe Longleaf::S3ReplicationService do
                 )
         end
       end
+      
+      context 'with separate physical and logical paths' do
+        let!(:logical_path) { File.join(path_src_dir, "logical") }
+        let(:md_rec) { MetadataBuilder.new(file_path: original_file)
+              .with_physical_path(original_file)
+              .get_metadata_record }
+        let(:file_rec) { make_file_record(logical_path, md_rec, source_loc, original_file) }
+        
+        it 'replicates file to s3 destination' do
+          service.perform(file_rec, PRESERVE_EVENT)
+
+          s3_client = dest1.s3_client
+          expect(s3_client.api_requests.size).to eq(2)
+          expect(s3_client.api_requests.last[:params]).to include(
+                  :bucket => "example",
+                  :key => 'path/logical'
+                )
+        end
+      end
+      
+      context 'with separate physical and nested logical path' do
+        let!(:logical_path) { File.join(path_src_dir, "sub/dir/for", "logical") }
+        let(:md_rec) { MetadataBuilder.new(file_path: original_file)
+              .with_physical_path(original_file)
+              .get_metadata_record }
+        let(:file_rec) { make_file_record(logical_path, md_rec, source_loc, original_file) }
+        
+        it 'replicates file to s3 destination' do
+          service.perform(file_rec, PRESERVE_EVENT)
+
+          s3_client = dest1.s3_client
+          expect(s3_client.api_requests.size).to eq(2)
+          expect(s3_client.api_requests.last[:params]).to include(
+                  :bucket => "example",
+                  :key => 'path/sub/dir/for/logical'
+                )
+        end
+      end
     end
 
     context 's3 to s3' do
@@ -237,8 +277,8 @@ describe Longleaf::S3ReplicationService do
     build(:service_definition, properties: properties)
   end
 
-  def make_file_record(file_path, md_rec, storage_loc)
-    file_rec = build(:file_record, file_path: file_path, storage_location: storage_loc)
+  def make_file_record(file_path, md_rec, storage_loc, physical_path = nil)
+    file_rec = build(:file_record, file_path: file_path, storage_location: storage_loc, physical_path: physical_path)
     file_rec.metadata_record = md_rec
     file_rec
   end

@@ -327,11 +327,38 @@ describe 'deregister', :type => :aruba do
         end
       end
     end
+    
+    context 'file is registered with separate physical path' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f #{logical_path} -p #{file_path}", fail_on_error: false)
+      end
+
+      context 'deregister file' do
+        before do
+          run_command_and_stop("longleaf deregister -c #{config_path} -f #{logical_path}", fail_on_error: false)
+        end
+
+        it 'deregisters the file' do
+          expect(last_command_started).to have_output(/SUCCESS deregister #{logical_path}/)
+          md_rec = get_metadata_record(logical_path, md_dir)
+          expect(md_rec.deregistered?).to be true
+          expect(md_rec.physical_path).to eq file_path
+          expect(last_command_started).to have_exit_status(0)
+        end
+      end
+    end
+  end
+  
+  def get_metadata_record(file_path, md_dir)
+    metadata_path = File.join(md_dir, File.basename(file_path) + Longleaf::MetadataSerializer::metadata_suffix)
+    return nil unless File.exist?(metadata_path)
+    Longleaf::MetadataDeserializer.deserialize(file_path: metadata_path)
   end
 
   def file_deregistered?(file_path, md_dir)
-    metadata_path = File.join(md_dir, File.basename(file_path) + Longleaf::MetadataSerializer::metadata_suffix)
-    return false unless File.exist?(metadata_path)
-    Longleaf::MetadataDeserializer.deserialize(file_path: metadata_path).deregistered?
+    md_rec = get_metadata_record(file_path, md_dir)
+    md_rec.nil? ? false : md_rec.deregistered?
   end
 end

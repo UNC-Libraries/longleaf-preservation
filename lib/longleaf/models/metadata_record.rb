@@ -10,6 +10,7 @@ module Longleaf
     attr_reader :checksums
     attr_reader :properties
     attr_accessor :file_size, :last_modified
+    attr_accessor :physical_path
 
     # @param properties [Hash] initial data properties for this record
     # @param services [Hash] initial service property tree
@@ -18,8 +19,9 @@ module Longleaf
     # @param checksums [Hash] hash of checksum values
     # @param file_size [Integer] size of file in bytes
     # @param last_modified [String] iso8601 representation of the last modified date of file
+    # @param physical_path [String] physical path where the file is located
     def initialize(properties: nil, services: nil, deregistered: nil, registered: nil, checksums: nil,
-          file_size: nil, last_modified: nil)
+          file_size: nil, last_modified: nil, physical_path: nil)
       @properties = properties || Hash.new
       @registered = registered
       @deregistered = deregistered
@@ -28,6 +30,7 @@ module Longleaf
       @services = services || Hash.new
       @file_size = file_size
       @last_modified = last_modified
+      @physical_path = physical_path
     end
 
     # @return [Boolean] true if the record is deregistered

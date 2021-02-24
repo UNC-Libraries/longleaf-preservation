@@ -161,9 +161,9 @@ describe 'register', :type => :aruba do
       end
     end
 
-    context 'register multiple files by storage location' do
+    context 'register directory of files' do
       before do
-        run_command_and_stop("longleaf register -c #{config_path} -s 'loc1' --log-level 'DEBUG'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{path_dir}/'", fail_on_error: false)
       end
 
       it 'registers both files' do
@@ -175,16 +175,186 @@ describe 'register', :type => :aruba do
       end
     end
 
-    context 'register directory of files' do
+    context 'register file with separate physical path' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+
       before do
-        run_command_and_stop("longleaf register -c #{config_path} -f '#{path_dir}/' --log_level DEBUG", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{logical_path}' -p '#{file_path}'",
+             fail_on_error: false)
       end
 
-      it 'registers both files' do
+      it 'registers file with physical path' do
+        expect(last_command_started).to have_output(/SUCCESS register #{logical_path}/)
+        expect(metadata_created(logical_path, md_dir)).to be true
+        expect_physical_path(logical_path, file_path)
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
+    context 'register file with same logical and physical path' do
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}' -p '#{file_path}'",
+             fail_on_error: false)
+      end
+
+      it 'registers file without physical path' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
-        expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
-        expect(metadata_created(file_path2, md_dir)).to be true
+        expect_physical_path(file_path, nil)
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
+    context 'register two files with separate physical paths' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+      let!(:logical_path2) { File.join(path_dir, "logical2") }
+
+      before do
+        run_command_and_stop(%Q{longleaf register -c #{config_path} -f '#{logical_path},#{logical_path2}'
+             -p '#{file_path},#{file_path2}'},
+             fail_on_error: false)
+      end
+
+      it 'registers files with physical paths' do
+        expect(last_command_started).to have_output(/SUCCESS register #{logical_path}/)
+        expect(last_command_started).to have_output(/SUCCESS register #{logical_path2}/)
+        expect(metadata_created(logical_path, md_dir)).to be true
+        expect_physical_path(logical_path, file_path)
+        expect(metadata_created(logical_path2, md_dir)).to be true
+        expect_physical_path(logical_path2, file_path2)
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
+    context 'register file with non-existent physical path' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+      let!(:physical_path) { File.join(path_dir, "physical") }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{logical_path}' -p '#{physical_path}'",
+             fail_on_error: false)
+      end
+
+      it 'rejects registration' do
+        expect(last_command_started).to have_output(/FAILURE register: File #{physical_path} does not exist/)
+        expect(metadata_created(logical_path, md_dir)).to be false
+        expect(last_command_started).to have_exit_status(1)
+      end
+    end
+
+    context 'register file with physical path not in storage location' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+      let!(:physical_path) { create_test_file }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{logical_path}' -p '#{physical_path}'",
+             fail_on_error: false)
+      end
+
+      it 'rejects registration' do
+        expect(last_command_started).to have_output(
+            /FAILURE register: Path #{physical_path} is not from a known storage location/)
+        expect(metadata_created(logical_path, md_dir)).to be false
+        expect(last_command_started).to have_exit_status(1)
+      end
+    end
+
+    context 'register existing logical path with physical path' do
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}' -p '#{file_path2}'",
+             fail_on_error: false)
+      end
+
+      it 'register file with physical path' do
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
+        expect(metadata_created(file_path, md_dir)).to be true
+        expect_physical_path(file_path, file_path2)
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
+    context 'register two files with one physical path' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+      let!(:logical_path2) { File.join(path_dir, "logical2") }
+
+      before do
+        run_command_and_stop(%Q{longleaf register -c #{config_path} -f '#{logical_path},#{logical_path2}'
+             -p '#{file_path}'}, fail_on_error: false)
+      end
+
+      it 'rejects mismatched parameters' do
+        expect(last_command_started).to have_output(
+            /FAILURE: Invalid physical paths parameter, number of paths did not match.*/)
+        expect(metadata_created(logical_path, md_dir)).to be false
+        expect(metadata_created(logical_path2, md_dir)).to be false
+        expect(last_command_started).to have_exit_status(1)
+      end
+    end
+
+    context 'register one file with too many physical paths' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+      let!(:logical_path2) { File.join(path_dir, "logical2") }
+
+      before do
+        run_command_and_stop(%Q{longleaf register -c #{config_path} -f '#{logical_path}'
+             -p '#{file_path},#{file_path2}'}, fail_on_error: false)
+      end
+
+      it 'rejects mismatched parameters' do
+        expect(last_command_started).to have_output(
+            /FAILURE: Invalid physical paths parameter, number of paths did not match.*/)
+        expect(metadata_created(logical_path, md_dir)).to be false
+        expect(last_command_started).to have_exit_status(1)
+      end
+    end
+
+    context 'reregister file that has physical path with new physical path' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{logical_path}' -p '#{file_path}'",
+             fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} --force -f '#{logical_path}' -p '#{file_path2}'",
+             fail_on_error: false)
+      end
+
+      it 'registers file with physical path' do
+        expect(last_command_started).to have_output(/SUCCESS register #{logical_path}/)
+        expect_physical_path(logical_path, file_path2)
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
+    context 'reregister file that has physical path with no physical path' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{logical_path}' -p '#{file_path}'",
+             fail_on_error: false)
+        FileUtils.touch(logical_path)
+        run_command_and_stop("longleaf register -c #{config_path} --force -f '#{logical_path}'",
+             fail_on_error: false)
+      end
+
+      it 'registers file with physical path' do
+        expect(last_command_started).to have_output(/SUCCESS register #{logical_path}/)
+        expect_physical_path(logical_path, nil)
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
+    context 'reregister file that does not have a physical path with a physical path' do
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+        File.delete(file_path)
+        run_command_and_stop(%Q{longleaf register -c #{config_path} --force -f '#{file_path}'
+              -p #{file_path2}},
+             fail_on_error: false)
+      end
+
+      it 'registers file with physical path' do
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
+        expect_physical_path(file_path, file_path2)
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -232,7 +402,7 @@ describe 'register', :type => :aruba do
                    "013d5696728f086b8d2424b14beebc2695f926f7   #{file_path2}\n") }
 
       before do
-        run_command_and_stop("longleaf register -c #{config_path} -m 'sha1:#{manifest_path}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -m 'sha1:#{manifest_path}' --log_level DEBUG", fail_on_error: false)
       end
 
       it 'registers the files with digest' do
@@ -403,6 +573,67 @@ describe 'register', :type => :aruba do
         expect(last_command_started).to have_exit_status(1)
       end
     end
+
+    context 'register multiple from checksum manifest with physical paths' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+      let!(:logical_path2) { File.join(path_dir, "logical2") }
+      let!(:manifest_path) { create_manifest_file(
+                   "e8241901910dac399e9fcd5fb5661e6923a0ce0a  #{logical_path} #{file_path}\n" +
+                   "013d5696728f086b8d2424b14beebc2695f926f7  #{logical_path2} #{file_path2}\n") }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -m 'sha1:#{manifest_path}'", fail_on_error: false)
+      end
+
+      it 'registers the files with digest and physical paths' do
+        expect(last_command_started).to have_output(/SUCCESS register #{logical_path}/)
+        expect_digests(logical_path, sha1: 'e8241901910dac399e9fcd5fb5661e6923a0ce0a')
+        expect_physical_path(logical_path, file_path)
+        expect(last_command_started).to have_output(/SUCCESS register #{logical_path2}/)
+        expect_digests(logical_path2, sha1: '013d5696728f086b8d2424b14beebc2695f926f7')
+        expect_physical_path(logical_path2, file_path2)
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
+    context 'register multiple from checksum manifest, one with physical path' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+      let!(:manifest_path) { create_manifest_file(
+                   "e8241901910dac399e9fcd5fb5661e6923a0ce0a  #{logical_path} #{file_path}\n" +
+                   "013d5696728f086b8d2424b14beebc2695f926f7  #{file_path2}\n") }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -m 'sha1:#{manifest_path}'", fail_on_error: false)
+      end
+
+      it 'registers the files with digests and physical path' do
+        expect(last_command_started).to have_output(/SUCCESS register #{logical_path}/)
+        expect_digests(logical_path, sha1: 'e8241901910dac399e9fcd5fb5661e6923a0ce0a')
+        expect_physical_path(logical_path, file_path)
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
+        expect_digests(file_path2, sha1: '013d5696728f086b8d2424b14beebc2695f926f7')
+        expect_physical_path(file_path2, nil)
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
+    context 'register from checksum manifest with spaces in logical and physical path' do
+      let!(:logical_path) { File.join(path_dir, "logical space") }
+      let!(:physical_path) { create_test_file(dir: path_dir, name: 'spacey file', content: 'more content') }
+      let!(:manifest_path) { create_manifest_file(
+                   "013d5696728f086b8d2424b14beebc2695f926f7  '#{logical_path}' '#{physical_path}'\n") }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -m 'sha1:#{manifest_path}'", fail_on_error: false)
+      end
+
+      it 'registers the files with digest and physical path' do
+        expect(last_command_started).to have_output(/SUCCESS register #{logical_path}/)
+        expect_digests(logical_path, sha1: '013d5696728f086b8d2424b14beebc2695f926f7')
+        expect_physical_path(logical_path, physical_path)
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
   end
 
   def get_metadata_record_path(file_path, md_dir)
@@ -434,6 +665,15 @@ describe 'register', :type => :aruba do
       expect(md_rec.checksums).not_to include('sha1')
     else
       expect(md_rec.checksums['sha1']).to eq sha1
+    end
+  end
+
+  def expect_physical_path(logical_path, physical_path)
+    md_rec = get_metadata_record(logical_path, md_dir)
+    if physical_path.nil?
+      expect(md_rec.physical_path).to be_nil
+    else
+      expect(md_rec.physical_path).to eq physical_path
     end
   end
 

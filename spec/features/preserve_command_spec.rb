@@ -162,6 +162,36 @@ describe 'preserve', :type => :aruba do
         end
       end
     end
+    
+    context 'specifying one file with separate physical location' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+      
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f #{logical_path} -p #{file_path}", fail_on_error: false)
+      end
+      
+      context 'provide physical path to preserve command' do
+        before do
+          run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{file_path}", fail_on_error: false)
+        end
+
+        it 'Cannot locate file' do
+          expect(last_command_started).to have_output(/FAILURE preserve: File #{file_path} is not registered/)
+          expect(last_command_started).to have_exit_status(1)
+        end
+      end
+
+      context 'service has not run before' do
+        before do
+          run_command_and_stop("longleaf preserve -c #{config_path} -I #{lib_dir} -f #{logical_path}", fail_on_error: false)
+        end
+
+        it 'successfully verifies file' do
+          expect(last_command_started).to have_output(/SUCCESS preserve\[serv1\] #{logical_path}/)
+          expect(last_command_started).to have_exit_status(0)
+        end
+      end
+    end
   end
 
   context 'with failing service configured' do

@@ -78,7 +78,7 @@ jobs:
 
   test_with_ruby_latest:
     docker:
-      - image: circleci/ruby:latest
+      - image: circleci/ruby:2.7
         environment:
           BUNDLER_VERSION: 2.1.4
 

@@ -65,12 +65,12 @@ module Longleaf
               :aliases => "-f",
               :required => false,
               :desc => 'File or files to perform this operation on. If multiple files are provided, they must be comma separated.' })
+
     add_shared_option(
-        :location, :file_selection, {
+        :location, :registered_selection, {
               :aliases => "-s",
               :required => false,
               :desc => 'Name or comma separated names of storage locations to perform this operation over.' })
-
     add_shared_option(
         :from_list, :registered_selection, {
               :aliases => "-l",
@@ -115,7 +115,21 @@ module Longleaf
           ...
           md5:
           <digest> <path>
-          ...})
+          ...
+          
+          To provide separate logical and physical paths, add a physical path column:
+          '-m sha1:@-'
+          Where the content in STDIN adheres to the format:
+          <digest> <logical path> <physical path>
+          ...
+        })
+    method_option(:physical_path,
+        :aliases => "-p",
+        :required => false,
+        :desc => %q{Comma separated list of physical paths of files to register. Only needed
+          if the physical and logical paths of the files differ, otherwise they will be assumed to be the same.
+          Only applicable when used with the -f option, and only for individual files, not directories.
+          Must be provided in the same order as the logical paths.})
     method_option(:force,
         :type => :boolean,
         :default => false,
@@ -132,11 +146,12 @@ module Longleaf
 
       app_config_manager = load_application_config(options)
 
-      file_selector, digest_provider = SelectionOptionsParser.parse_registration_selection_options(
-          options, app_config_manager)
+      file_selector, digest_provider, physical_provider = SelectionOptionsParser
+          .parse_registration_selection_options(options, app_config_manager)
 
       command = RegisterCommand.new(app_config_manager)
-      exit command.execute(file_selector: file_selector, force: options[:force], digest_provider: digest_provider)
+      exit command.execute(file_selector: file_selector, force: options[:force], digest_provider: digest_provider,
+           physical_provider: physical_provider)
     end
 
     desc "deregister", "Deregister files with Longleaf"

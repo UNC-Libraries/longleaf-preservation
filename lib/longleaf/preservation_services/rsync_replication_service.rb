@@ -51,9 +51,6 @@ module Longleaf
             + " rsync_options may not include the following: #{DISALLOWED_OPTIONS.join(' ')}")
       end
 
-      # Add -R (--relative) in to command options to ensure full path gets replicated
-      @options = @options + " -R"
-
       # Set and validate the replica collision policy
       @collision_policy = @service_def.properties[SF::COLLISION_PROPERTY] || SF::DEFAULT_COLLISION_POLICY
       if !SF::VALID_COLLISION_POLICIES.include?(@collision_policy)
@@ -101,17 +98,36 @@ module Longleaf
         else
           dest_path = destination
         end
-
+        
+        logical_physical_same = file_rec.path == file_rec.physical_path
         # Determine the path to the file being replicated relative to its storage location
         rel_path = file_rec.storage_location.relativize(file_rec.path)
-        # source path with . so that rsync will only create destination directories starting from that point
-        source_path = File.join(file_rec.storage_location.path, "./#{rel_path}")
+        
+        options = @options
+        if logical_physical_same
+          options = options + " -R"
+          # source path with . so that rsync will only create destination directories starting from that point
+          source_path = File.join(file_rec.storage_location.path, "./#{rel_path}")
+        else
+          options = options + " --no-relative"
+          source_path = file_rec.physical_path
+          dest_path = File.join(dest_path, rel_path)
+          if (dest_is_storage_loc && destination.is_a?(Longleaf::FilesystemStorageLocation)) || !dest_is_storage_loc
+            # Fill in missing parent directories, as rsync cannot do so when specifying a different source and dest filename
+            dirname = File.dirname(dest_path)
+            logger.debug("Creating parent dirs #{dirname} for #{file_rec.path}")
+            FileUtils.mkdir_p(dirname)
+          else
+            raise PreservationServiceError.new(
+                "Destination #{destination.name} does not currently support separate physical and logical paths")
+          end
+        end
 
         # Check that the destination is available because attempting to write
         verify_destination_available(destination, file_rec)
 
-        logger.debug("Invoking rsync with command: #{@command} \"#{source_path}\" \"#{dest_path}\" #{@options}")
-        stdout, stderr, status = Open3.capture3("#{@command} \"#{source_path}\" \"#{dest_path}\" #{@options}")
+        logger.debug("Invoking rsync with command: #{@command} \"#{source_path}\" \"#{dest_path}\" #{options}")
+        stdout, stderr, status = Open3.capture3("#{@command} \"#{source_path}\" \"#{dest_path}\" #{options}")
         raise PreservationServiceError.new("Failed to replicate #{file_rec.path} to #{dest_path}: #{stderr}") \
             unless status.success?
 

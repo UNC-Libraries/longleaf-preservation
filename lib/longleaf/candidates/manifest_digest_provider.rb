@@ -1,7 +1,7 @@
 module Longleaf
   # Provides digests for files from a manifest
   class ManifestDigestProvider
-    # @param hash which maps file paths to hashs of digests
+    # @param digests_mapping hash which maps file paths to hashs of digests
     def initialize(digests_mapping)
       @digests_mapping = digests_mapping
     end

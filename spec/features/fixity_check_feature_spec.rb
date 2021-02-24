@@ -115,6 +115,41 @@ describe 'fixity check service', :type => :aruba do
         expect(last_command_started).to have_exit_status(2)
       end
     end
+    
+    context 'preserving registered file with separate physical path' do
+      let!(:logical_path) { File.join(path_dir, "logical") }
+
+      before do
+        run_command_and_stop(
+            "longleaf register -c #{config_path} -f #{logical_path} -p #{file_path} --checksums 'md5: #{MD5_DIGEST}'",
+            fail_on_error: false)
+      end
+      
+      context 'preserving with valid checksum' do
+        before do
+          run_command_and_stop("longleaf preserve -c #{config_path} -f #{logical_path}", fail_on_error: false)
+        end
+
+        it 'successfully runs service' do
+          expect(last_command_started).to have_output(%r"SUCCESS preserve\[serv1\] #{logical_path}")
+          expect(last_command_started).to have_exit_status(0)
+        end
+      end
+      
+      context 'preserving with invalid checksum' do
+        before do
+          File.open(file_path, 'w') do |file|
+            file << 'check_me'
+          end
+          run_command_and_stop("longleaf preserve -c #{config_path} -f #{logical_path}", fail_on_error: false)
+        end
+
+        it 'successfully runs service' do
+          expect(last_command_started).to have_output(%r"FAILURE preserve\[serv1\] #{logical_path}: Fixity check using algorithm 'md5' failed")
+          expect(last_command_started).to have_exit_status(1)
+        end
+      end
+    end
   end
 
   def make_service_def(digest_algs, absent_digest: nil)

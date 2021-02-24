@@ -21,7 +21,7 @@ describe 'rsync replication service', :type => :aruba do
   let(:storage_loc2) { build(:storage_location, name: 'loc2', path: path_dir2, metadata_path: md_dir2) }
 
   after do
-    FileUtils.rm_rf([md_dir1, path_dir1, md_dir2, path_dir2])
+    FileUtils.rm_rf([md_dir1, path_dir1, md_dir2, path_dir2, config_path])
   end
 
   let!(:config_path) {
@@ -36,10 +36,6 @@ describe 'rsync replication service', :type => :aruba do
   }
 
   context 'valid service config' do
-    after do
-      FileUtils.rm(config_path)
-    end
-
     let!(:file_path) { create_and_register_file(storage_loc1) }
 
     context 'preserve by storage location' do
@@ -77,6 +73,52 @@ describe 'rsync replication service', :type => :aruba do
         expect(File).to_not exist(repl_path)
         expect(File).to_not exist(repl_md)
       end
+    end
+  end
+  
+  context 'separate physical and logical paths' do
+    let!(:logical_path) { File.join(path_dir1, "logical") }
+    let(:physical_path) { create_test_file(dir: path_dir1, content: 'replicate') }
+    
+    before do
+      run_command_and_stop("longleaf register -c #{config_path} -f #{logical_path} -p #{physical_path} ", fail_on_error: false)
+
+      run_command_and_stop("longleaf preserve -c #{config_path} -f #{logical_path}", fail_on_error: false)
+    end
+    
+    it 'reports success and replicated file exists' do
+      expect(last_command_started).to have_output(/SUCCESS preserve\[repl_serv\] #{logical_path}/)
+      expect(last_command_started).to have_exit_status(0)
+
+      repl_path = File.join(path_dir2, File.basename(logical_path))
+      repl_md = storage_loc2.get_metadata_path_for(repl_path)
+
+      expect(File).to exist(repl_path)
+      expect(File).to exist(repl_md)
+      expect(FileUtils.compare_file(physical_path, repl_path)).to be_truthy
+    end
+  end
+  
+  context 'separate physical and logical at nested path' do
+    let!(:logical_path) { File.join(path_dir1, "nested/path/to", "logical") }
+    let(:physical_path) { create_test_file(dir: path_dir1, content: 'replicate') }
+    
+    before do
+      run_command_and_stop("longleaf register -c #{config_path} -f #{logical_path} -p #{physical_path} ", fail_on_error: false)
+
+      run_command_and_stop("longleaf preserve -c #{config_path} -f #{logical_path}", fail_on_error: false)
+    end
+    
+    it 'reports success and replicated file exists' do
+      expect(last_command_started).to have_output(/SUCCESS preserve\[repl_serv\] #{logical_path}/)
+      expect(last_command_started).to have_exit_status(0)
+
+      repl_path = File.join(path_dir2, "nested/path/to", File.basename(logical_path))
+      repl_md = storage_loc2.get_metadata_path_for(repl_path)
+
+      expect(File).to exist(repl_path)
+      expect(File).to exist(repl_md)
+      expect(FileUtils.compare_file(physical_path, repl_path)).to be_truthy
     end
   end
 

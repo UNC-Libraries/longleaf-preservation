@@ -27,12 +27,13 @@ module Longleaf
       service_manager = @app_manager.service_manager
       md_rec = @file_rec.metadata_record
       f_path = @file_rec.path
+      phys_path = @file_rec.physical_path
 
-      logger.info("Performing preserve event on #{@file_rec.path}")
+      logger.info("Performing preserve event on #{f_path}")
 
       needs_persist = false
       begin
-        if !File.exist?(f_path)
+        if !File.exist?(phys_path)
           # Need to persist metadata to avoid repeating processing of this file too soon.
           needs_persist = true
           record_failure(EventNames::PRESERVE, f_path, "File is registered but missing.")

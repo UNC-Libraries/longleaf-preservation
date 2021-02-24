@@ -81,8 +81,8 @@ describe Longleaf::RsyncReplicationService do
       let(:service_def) { make_service_def(['dest_loc'], options: '-W -vc --chmod "0440"') }
       let(:service) { RsyncService.new(service_def, app_manager) }
 
-      it "include all provided options plus -R" do
-        expect(service.options).to eq '-W -vc --chmod "0440" -R'
+      it "include all provided options" do
+        expect(service.options).to eq '-W -vc --chmod "0440"'
       end
     end
 
@@ -91,7 +91,7 @@ describe Longleaf::RsyncReplicationService do
       let(:service) { RsyncService.new(service_def, app_manager) }
 
       it "has default configuration options" do
-        expect(service.options).to eq '-a -R'
+        expect(service.options).to eq '-a'
         expect(service.command).to eq 'rsync'
         expect(service.collision_policy).to eq 'replace'
       end

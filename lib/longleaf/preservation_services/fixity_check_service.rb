@@ -63,6 +63,7 @@ module Longleaf
     # @raise [ChecksumMismatchError] if the checksum on record does not match the generated checksum
     def perform(file_rec, event)
       path = file_rec.path
+      phys_path = file_rec.physical_path
       md_rec = file_rec.metadata_record
 
       # Get the list of existing checksums for the file and normalize algorithm names
@@ -89,19 +90,19 @@ module Longleaf
         end
 
         digest = DigestHelper::start_digest(alg)
-        digest.file(path)
+        digest.file(phys_path)
         generated_digest = digest.hexdigest
 
         # Store the missing checksum if using the 'generate' behavior
         if existing_digest.nil? && @absent_digest_behavior == GENERATE_IF_ABSENT
           md_rec.checksums[alg] = generated_digest
-          logger.info("Generated and stored digest using algorithm '#{alg}' for file #{path}")
+          logger.info("Generated and stored digest using algorithm '#{alg}' for file #{phys_path}")
         else
           # Compare the new digest to the one on record
           if existing_digest == generated_digest
-            logger.info("Fixity check using algorithm '#{alg}' succeeded for file #{path}")
+            logger.info("Fixity check using algorithm '#{alg}' succeeded for file #{phys_path}")
           else
-            raise ChecksumMismatchError.new("Fixity check using algorithm '#{alg}' failed for file #{path}: expected '#{existing_digest}', calculated '#{generated_digest}.'")
+            raise ChecksumMismatchError.new("Fixity check using algorithm '#{alg}' failed for file #{phys_path}: expected '#{existing_digest}', calculated '#{generated_digest}.'")
           end
         end
       end
