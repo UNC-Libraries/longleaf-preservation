@@ -117,11 +117,15 @@ module Longleaf
             # Set permissions of new file to match old if it exists
             old_stat = File.stat(file_path)
             set_perms(temp_path, old_stat)
+
+            # Produce digest files for the temp file
+            digest_paths = write_digests(temp_path, content, digest_algs)
+            
             # Move the old file to a temp path in case it needs to be restored
             old_renamed = temp_path + ".old"
             File.rename(file_path, old_renamed)
-
-            digest_paths = write_digests(temp_path, content, digest_algs)
+            
+            # Move move the new file into place as the new main file
             File.rename(temp_path, file_path)
           rescue => e
             # Attempt to restore old file if it had already been moved
