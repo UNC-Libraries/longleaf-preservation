@@ -105,6 +105,7 @@ module Longleaf
         original_file.flock(File::LOCK_EX)
 
         base_name = File.basename(file_path)
+        old_renamed = nil
         Tempfile.open(base_name, parent_dir) do |temp_file|
           begin
             # Write content to temp file
@@ -116,17 +117,24 @@ module Longleaf
             # Set permissions of new file to match old if it exists
             old_stat = File.stat(file_path)
             set_perms(temp_path, old_stat)
+            # Move the old file to a temp path in case it needs to be restored
+            old_renamed = temp_path + ".old"
+            File.rename(file_path, old_renamed)
 
-            begin
-              digest_paths = write_digests(temp_path, content, digest_algs)
-
-              File.rename(temp_path, file_path)
-            rescue => e
-              cleanup_digests(temp_path)
-              raise e
-            end
+            digest_paths = write_digests(temp_path, content, digest_algs)
+            File.rename(temp_path, file_path)
           rescue => e
-            temp_file.delete
+            # Attempt to restore old file if it had already been moved
+            if !old_renamed.nil? && !File.exist?(file_path)
+              File.rename(old_renamed, file_path)
+            end
+            # Cleanup the temp file and any digest files written for it
+            temp_file.delete if File.exist?(temp_file.path)
+            unless digest_paths.nil?
+              digest_paths.each do |digest_path|
+                File.delete(digest_path)
+              end
+            end
             raise e
           end
 
@@ -136,6 +144,8 @@ module Longleaf
           digest_paths.each do |digest_path|
             File.rename(digest_path, digest_path.sub(temp_path, file_path))
           end
+          # Cleanup the old file
+          File.delete(old_renamed)
         end
       end
     end

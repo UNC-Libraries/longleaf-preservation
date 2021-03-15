@@ -160,7 +160,9 @@ describe Longleaf::MetadataSerializer do
         # update a service before re-serializing
         record.update_service_as_performed("some_service")
 
-        allow(File).to receive(:rename) { raise Errno::ENOLCK }
+        # Fail during temp file move, not during original file move
+        allow(File).to receive(:rename).with(dest_file.path, anything()).and_call_original
+        allow(File).to receive(:rename).once { raise Errno::ENOLCK }
 
         expect { Longleaf::MetadataSerializer.write(metadata: record, file_path: dest_file, digest_algs: ['sha1'])} \
             .to raise_error(Errno::ENOLCK)
@@ -170,6 +172,7 @@ describe Longleaf::MetadataSerializer do
         expect(md.dig(MDF::SERVICES)).to_not include("some_service")
         # Just the original metadata file and its digest should exist
         expect(Dir[File.join(dest_dir, '*')].length).to eq 2
+        expect(File.exist?(dest_file)).to be true
 
         # Expect original digest to still be present
         digest_path = "#{dest_file.path}.sha1"
