@@ -22,6 +22,10 @@ commands:
             bin/setup
 
       - run:
+          name: update apt-get
+          command: sudo apt-get update
+
+      - run:
           name: install rsync
           command: sudo apt install -y rsync
 
@@ -61,14 +65,14 @@ commands:
             sudo gem update --system
             sudo gem uninstall bundler
             sudo rm /usr/local/bin/bundle
-            sudo gem install bundler
+            sudo gem install bundler -v 2.2.18
 
 jobs:
   test_with_ruby_23:
     docker:
       - image: circleci/ruby:2.3
         environment:
-          BUNDLER_VERSION: 2.1.4
+          BUNDLER_VERSION: 2.2.18
 
     working_directory: ~/repo
 
@@ -80,11 +84,12 @@ jobs:
     docker:
       - image: circleci/ruby:2.7
         environment:
-          BUNDLER_VERSION: 2.1.4
+          BUNDLER_VERSION: 2.2.18
 
     working_directory: ~/repo
 
     steps:
+      - install_new_bundler
       - build_and_run_tests
 workflows:
   version: 2.2
