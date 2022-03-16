@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gemspec
 
 group :postgres, optional: true do
-  gem 'pg', '>= 1.0.0'
+  gem 'pg', '1.2.3'
 end
 
 group :sqlite, optional: true do
