@@ -151,7 +151,7 @@ describe Longleaf::PreserveEvent do
               allow(index_manager).to receive(:index)
             end
 
-            it 'makes no updates to file metadata record, but updates the index in case its stale' do
+            it 'makes no updates to file metadata record, but updates the index in case it is stale' do
               perform_and_verify_no_change(event, md_path)
               expect(index_manager).to have_received(:index).with(file_rec)
             end
