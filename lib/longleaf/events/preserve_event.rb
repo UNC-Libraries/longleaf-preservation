@@ -73,6 +73,9 @@ module Longleaf
         if needs_persist
           # persist the metadata
           @app_manager.md_manager.persist(@file_rec)
+        else
+          # Preserve event was called for an item that didn't need any services run, so index might be stale if in use
+          @app_manager.md_manager.index(@file_rec)
         end
       end
 
