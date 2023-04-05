@@ -80,9 +80,21 @@ jobs:
       - install_new_bundler
       - build_and_run_tests
 
-  test_with_ruby_latest:
+  test_with_ruby_27:
     docker:
       - image: circleci/ruby:2.7
+        environment:
+          BUNDLER_VERSION: 2.2.18
+
+    working_directory: ~/repo
+
+    steps:
+      - install_new_bundler
+      - build_and_run_tests
+
+  test_with_ruby_30:
+    docker:
+      - image: circleci/ruby:3.0
         environment:
           BUNDLER_VERSION: 2.2.18
 
@@ -96,4 +108,5 @@ workflows:
   notify_deploy:
     jobs:
       - test_with_ruby_26
-      - test_with_ruby_latest
+      - test_with_ruby_27
+      - test_with_ruby_30
