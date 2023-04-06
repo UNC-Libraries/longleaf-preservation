@@ -11,6 +11,6 @@ FactoryBot.define do
       log_level { 'DEBUG' }
     end
 
-    initialize_with { new(attributes) }
+    initialize_with { new(**attributes) }
   end
 end
