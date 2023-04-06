@@ -39,6 +39,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec_junit_formatter", "~> 0.6"
   spec.add_development_dependency "factory_bot", "~> 6.2"
   spec.add_development_dependency "aruba", "~> 1.1.2"
+  spec.add_development_dependency "contracts", "~> 0.16.1"
   spec.add_development_dependency "rubocop", '~> 1.49.0'
   spec.add_development_dependency "rubocop-rspec", '~> 2.19.0'
   spec.add_development_dependency "rubocop-performance", '~> 1.3'
