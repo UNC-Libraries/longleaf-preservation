@@ -9,7 +9,7 @@ FactoryBot.define do
     name { 'p_serv' }
     work_script { 'preserve.rb' }
 
-    initialize_with { new(attributes) }
+    initialize_with { new(**attributes) }
   end
 
   factory(:service_definition_manager, class: Longleaf::ServiceDefinitionManager) do
@@ -33,10 +33,10 @@ FactoryBot.define do
     mapping_manager { build(:service_mapping_manager, config: config) }
     app_manager { nil }
 
-    initialize_with { new(attributes) }
+    initialize_with { new(definition_manager: definition_manager, mapping_manager: mapping_manager, app_manager: app_manager) }
   end
 
   factory(:service_class_cache, class: Longleaf::ServiceClassCache) do
-    initialize_with { new(attributes) }
+    initialize_with { new(**attributes) }
   end
 end

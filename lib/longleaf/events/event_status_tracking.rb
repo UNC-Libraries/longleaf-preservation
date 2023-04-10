@@ -23,8 +23,8 @@ module Longleaf
 
     # Record a failed operation to the output and the overall status of this event.
     # @param args [Array] arguments to pass to logger
-    def record_failure(*args)
-      logger.failure(*args)
+    def record_failure(*args, **kwargs)
+      logger.failure(*args, **kwargs)
       track_failure
     end
 

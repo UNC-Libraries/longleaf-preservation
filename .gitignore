@@ -10,3 +10,4 @@ coverage
 # ignore site folder created by mkdocs
 site/
 .DS_Store
+.ruby-version

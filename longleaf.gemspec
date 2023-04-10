@@ -26,22 +26,25 @@ Gem::Specification.new do |spec|
   spec.executables   = "longleaf"
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "thor", "~> 0.20.0"
+  spec.add_dependency "thor", "~> 1.2.0"
   spec.add_dependency "yard", "~> 0.9.16"
   spec.add_dependency "sequel", "~> 5.20"
   spec.add_dependency "aws-sdk-s3", "~> 1.56"
+  spec.add_dependency "rexml"
 
   spec.add_development_dependency "bundler", "~> 2.2"
   spec.add_development_dependency "rake", "~> 12.0"
-  spec.add_development_dependency "rspec", "~> 3.8"
-  spec.add_development_dependency "rspec-core", "~> 3.8"
-  spec.add_development_dependency "rspec_junit_formatter", "~> 0.4"
-  spec.add_development_dependency "factory_bot", "~> 5.0"
-  spec.add_development_dependency "aruba", "~> 0.14.9"
-  spec.add_development_dependency "rubocop", '~> 0.70.0'
-  spec.add_development_dependency "rubocop-rspec", '~> 1.33'
+  spec.add_development_dependency "rspec", "~> 3.10"
+  spec.add_development_dependency "rspec-core", "~> 3.10"
+  spec.add_development_dependency "rspec_junit_formatter", "~> 0.6"
+  spec.add_development_dependency "factory_bot", "~> 6.2"
+  spec.add_development_dependency "aruba", "~> 1.1.2"
+  # last version supporting ruby 2
+  spec.add_development_dependency "contracts", "~> 0.16.1"
+  spec.add_development_dependency "rubocop", '~> 1.49.0'
+  spec.add_development_dependency "rubocop-rspec", '~> 2.19.0'
   spec.add_development_dependency "rubocop-performance", '~> 1.3'
-  spec.add_development_dependency "rubocop-sequel", '~> 0.0.5'
+  spec.add_development_dependency "rubocop-sequel", '~> 0.3.4'
   spec.add_development_dependency "amalgalite", "~> 1.6"
-  spec.add_development_dependency "simplecov", "~> 0.16"
+  spec.add_development_dependency "simplecov", "~> 0.22"
 end

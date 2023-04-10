@@ -5,7 +5,7 @@ FactoryBot.define do
   factory(:service_record, class: Longleaf::ServiceRecord) do
     properties { {} }
 
-    initialize_with { new(attributes) }
+    initialize_with { new(**attributes) }
 
     trait :timestamp_now do
       timestamp { Time.now.iso8601(3) }
@@ -16,7 +16,7 @@ FactoryBot.define do
     properties { {} }
     services { {} }
 
-    initialize_with { new(attributes) }
+    initialize_with { new(**attributes) }
 
     trait :multiple_services do
       services {

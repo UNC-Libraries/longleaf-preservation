@@ -68,9 +68,9 @@ commands:
             sudo gem install bundler -v 2.2.18
 
 jobs:
-  test_with_ruby_26:
+  test_with_ruby_27:
     docker:
-      - image: circleci/ruby:2.6
+      - image: circleci/ruby:2.7
         environment:
           BUNDLER_VERSION: 2.2.18
 
@@ -80,9 +80,9 @@ jobs:
       - install_new_bundler
       - build_and_run_tests
 
-  test_with_ruby_latest:
+  test_with_ruby_30:
     docker:
-      - image: circleci/ruby:2.7
+      - image: circleci/ruby:3.0
         environment:
           BUNDLER_VERSION: 2.2.18
 
@@ -95,5 +95,5 @@ workflows:
   version: 2.2
   notify_deploy:
     jobs:
-      - test_with_ruby_26
-      - test_with_ruby_latest
+      - test_with_ruby_27
+      - test_with_ruby_30
