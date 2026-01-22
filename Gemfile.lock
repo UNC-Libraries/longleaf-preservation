@@ -154,6 +154,7 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
+    sqlite3 (1.6.2-arm64-darwin)
     sqlite3 (1.6.2-x86_64-darwin)
     sys-uname (1.2.2)
       ffi (~> 1.1)
@@ -167,6 +168,7 @@ GEM
       webrick (~> 1.7.0)
 
 PLATFORMS
+  arm64-darwin-24
   x86_64-darwin-20
 
 DEPENDENCIES
