@@ -77,7 +77,7 @@ module Longleaf
       if !ALLOWED_SCHEMES.include?(uri.scheme&.downcase)
         raise ArgumentError.new("Invalid scheme for s3 URI #{url}, only http, https and s3 are permitted")
       end
-      if uri.host.nil?
+      if uri.host.nil? || uri.host.empty?
         raise ArgumentError.new("Invalid S3 URI, no hostname: #{url}")
       end
       uri
