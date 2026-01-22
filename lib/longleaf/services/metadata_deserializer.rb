@@ -78,7 +78,7 @@ module Longleaf
         begin
           md = nil
           begin
-            md = YAML.safe_load(contents, [], [], true)
+            md = YAML.safe_load(contents, permitted_classes: [], permitted_symbols: [], aliases: true)
           rescue => err
             raise MetadataError.new("Failed to parse metadata file #{file_path}: #{err.message}")
           end

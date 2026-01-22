@@ -264,7 +264,7 @@ module Longleaf
         begin
           app_manager = ApplicationConfigDeserializer.deserialize(options[:config])
         rescue ConfigurationError => err
-          logger.failure("Failed to load application configuration due to the following issue(s):\n#{err.message}")
+          logger.failure("Failed to load application configuration due to the following issue(s):\n#{err.message}", error: err)
           exit 1
         end
       end
