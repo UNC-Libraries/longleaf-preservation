@@ -72,7 +72,7 @@ module Longleaf
               :required => false,
               :desc => 'Name or comma separated names of storage locations to perform this operation over.' })
     add_shared_option(
-        :from_list, :registered_selection, {
+        :from_list, :file_selection, {
               :aliases => "-l",
               :required => false,
               :desc => %q{Provide a list of files to perform this operation on. The list must be new line separated, one file per line.
@@ -134,6 +134,11 @@ module Longleaf
         :type => :boolean,
         :default => false,
         :desc => 'Force the registration of already registered files.')
+    method_option(:ocfl,
+        :type => :boolean,
+        :default => false,
+        :desc => %q{If set, the target files will be consider OCFL object directories rather than individual files. 
+          Cannot be used with the --manifest option, to submit multiple objects at once use -f or -l})
     method_option(:checksums,
         :desc => %q{Checksums for the submitted file. Only applicable with the -f option.
           Each checksum must be prefaced with an algorithm prefix. Multiple checksums must be comma separated. If multiple files were submitted, they will be provided with the same checksums. For example:

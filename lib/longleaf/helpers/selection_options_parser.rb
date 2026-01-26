@@ -15,8 +15,8 @@ module Longleaf
     # @param app_config_manager [ApplicationConfigManager] app config manager
     # @return The file selector and digest provider.
     def self.parse_registration_selection_options(options, app_config_manager)
-      there_can_be_only_one("Only one of the following selection options may be provided: -m, -f, -s",
-          options, :file, :manifest, :location)
+      there_can_be_only_one("Only one of the following selection options may be provided: -m, -f, -l",
+          options, :file, :manifest, :from_list)
 
       if !options[:manifest].nil?
         digests_mapping, logical_phys_mapping = self.parse_manifest(options[:manifest])
@@ -55,8 +55,14 @@ module Longleaf
         selector = FileSelector.new(file_paths: file_paths,
              physical_provider: physical_provider,
              app_config: app_config_manager)
+      elsif !options[:from_list].nil?
+        physical_provider = PhysicalPathProvider.new
+        file_paths = read_from_list(options[:from_list])
+        selector = FileSelector.new(file_paths: file_paths,
+             physical_provider: physical_provider,
+             app_config: app_config_manager)
       else
-        logger.failure("Must provide one of the following file selection options: -f, l, or -m")
+        logger.failure("Must provide one of the following file selection options: -m, -f, or -l")
         exit 1
       end
 

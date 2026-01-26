@@ -161,6 +161,24 @@ describe 'register', :type => :aruba do
       end
     end
 
+    context 'register multiple files' do
+      let!(:from_list_file) { create_test_file(dir: path_dir, name: "file_list.txt", content:
+                       "#{file_path}\n" +
+                       "#{file_path2}") }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -l '#{from_list_file}'")
+      end
+
+      it 'registers both files' do
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
+        expect(metadata_created(file_path, md_dir)).to be true
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
+        expect(metadata_created(file_path2, md_dir)).to be true
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
     context 'register directory of files' do
       before do
         run_command_and_stop("longleaf register -c #{config_path} -f '#{path_dir}/'", fail_on_error: false)
