@@ -9,7 +9,10 @@ module Longleaf
 
     LAST_MODIFIED = 'last-modified'
     FILE_SIZE = 'size'
+    FILE_COUNT = 'file-count'
     PHYSICAL_PATH = 'physical-path'
+    OBJECT_TYPE = 'object-type'
+    OCFL_TYPE = 'ocfl'
 
     CHECKSUMS = 'checksums'
 

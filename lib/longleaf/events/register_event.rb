@@ -47,6 +47,7 @@ module Longleaf
           retain_existing_properties
         end
 
+        populate_object_type
         populate_file_properties
 
         if !@digest_provider.nil?
@@ -81,6 +82,11 @@ module Longleaf
       else
         md_rec.physical_path = nil
       end
+    end
+
+    def populate_object_type
+      md_rec = @file_rec.metadata_record
+      md_rec.object_type = nil
     end
 
     # Copy a subset of properties from an existing metadata record to the new record

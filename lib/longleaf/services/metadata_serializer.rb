@@ -5,7 +5,7 @@ require 'longleaf/helpers/digest_helper'
 require 'longleaf/errors'
 require 'longleaf/logging'
 require 'pathname'
-require "tempfile"
+require 'tempfile'
 
 module Longleaf
   # Service which serializes MetadataRecord objects
@@ -51,8 +51,10 @@ module Longleaf
       data[MDF::DEREGISTERED_TIMESTAMP] = metadata.deregistered if metadata.deregistered
       data[MDF::CHECKSUMS] = metadata.checksums unless metadata.checksums && metadata.checksums.empty?
       data[MDF::FILE_SIZE] = metadata.file_size unless metadata.file_size.nil?
+      data[MDF::FILE_COUNT] = metadata.file_count unless metadata.file_count.nil?
       data[MDF::LAST_MODIFIED] = metadata.last_modified if metadata.last_modified
       data[MDF::PHYSICAL_PATH] = metadata.physical_path if metadata.physical_path
+      data[MDF::OBJECT_TYPE] = metadata.object_type unless metadata.object_type.nil?
 
       props[MDF::DATA] = data
 

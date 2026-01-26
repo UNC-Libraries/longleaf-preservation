@@ -1,8 +1,10 @@
 require 'longleaf/services/application_config_deserializer'
 require 'longleaf/events/register_event'
+require 'longleaf/events/register_ocfl_event'
 require 'longleaf/models/file_record'
 require 'longleaf/events/event_names'
 require 'longleaf/events/event_status_tracking'
+require 'longleaf/models/md_fields'
 
 module Longleaf
   # Command for registering files with longleaf
@@ -18,8 +20,9 @@ module Longleaf
     # @param force [Boolean] force flag
     # @param digest_provider [ManifestDigestProvider] object which provides digests for files being registered
     # @param physical_provider [PhysicalPathProvider] object which provides physical paths for files being registered
+    # @param object_type [String] type of object being registered
     # @return [Integer] status code
-    def execute(file_selector:, force: false, digest_provider: nil, physical_provider: nil)
+    def execute(file_selector:, force: false, digest_provider: nil, physical_provider: nil, object_type: nil)
       start_time = Time.now
       logger.info('Performing register command')
       begin
@@ -33,8 +36,13 @@ module Longleaf
           phys_path = physical_provider.get_physical_path(f_path)
           file_rec = FileRecord.new(f_path, storage_location, nil, phys_path)
 
-          register_event = RegisterEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager,
+          if object_type == MDFields::OCFL_TYPE
+            register_event = RegisterOcflEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager,
               digest_provider: digest_provider)
+          else
+            register_event = RegisterEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager,
+              digest_provider: digest_provider)
+          end
           track_status(register_event.perform)
         end
       rescue InvalidStoragePathError, StorageLocationUnavailableError => err
