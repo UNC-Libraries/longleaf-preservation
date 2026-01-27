@@ -686,7 +686,7 @@ describe 'register', :type => :aruba do
         md_rec = get_ocfl_metadata_record(ocfl_object_path1, md_dir)
         expect(md_rec.file_size).to eq 2819
         expect(md_rec.file_count).to eq 7
-        expect(md_rec.last_modified).to start_with('2026-01-26T18:48:')
+        expect(md_rec.last_modified).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:/)
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -704,7 +704,7 @@ describe 'register', :type => :aruba do
         md_rec = get_ocfl_metadata_record(ocfl_object_path1, md_dir)
         expect(md_rec.file_size).to eq 2819
         expect(md_rec.file_count).to eq 7
-        expect(md_rec.last_modified).to start_with('2026-01-26T18:48:')
+        expect(md_rec.last_modified).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:/)
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -727,12 +727,12 @@ describe 'register', :type => :aruba do
         md_rec1 = get_ocfl_metadata_record(ocfl_object_path1, md_dir)
         expect(md_rec1.file_size).to eq 2819
         expect(md_rec1.file_count).to eq 7
-        expect(md_rec1.last_modified).to start_with('2026-01-26T18:48:')
+        expect(md_rec1.last_modified).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:/)
 
         md_rec2 = get_ocfl_metadata_record(ocfl_object_path2, md_dir)
         expect(md_rec2.file_size).to eq 2912
         expect(md_rec2.file_count).to eq 7
-        expect(md_rec2.last_modified).to start_with('2026-01-26T18:48:')
+        expect(md_rec2.last_modified).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:/)
 
         expect(last_command_started).to have_exit_status(0)
       end

@@ -12,6 +12,7 @@ require 'longleaf/specs/file_helpers'
 require 'fileutils'
 require 'tmpdir'
 require 'tempfile'
+require 'find'
 
 describe Longleaf::RegisterOcflEvent do
   include Longleaf::FileHelpers
@@ -61,6 +62,16 @@ describe Longleaf::RegisterOcflEvent do
       # Copy OCFL fixtures into path_dir, preserving timestamps
       fixtures_path = File.join(__dir__, '../../fixtures/ocfl-root')
       FileUtils.cp_r(fixtures_path, path_dir, preserve: true)
+
+      # Set known timestamps for testing (Git doesn't preserve mtimes)
+      # Set one file to a more recent timestamp to verify it gets picked
+      known_time = Time.parse('2026-01-26T18:48:00Z')
+      recent_time = Time.parse('2026-01-26T18:50:00Z')
+      Find.find(File.join(path_dir, 'ocfl-root')) do |path|
+        next if File.directory?(path)
+        timestamp = File.basename(path) == 'fcr-root.json' ? recent_time : known_time
+        File.utime(timestamp, timestamp, path)
+      end
     end
 
     after do
@@ -94,7 +105,7 @@ describe Longleaf::RegisterOcflEvent do
 
         expect(md_rec.file_size).to eq 2819
         expect(md_rec.file_count).to eq 7
-        expect(md_rec.last_modified).to start_with('2026-01-26T18:48:')
+        expect(md_rec.last_modified).to start_with('2026-01-26T18:50:')
         expect(md_rec.object_type).to eq 'ocfl'
       end
 
@@ -201,7 +212,7 @@ describe Longleaf::RegisterOcflEvent do
 
         expect(md_rec.file_size).to eq 2819
         expect(md_rec.file_count).to eq 7
-        expect(md_rec.last_modified).to start_with('2026-01-26T18:48:')
+        expect(md_rec.last_modified).to start_with('2026-01-26T18:50:')
 
         expect(md_rec.list_services).to be_empty
       end
