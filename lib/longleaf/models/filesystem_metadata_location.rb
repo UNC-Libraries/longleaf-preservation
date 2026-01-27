@@ -1,6 +1,7 @@
 require 'longleaf/services/metadata_serializer'
 require 'longleaf/models/metadata_location'
 require 'longleaf/models/storage_types'
+require 'longleaf/models/md_fields'
 
 module Longleaf
   # A filesystem based location in which metadata associated with registered files is stored.
@@ -20,14 +21,18 @@ module Longleaf
     # @param file_path [String] path of the file relative its storage location
     # @return absolute path to the metadata
     # @raise [ArgumentError] if the file_path is not provided.
-    def metadata_path_for(file_path)
+    def metadata_path_for(file_path, object_type: nil)
       raise ArgumentError.new("A file_path parameter is required") if file_path.nil?
       raise ArgumentError.new("File path must be relative") if Pathname.new(file_path).absolute?
 
       md_path = File.join(@path, file_path)
       # If the file_path is to a file, then add metadata suffix.
       if md_path.end_with?('/')
-        md_path
+        if object_type == MDFields::OCFL_TYPE
+          md_path.chop + MetadataSerializer::metadata_suffix
+        else
+          md_path
+        end
       else
         md_path + MetadataSerializer::metadata_suffix
       end

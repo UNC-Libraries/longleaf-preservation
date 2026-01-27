@@ -25,7 +25,6 @@ module Longleaf
         next unless File.file?(path)
         
         stat = File.stat(path)
-        puts "Size of #{path} = #{stat.size}"
         file_count += 1
         total_size += stat.size
         
