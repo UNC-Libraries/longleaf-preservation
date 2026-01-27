@@ -48,7 +48,7 @@ module Longleaf
 
     def self.from_yaml(content)
       begin
-        YAML.safe_load(content, [], [], true)
+        YAML.safe_load(content, permitted_classes: [], permitted_symbols: [], aliases: true)
       rescue => err
         raise Longleaf::ConfigurationError.new(err)
       end

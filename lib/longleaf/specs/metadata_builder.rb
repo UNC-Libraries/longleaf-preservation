@@ -35,6 +35,16 @@ module Longleaf
       self
     end
 
+    def with_object_type(obj_type)
+      @object_type = obj_type
+      self
+    end
+
+    def with_file_count(count)
+      @file_count = count
+      self
+    end
+
     def with_service(name, timestamp: ServiceDateHelper::formatted_timestamp, run_needed: false, properties: nil,
           failure_timestamp: nil)
       timestamp = format_timestamp(timestamp)
@@ -62,7 +72,9 @@ module Longleaf
           checksums: @checksums,
           file_size: @file_size,
           last_modified: @last_modified,
-          physical_path: @physical_path)
+          physical_path: @physical_path,
+          file_count: @file_count,
+          object_type: @object_type)
     end
 
     # Add the generated metadata record to the given file record

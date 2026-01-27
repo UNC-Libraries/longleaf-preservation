@@ -22,15 +22,16 @@ module Longleaf
 
     # Get the path for the metadata file for the given file path located in this storage location.
     # @param file_path [String] path of the file
+    # @param object_type [String] type of object being described
     # @raise [ArgumentError] if the file_path is not provided or is not in this storage location.
-    def get_metadata_path_for(file_path)
+    def get_metadata_path_for(file_path, object_type: nil)
       raise ArgumentError.new("A file_path parameter is required") if file_path.nil? || file_path.empty?
       raise ArgumentError.new("Provided file path is not contained by storage location #{@name}: #{file_path}") \
           unless file_path.start_with?(@path)
 
       rel_file_path = relativize(file_path)
 
-      @metadata_location.metadata_path_for(rel_file_path)
+      @metadata_location.metadata_path_for(rel_file_path, object_type: object_type)
     end
 
     # @param [String] path to check

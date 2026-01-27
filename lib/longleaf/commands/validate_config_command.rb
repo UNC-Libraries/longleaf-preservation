@@ -26,7 +26,7 @@ module Longleaf
 
         record_success("Application configuration passed validation: #{@config_path}")
       rescue Longleaf::ConfigurationError, Longleaf::StorageLocationUnavailableError => err
-        record_failure("Application configuration invalid due to the following issue(s):\n#{err.message}")
+        record_failure("Application configuration invalid due to the following issue(s):\n#{err.message}", error: err)
       rescue => err
         record_failure("Failed to validate application configuration", error: err)
       end

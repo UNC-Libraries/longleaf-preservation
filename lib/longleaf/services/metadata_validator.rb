@@ -25,8 +25,12 @@ module Longleaf
       register_on_failure { validate_date_field(data, MDF::REGISTERED_TIMESTAMP) }
       register_on_failure { validate_date_field(data, MDF::DEREGISTERED_TIMESTAMP, required: false) }
       register_on_failure { validate_date_field(data, MDF::LAST_MODIFIED) }
+      register_on_failure { validate_object_type(data) }
 
       register_on_failure { validate_positive_integer(data, MDF::FILE_SIZE) }
+      # File count is required for ocfl objects only
+      file_count_required = data[MDF::OBJECT_TYPE] == MDF::OCFL_TYPE
+      register_on_failure { validate_positive_integer(data, MDF::FILE_COUNT, required: file_count_required) }
 
       checksums = data[MDF::CHECKSUMS]
       register_on_failure do
@@ -70,6 +74,14 @@ module Longleaf
         end
       elsif required
         fail("Metadata must contain a '#{field_key}' field")
+      end
+    end
+
+    def validate_object_type(section)
+      field_val = section[MDF::OBJECT_TYPE]
+
+      if field_val && field_val != MDF::OCFL_TYPE
+        fail("Field '#{MDF::OBJECT_TYPE}' must be nil or '#{MDF::OCFL_TYPE}', but value was '#{field_val}'")
       end
     end
   end

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: ['3.0', '3.1']
+    
+    name: Test with Ruby ${{ matrix.ruby-version }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler: 2.2.18
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: bin/setup
+
+      - name: Install rsync
+        run: sudo apt-get update && sudo apt-get install -y rsync
+
+      - name: Run tests
+        run: |
+          mkdir -p tmp/test-results
+          bundle exec rspec \
+            --format progress \
+            --format RspecJunitFormatter \
+            --out tmp/test-results/rspec.xml \
+            spec
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: RSpec Tests (Ruby ${{ matrix.ruby-version }})
+          path: tmp/test-results/rspec.xml
+          reporter: java-junit
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-ruby-${{ matrix.ruby-version }}
+          path: coverage

@@ -1,5 +1,6 @@
 require 'longleaf/candidates/file_selector'
 require 'longleaf/candidates/registered_file_selector'
+require 'longleaf/candidates/ocfl_file_selector'
 require 'longleaf/candidates/manifest_digest_provider'
 require 'longleaf/candidates/physical_path_provider'
 require 'longleaf/candidates/single_digest_provider'
@@ -15,15 +16,13 @@ module Longleaf
     # @param app_config_manager [ApplicationConfigManager] app config manager
     # @return The file selector and digest provider.
     def self.parse_registration_selection_options(options, app_config_manager)
-      there_can_be_only_one("Only one of the following selection options may be provided: -m, -f, -s",
-          options, :file, :manifest, :location)
+      there_can_be_only_one("Only one of the following selection options may be provided: -m, -f, -l",
+          options, :file, :manifest, :from_list)
 
       if !options[:manifest].nil?
         digests_mapping, logical_phys_mapping = self.parse_manifest(options[:manifest])
         physical_provider = PhysicalPathProvider.new(logical_phys_mapping)
-        selector = FileSelector.new(file_paths: digests_mapping.keys,
-             physical_provider: physical_provider,
-             app_config: app_config_manager)
+        selector = initialize_file_selector(digests_mapping.keys, physical_provider, app_config_manager, options)
         digest_provider = ManifestDigestProvider.new(digests_mapping)
       elsif !options[:file].nil?
         if options[:checksums]
@@ -52,16 +51,31 @@ module Longleaf
           physical_provider = PhysicalPathProvider.new
         end
         
-        selector = FileSelector.new(file_paths: file_paths,
-             physical_provider: physical_provider,
-             app_config: app_config_manager)
+        selector = initialize_file_selector(file_paths, physical_provider, app_config_manager, options)
+      elsif !options[:from_list].nil?
+        physical_provider = PhysicalPathProvider.new
+        file_paths = read_from_list(options[:from_list])
+        selector = initialize_file_selector(file_paths, physical_provider, app_config_manager, options)
       else
-        logger.failure("Must provide one of the following file selection options: -f, l, or -m")
+        logger.failure("Must provide one of the following file selection options: -m, -f, or -l")
         exit 1
       end
 
       [selector, digest_provider, physical_provider]
     end
+
+    def self.initialize_file_selector(file_paths, physical_provider, app_config_manager, options)
+      if options[:ocfl]
+        return OcflFileSelector.new(file_paths: file_paths,
+             physical_provider: physical_provider,
+             app_config: app_config_manager)
+      else
+        return FileSelector.new(file_paths: file_paths,
+             physical_provider: physical_provider,
+             app_config: app_config_manager)
+      end
+    end
+
 
     def self.there_can_be_only_one(failure_msg, options, *names)
       got_one = false

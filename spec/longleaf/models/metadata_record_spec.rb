@@ -93,6 +93,52 @@ describe Longleaf::MetadataRecord do
     end
   end
 
+  describe '.object_type' do
+    context 'with no object_type' do
+      let(:record) { build(:metadata_record) }
+
+      it { expect(record.object_type).to be_nil }
+    end
+
+    context 'with object_type property' do
+      let(:record) { build(:metadata_record, object_type: 'ocfl') }
+
+      it { expect(record.object_type).to eq 'ocfl' }
+    end
+
+    context 'object_type can be set' do
+      let(:record) { build(:metadata_record) }
+
+      it 'updates object_type' do
+        record.object_type = 'ocfl'
+        expect(record.object_type).to eq 'ocfl'
+      end
+    end
+  end
+
+  describe '.file_count' do
+    context 'with no file_count' do
+      let(:record) { build(:metadata_record) }
+
+      it { expect(record.file_count).to be_nil }
+    end
+
+    context 'with file_count property' do
+      let(:record) { build(:metadata_record, file_count: 42) }
+
+      it { expect(record.file_count).to eq 42 }
+    end
+
+    context 'file_count can be set' do
+      let(:record) { build(:metadata_record) }
+
+      it 'updates file_count' do
+        record.file_count = 100
+        expect(record.file_count).to eq 100
+      end
+    end
+  end
+
   describe '.list_services' do
     context 'with no services' do
       let(:record) { build(:metadata_record) }

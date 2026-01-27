@@ -9,8 +9,9 @@ module Longleaf
     attr_accessor :deregistered
     attr_reader :checksums
     attr_reader :properties
-    attr_accessor :file_size, :last_modified
+    attr_accessor :file_size, :last_modified, :file_count
     attr_accessor :physical_path
+    attr_accessor :object_type
 
     # @param properties [Hash] initial data properties for this record
     # @param services [Hash] initial service property tree
@@ -20,8 +21,10 @@ module Longleaf
     # @param file_size [Integer] size of file in bytes
     # @param last_modified [String] iso8601 representation of the last modified date of file
     # @param physical_path [String] physical path where the file is located
+    # @param file_count [Integer] count of the total number of files in the registered object
+    # @param object_type [String] the type of object being recorded. Values are nil or 'ocfl'
     def initialize(properties: nil, services: nil, deregistered: nil, registered: nil, checksums: nil,
-          file_size: nil, last_modified: nil, physical_path: nil)
+          file_size: nil, last_modified: nil, physical_path: nil, file_count: nil, object_type: nil)
       @properties = properties || Hash.new
       @registered = registered
       @deregistered = deregistered
@@ -29,8 +32,10 @@ module Longleaf
       @checksums.merge!(checksums) unless checksums.nil?
       @services = services || Hash.new
       @file_size = file_size
+      @file_count = file_count
       @last_modified = last_modified
       @physical_path = physical_path
+      @object_type = object_type
     end
 
     # @return [Boolean] true if the record is deregistered

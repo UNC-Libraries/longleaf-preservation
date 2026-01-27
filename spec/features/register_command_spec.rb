@@ -3,6 +3,7 @@ require 'aruba/rspec'
 require 'longleaf/specs/config_builder'
 require 'longleaf/services/metadata_serializer'
 require 'longleaf/specs/file_helpers'
+require 'longleaf/models/md_fields'
 require 'tempfile'
 require 'yaml'
 require 'fileutils'
@@ -115,6 +116,8 @@ describe 'register', :type => :aruba do
       it 'registers the file' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
+        md_rec = get_metadata_record(file_path, md_dir)
+        expect(md_rec.object_type).to be_nil
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -150,6 +153,24 @@ describe 'register', :type => :aruba do
     context 'register multiple files' do
       before do
         run_command_and_stop("longleaf register -c #{config_path} -f '#{file_path},#{file_path2}'")
+      end
+
+      it 'registers both files' do
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
+        expect(metadata_created(file_path, md_dir)).to be true
+        expect(last_command_started).to have_output(/SUCCESS register #{file_path2}/)
+        expect(metadata_created(file_path2, md_dir)).to be true
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
+    context 'register multiple files' do
+      let!(:from_list_file) { create_test_file(dir: path_dir, name: "file_list.txt", content:
+                       "#{file_path}\n" +
+                       "#{file_path2}") }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -l '#{from_list_file}'")
       end
 
       it 'registers both files' do
@@ -201,6 +222,8 @@ describe 'register', :type => :aruba do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
         expect_physical_path(file_path, nil)
+        md_rec = get_metadata_record(file_path, md_dir)
+        expect(md_rec.object_type).to be_nil
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -412,6 +435,7 @@ describe 'register', :type => :aruba do
         md_rec2 = get_metadata_record(file_path2, md_dir)
         expect_digests(file_path2, sha1: '013d5696728f086b8d2424b14beebc2695f926f7')
         expect(last_command_started).to have_exit_status(0)
+        expect(md_rec2.object_type).to be_nil
       end
     end
 
@@ -636,6 +660,109 @@ describe 'register', :type => :aruba do
     end
   end
 
+  context 'with OCFL objects' do
+    let!(:config_path) {
+      ConfigBuilder.new
+        .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+        .with_service(name: 'serv1')
+        .map_services('loc1', 'serv1')
+        .write_to_yaml_file
+    }
+
+    let(:ocfl_object_path1) { '141/964/af8/141964af842132b7a706ed010474c410514b472acc0d7d8f805c23e748578b8b' }
+    let(:ocfl_object_path2) { '51c/fdc/952/51cfdc9524d4088a1259c0c099ec2c6e9c82f69beda7920911c105e56810eeeb' }
+    let!(:ocfl_path1) { File.join(path_dir, 'ocfl-root', ocfl_object_path1) }
+    let!(:ocfl_path2) { File.join(path_dir, 'ocfl-root', ocfl_object_path2) }
+
+    before do
+      # Copy OCFL fixtures into path_dir, preserving timestamps
+      fixtures_path = File.join(__dir__, '../fixtures/ocfl-root')
+      FileUtils.cp_r(fixtures_path, path_dir, preserve: true)
+    end
+
+    context 'register OCFL object with -f parameter' do
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{ocfl_path1}' --ocfl", fail_on_error: false)
+      end
+
+      it 'registers the OCFL object' do
+        expect(last_command_started).to have_output(/SUCCESS register #{ocfl_path1}/)
+        expect(ocfl_metadata_created(ocfl_object_path1, md_dir)).to be true
+
+        md_rec = get_ocfl_metadata_record(ocfl_object_path1, md_dir)
+        expect(md_rec.file_size).to eq 2819
+        expect(md_rec.file_count).to eq 7
+        expect(md_rec.last_modified).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:/)
+        expect(md_rec.object_type).to eq(Longleaf::MDFields::OCFL_TYPE)
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
+    context 'register OCFL object more than once with force flag' do
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{ocfl_path1}' --ocfl", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{ocfl_path1}' --ocfl --force", fail_on_error: false)
+      end
+
+      it 'registers the OCFL object' do
+        expect(last_command_started).to have_output(/SUCCESS register #{ocfl_path1}/)
+        expect(ocfl_metadata_created(ocfl_object_path1, md_dir)).to be true
+
+        md_rec = get_ocfl_metadata_record(ocfl_object_path1, md_dir)
+        expect(md_rec.file_size).to eq 2819
+        expect(md_rec.file_count).to eq 7
+        expect(md_rec.last_modified).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:/)
+        expect(md_rec.object_type).to eq(Longleaf::MDFields::OCFL_TYPE)
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
+    context 'register multiple OCFL objects with -l parameter' do
+      let!(:list_file) { create_test_file(dir: path_dir, name: "ocfl_list.txt", content:
+                       "#{ocfl_path1}\n" +
+                       "#{ocfl_path2}") }
+
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -l '#{list_file}' --ocfl")
+      end
+
+      it 'registers both OCFL objects' do
+        expect(last_command_started).to have_output(/SUCCESS register #{ocfl_path1}/)
+        expect(ocfl_metadata_created(ocfl_object_path1, md_dir)).to be true
+        expect(last_command_started).to have_output(/SUCCESS register #{ocfl_path2}/)
+        expect(ocfl_metadata_created(ocfl_object_path2, md_dir)).to be true
+
+        md_rec1 = get_ocfl_metadata_record(ocfl_object_path1, md_dir)
+        expect(md_rec1.file_size).to eq 2819
+        expect(md_rec1.file_count).to eq 7
+        expect(md_rec1.last_modified).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:/)
+        expect(md_rec1.object_type).to eq(Longleaf::MDFields::OCFL_TYPE)
+
+        md_rec2 = get_ocfl_metadata_record(ocfl_object_path2, md_dir)
+        expect(md_rec2.file_size).to eq 2912
+        expect(md_rec2.file_count).to eq 7
+        expect(md_rec2.last_modified).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:/)
+        expect(md_rec2.object_type).to eq(Longleaf::MDFields::OCFL_TYPE)
+
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+
+    context 'register OCFL object with -s parameter' do
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -s 'loc1'", fail_on_error: false)
+      end
+
+      it 'does not register directories as files' do
+        expect(last_command_started).to_not have_output(/SUCCESS register #{ocfl_path1}/)
+        expect(last_command_started).to_not have_output(/SUCCESS register #{ocfl_path2}/)
+        expect(metadata_created(ocfl_path1, md_dir)).to be false
+        expect(metadata_created(ocfl_path2, md_dir)).to be false
+        expect(last_command_started).to have_exit_status(0)
+      end
+    end
+  end
+
   def get_metadata_record_path(file_path, md_dir)
     File.join(md_dir, File.basename(file_path) + Longleaf::MetadataSerializer::metadata_suffix)
   end
@@ -646,6 +773,18 @@ describe 'register', :type => :aruba do
 
   def metadata_created(file_path, md_dir)
     File.exist?(get_metadata_record_path(file_path, md_dir))
+  end
+
+  def get_ocfl_metadata_record_path(file_path, md_dir)
+    File.join(md_dir, 'ocfl-root', file_path + Longleaf::MetadataSerializer::metadata_suffix)
+  end
+
+  def get_ocfl_metadata_record(file_path, md_dir)
+    Longleaf::MetadataDeserializer.deserialize(file_path: get_ocfl_metadata_record_path(file_path, md_dir))
+  end
+
+  def ocfl_metadata_created(file_path, md_dir)
+    File.exist?(get_ocfl_metadata_record_path(file_path, md_dir))
   end
 
   def metadata_contains_digest(file_path, md_dir, alg, digest)

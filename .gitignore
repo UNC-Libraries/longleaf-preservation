@@ -11,3 +11,4 @@ coverage
 site/
 .DS_Store
 .ruby-version
+.vscode
