@@ -1,17 +1,52 @@
 require 'spec_helper'
 require 'longleaf/helpers/selection_options_parser'
 require 'longleaf/services/application_config_manager'
+require 'longleaf/candidates/ocfl_file_selector'
+require 'longleaf/specs/config_builder'
+require 'longleaf/specs/file_helpers'
 require 'tempfile'
+require 'fileutils'
 
 describe Longleaf::SelectionOptionsParser do
+  include Longleaf::FileHelpers
+  ConfigBuilder ||= Longleaf::ConfigBuilder
   SelectionOptionsParser ||= Longleaf::SelectionOptionsParser
   FileSelector ||= Longleaf::FileSelector
+  OcflFileSelector ||= Longleaf::OcflFileSelector
   RegisteredFileSelector ||= Longleaf::RegisteredFileSelector
   ManifestDigestProvider ||= Longleaf::ManifestDigestProvider
   SingleDigestProvider ||= Longleaf::SingleDigestProvider
   PhysicalPathProvider ||= Longleaf::PhysicalPathProvider
 
-  let(:app_config_manager) { build(:application_config_manager) }
+  let(:md_dir1) { make_test_dir(name: 'metadata1') }
+  let(:path_dir1) { make_test_dir(name: 'path1') }
+  let(:ocfl_object_path1) { '141/964/af8/141964af842132b7a706ed010474c410514b472acc0d7d8f805c23e748578b8b' }
+  let(:ocfl_object_path2) { '51c/fdc/952/51cfdc9524d4088a1259c0c099ec2c6e9c82f69beda7920911c105e56810eeeb' }
+  let!(:ocfl_path1) { File.join(path_dir1, 'ocfl-root', ocfl_object_path1) }
+  let!(:ocfl_path2) { File.join(path_dir1, 'ocfl-root', ocfl_object_path2) }
+  let(:expected_ocfl_path1) { ocfl_path1 + '/' }
+  let(:expected_ocfl_path2) { ocfl_path2 + '/' }
+
+  let(:file_path1) { File.join(path_dir1, 'file1.txt') }
+  let(:file_path2) { File.join(path_dir1, 'file2.txt') }
+
+  let(:config) {
+    ConfigBuilder.new
+      .with_services
+      .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
+      .with_mappings
+      .get
+  }
+  let(:app_config_manager) { build(:application_config_manager, config: config) }
+
+  before do
+   File.new(file_path1, 'w')
+   File.new(file_path2, 'w')
+  end
+
+  after do
+    FileUtils.rm_rf([md_dir1, path_dir1])
+  end
 
   describe '.parse_registration_selection_options' do
     context 'with manifest option' do
@@ -25,23 +60,18 @@ describe Longleaf::SelectionOptionsParser do
       context 'single algorithm manifest' do
         before do
           manifest_file.write("md5:\n")
-          manifest_file.write("abc123  /path/to/file1.txt\n")
-          manifest_file.write("def456  /path/to/file2.txt\n")
+          manifest_file.write("abc123  #{file_path1}\n")
+          manifest_file.write("def456  #{file_path2}\n")
           manifest_file.rewind
         end
 
         it 'returns selector and digest provider with correct file paths' do
           options = { manifest: [manifest_file.path] }
           
-          expect(FileSelector).to receive(:new).with(
-            hash_including(
-              file_paths: ['/path/to/file1.txt', '/path/to/file2.txt']
-            )
-          ).and_call_original
-          
           selector, digest_provider, physical_provider = SelectionOptionsParser.parse_registration_selection_options(options, app_config_manager)
           
           expect(selector).to be_a(FileSelector)
+          expect(collect_paths(selector)).to eq [file_path1, file_path2]
           expect(digest_provider).to be_a(ManifestDigestProvider)
           expect(physical_provider).to be_a(PhysicalPathProvider)
         end
@@ -50,8 +80,8 @@ describe Longleaf::SelectionOptionsParser do
           options = { manifest: [manifest_file.path] }
           selector, digest_provider, _ = SelectionOptionsParser.parse_registration_selection_options(options, app_config_manager)
           
-          expect(digest_provider.get_digests('/path/to/file1.txt')).to eq({ 'md5' => 'abc123' })
-          expect(digest_provider.get_digests('/path/to/file2.txt')).to eq({ 'md5' => 'def456' })
+          expect(digest_provider.get_digests(file_path1)).to eq({ 'md5' => 'abc123' })
+          expect(digest_provider.get_digests(file_path2)).to eq({ 'md5' => 'def456' })
         end
       end
 
@@ -127,33 +157,41 @@ describe Longleaf::SelectionOptionsParser do
 
     context 'with file option' do
       it 'returns selector for single file' do
-        options = { file: '/path/to/file.txt' }
-        
-        expect(FileSelector).to receive(:new).with(
-          hash_including(
-            file_paths: ['/path/to/file.txt']
-          )
-        ).and_call_original
+        options = { file: file_path1 }
         
         selector, digest_provider, physical_provider = SelectionOptionsParser.parse_registration_selection_options(options, app_config_manager)
         
         expect(selector).to be_a(FileSelector)
+        expect(collect_paths(selector)).to eq [file_path1]
         expect(digest_provider).to be_nil
         expect(physical_provider).to be_a(PhysicalPathProvider)
       end
 
       it 'returns selector for multiple comma-separated files' do
-        options = { file: '/path/to/file1.txt, /path/to/file2.txt' }
-        
-        expect(FileSelector).to receive(:new).with(
-          hash_including(
-            file_paths: ['/path/to/file1.txt', '/path/to/file2.txt']
-          )
-        ).and_call_original
+        options = { file: "#{file_path1}, #{file_path2}" }
         
         selector, _, _ = SelectionOptionsParser.parse_registration_selection_options(options, app_config_manager)
         
         expect(selector).to be_a(FileSelector)
+        expect(collect_paths(selector)).to eq [file_path1, file_path2]
+      end
+
+      context 'with ocfl objects' do
+        before do
+          fixtures_path = File.join(__dir__, '../../fixtures/ocfl-root')
+          FileUtils.cp_r(fixtures_path, path_dir1, preserve: true)
+        end
+
+        it 'returns selector for single file with OCFL flag' do
+          options = { file: ocfl_path1, ocfl: true }
+
+          selector, digest_provider, physical_provider = SelectionOptionsParser.parse_registration_selection_options(options, app_config_manager)
+
+          expect(selector).to be_a(OcflFileSelector)
+          expect(collect_paths(selector)).to eq [expected_ocfl_path1]
+          expect(digest_provider).to be_nil
+          expect(physical_provider).to be_a(PhysicalPathProvider)
+        end
       end
 
       context 'with checksums' do
@@ -241,24 +279,49 @@ describe Longleaf::SelectionOptionsParser do
       end
 
       before do
-        list_file.write("/path/to/file1.txt\n")
-        list_file.write("/path/to/file2.txt\n")
-        list_file.write("/path/to/file3.txt\n")
+        list_file.write(file_path1 + "\n")
+        list_file.write(file_path2 + "\n")
         list_file.rewind
       end
 
       it 'returns selector from file list with correct file paths' do
         options = { from_list: list_file.path }
         
-        expect(FileSelector).to receive(:new).with(
-          hash_including(
-            file_paths: ['/path/to/file1.txt', '/path/to/file2.txt', '/path/to/file3.txt']
-          )
-        ).and_call_original
-        
         selector, digest_provider, physical_provider = SelectionOptionsParser.parse_registration_selection_options(options, app_config_manager)
         
         expect(selector).to be_a(FileSelector)
+        expect(collect_paths(selector)).to eq [file_path1, file_path2]
+        expect(digest_provider).to be_nil
+        expect(physical_provider).to be_a(PhysicalPathProvider)
+      end
+    end
+
+    context 'with from_list option and ocfl objects' do
+      let(:list_file) { Tempfile.new(['filelist', '.txt']) }
+
+      after do
+        list_file.close
+        list_file.unlink
+      end
+
+      before do
+        list_file.write(ocfl_path1 + "\n")
+        list_file.write(ocfl_path2 + "\n")
+        list_file.rewind
+      end
+
+      before do
+        fixtures_path = File.join(__dir__, '../../fixtures/ocfl-root')
+        FileUtils.cp_r(fixtures_path, path_dir1, preserve: true)
+      end
+
+      it 'returns selector from file list with correct file paths with OCFL flag' do
+        options = { from_list: list_file.path, ocfl: true }
+
+        selector, digest_provider, physical_provider = SelectionOptionsParser.parse_registration_selection_options(options, app_config_manager)
+
+        expect(selector).to be_a(OcflFileSelector)
+        expect(collect_paths(selector)).to eq [expected_ocfl_path1, expected_ocfl_path2]
         expect(digest_provider).to be_nil
         expect(physical_provider).to be_a(PhysicalPathProvider)
       end
@@ -400,13 +463,7 @@ describe Longleaf::SelectionOptionsParser do
   describe '.create_registered_selector' do
     context 'with file option' do
       it 'returns registered file selector with correct file paths' do
-        options = { file: '/path/to/file1.txt, /path/to/file2.txt' }
-        
-        expect(RegisteredFileSelector).to receive(:new).with(
-          hash_including(
-            file_paths: ['/path/to/file1.txt', '/path/to/file2.txt']
-          )
-        ).and_call_original
+        options = { file: "#{file_path1}, #{file_path2}" }
         
         selector = SelectionOptionsParser.create_registered_selector(options, app_config_manager)
         
@@ -423,19 +480,13 @@ describe Longleaf::SelectionOptionsParser do
       end
 
       before do
-        list_file.write("/path/to/file1.txt\n")
-        list_file.write("/path/to/file2.txt\n")
+        list_file.write("#{file_path1}\n")
+        list_file.write("#{file_path2}\n")
         list_file.rewind
       end
 
       it 'returns registered file selector from list with correct file paths' do
         options = { from_list: list_file.path }
-        
-        expect(RegisteredFileSelector).to receive(:new).with(
-          hash_including(
-            file_paths: ['/path/to/file1.txt', '/path/to/file2.txt']
-          )
-        ).and_call_original
         
         selector = SelectionOptionsParser.create_registered_selector(options, app_config_manager)
         
@@ -513,5 +564,15 @@ describe Longleaf::SelectionOptionsParser do
     it 'exits when from_list parameter is empty string' do
       expect { SelectionOptionsParser.read_from_list('  ') }.to raise_error(SystemExit)
     end
+  end
+
+  def collect_paths(selector)
+    paths = []
+    path = selector.next_path
+    until path.nil?
+      paths << path
+      path = selector.next_path
+    end
+    paths
   end
 end

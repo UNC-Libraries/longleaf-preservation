@@ -99,6 +99,72 @@ describe Longleaf::MetadataValidator do
       it { fails_validation_with_error(validator, /'size' must be a positive integer/) }
     end
 
+    context 'invalid object_type' do
+      let(:md) { md_hash(MDBuilder.new(file_path: test_file)) }
+      before do
+        md[MDF::DATA][MDF::OBJECT_TYPE] = 'invalid_type'
+      end
+
+      it { fails_validation_with_error(validator, /'object-type' must be nil or 'ocfl'/) }
+    end
+
+    context 'valid object_type ocfl' do
+      let(:md) { md_hash(MDBuilder.new(file_path: test_file)) }
+      before do
+        md[MDF::DATA][MDF::OBJECT_TYPE] = MDF::OCFL_TYPE
+        md[MDF::DATA][MDF::FILE_COUNT] = 5
+      end
+
+      it { passes_validation(validator) }
+    end
+
+    context 'nil object_type is valid' do
+      let(:md) { md_hash(MDBuilder.new(file_path: test_file)) }
+      before do
+        md[MDF::DATA][MDF::OBJECT_TYPE] = nil
+      end
+
+      it { passes_validation(validator) }
+    end
+
+    context 'missing file_count when object_type is ocfl' do
+      let(:md) { md_hash(MDBuilder.new(file_path: test_file)) }
+      before do
+        md[MDF::DATA][MDF::OBJECT_TYPE] = MDF::OCFL_TYPE
+      end
+
+      it { fails_validation_with_error(validator, /must contain a 'file-count' field/) }
+    end
+
+    context 'invalid file_count' do
+      let(:md) { md_hash(MDBuilder.new(file_path: test_file)) }
+      before do
+        md[MDF::DATA][MDF::OBJECT_TYPE] = MDF::OCFL_TYPE
+        md[MDF::DATA][MDF::FILE_COUNT] = 'many'
+      end
+
+      it { fails_validation_with_error(validator, /'file-count' must be a positive integer/) }
+    end
+
+    context 'negative file_count' do
+      let(:md) { md_hash(MDBuilder.new(file_path: test_file)) }
+      before do
+        md[MDF::DATA][MDF::OBJECT_TYPE] = MDF::OCFL_TYPE
+        md[MDF::DATA][MDF::FILE_COUNT] = -5
+      end
+
+      it { fails_validation_with_error(validator, /'file-count' must be a positive integer/) }
+    end
+
+    context 'file_count not required when object_type is not ocfl' do
+      let(:md) { md_hash(MDBuilder.new(file_path: test_file)) }
+      before do
+        md[MDF::DATA][MDF::OBJECT_TYPE] = nil
+      end
+
+      it { passes_validation(validator) }
+    end
+
     context 'invalid value type for checksums' do
       let(:md) { md_hash(MDBuilder.new(file_path: test_file)) }
       before do

@@ -80,7 +80,7 @@ module Longleaf
     def validate_object_type(section)
       field_val = section[MDF::OBJECT_TYPE]
 
-      if field_val && !field_val == MDF::OCFL_TYPE
+      if field_val && field_val != MDF::OCFL_TYPE
         fail("Field '#{MDF::OBJECT_TYPE}' must be nil or '#{MDF::OCFL_TYPE}', but value was '#{field_val}'")
       end
     end
