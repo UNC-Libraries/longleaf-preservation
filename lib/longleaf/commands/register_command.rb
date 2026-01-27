@@ -35,7 +35,8 @@ module Longleaf
           storage_location = @app_manager.location_manager.get_location_by_path(f_path)
 
           phys_path = physical_provider.get_physical_path(f_path)
-          file_rec = FileRecord.new(f_path, storage_location, nil, phys_path, object_type: MDFields::OCFL_TYPE)
+          object_type = ocfl_mode ? MDFields::OCFL_TYPE : nil
+          file_rec = FileRecord.new(f_path, storage_location, nil, phys_path, object_type: object_type)
 
           if ocfl_mode
             register_event = RegisterOcflEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager,

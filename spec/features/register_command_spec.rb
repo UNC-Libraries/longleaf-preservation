@@ -3,6 +3,7 @@ require 'aruba/rspec'
 require 'longleaf/specs/config_builder'
 require 'longleaf/services/metadata_serializer'
 require 'longleaf/specs/file_helpers'
+require 'longleaf/models/md_fields'
 require 'tempfile'
 require 'yaml'
 require 'fileutils'
@@ -115,6 +116,8 @@ describe 'register', :type => :aruba do
       it 'registers the file' do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
+        md_rec = get_metadata_record(file_path, md_dir)
+        expect(md_rec.object_type).to be_nil
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -219,6 +222,8 @@ describe 'register', :type => :aruba do
         expect(last_command_started).to have_output(/SUCCESS register #{file_path}/)
         expect(metadata_created(file_path, md_dir)).to be true
         expect_physical_path(file_path, nil)
+        md_rec = get_metadata_record(file_path, md_dir)
+        expect(md_rec.object_type).to be_nil
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -430,6 +435,7 @@ describe 'register', :type => :aruba do
         md_rec2 = get_metadata_record(file_path2, md_dir)
         expect_digests(file_path2, sha1: '013d5696728f086b8d2424b14beebc2695f926f7')
         expect(last_command_started).to have_exit_status(0)
+        expect(md_rec2.object_type).to be_nil
       end
     end
 
@@ -687,6 +693,7 @@ describe 'register', :type => :aruba do
         expect(md_rec.file_size).to eq 2819
         expect(md_rec.file_count).to eq 7
         expect(md_rec.last_modified).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:/)
+        expect(md_rec.object_type).to eq(Longleaf::MDFields::OCFL_TYPE)
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -705,6 +712,7 @@ describe 'register', :type => :aruba do
         expect(md_rec.file_size).to eq 2819
         expect(md_rec.file_count).to eq 7
         expect(md_rec.last_modified).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:/)
+        expect(md_rec.object_type).to eq(Longleaf::MDFields::OCFL_TYPE)
         expect(last_command_started).to have_exit_status(0)
       end
     end
@@ -728,11 +736,13 @@ describe 'register', :type => :aruba do
         expect(md_rec1.file_size).to eq 2819
         expect(md_rec1.file_count).to eq 7
         expect(md_rec1.last_modified).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:/)
+        expect(md_rec1.object_type).to eq(Longleaf::MDFields::OCFL_TYPE)
 
         md_rec2 = get_ocfl_metadata_record(ocfl_object_path2, md_dir)
         expect(md_rec2.file_size).to eq 2912
         expect(md_rec2.file_count).to eq 7
         expect(md_rec2.last_modified).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:/)
+        expect(md_rec2.object_type).to eq(Longleaf::MDFields::OCFL_TYPE)
 
         expect(last_command_started).to have_exit_status(0)
       end

@@ -32,7 +32,7 @@ module Longleaf
         latest_mtime = mtime if latest_mtime.nil? || mtime > latest_mtime
       end
 
-      md_rec.last_modified = latest_mtime.utc.iso8601(3)
+      md_rec.last_modified = latest_mtime.utc.iso8601(3) unless latest_mtime.nil?
       md_rec.file_size = total_size
       md_rec.file_count = file_count
 
