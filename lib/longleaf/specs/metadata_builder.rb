@@ -40,6 +40,16 @@ module Longleaf
       self
     end
 
+    def with_last_modified(last_modified)
+      @last_modified = last_modified
+      self
+    end
+
+    def with_file_size(file_size)
+      @file_size = file_size
+      self
+    end
+
     def with_file_count(count)
       @file_count = count
       self
