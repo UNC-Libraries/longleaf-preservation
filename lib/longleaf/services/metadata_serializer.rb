@@ -50,7 +50,7 @@ module Longleaf
       data = Hash.new.merge(metadata.properties)
       data[MDF::REGISTERED_TIMESTAMP] = metadata.registered if metadata.registered
       data[MDF::DEREGISTERED_TIMESTAMP] = metadata.deregistered if metadata.deregistered
-      data[MDF::CHECKSUMS] = metadata.checksums unless metadata.checksums && metadata.checksums.empty?
+      data[MDF::CHECKSUMS] = metadata.checksums.to_h unless metadata.checksums && metadata.checksums.empty?
       data[MDF::FILE_SIZE] = metadata.file_size unless metadata.file_size.nil?
       data[MDF::FILE_COUNT] = metadata.file_count unless metadata.file_count.nil?
       data[MDF::LAST_MODIFIED] = metadata.last_modified if metadata.last_modified
@@ -65,7 +65,7 @@ module Longleaf
         service[MDF::STALE_REPLICAS] = service.stale_replicas if service.stale_replicas
         service[MDF::SERVICE_TIMESTAMP] = service.timestamp unless service.timestamp.nil?
         service[MDF::RUN_NEEDED] = service.run_needed if service.run_needed
-        services[name] = service.properties unless service.properties.empty?
+        services[name.to_s] = service.properties unless service.properties.empty?
       end
 
       props[MDF::SERVICES] = services
