@@ -1,4 +1,5 @@
 require 'yaml'
+require 'psych'
 require 'longleaf/models/metadata_record'
 require 'longleaf/models/md_fields'
 require 'longleaf/helpers/digest_helper'
@@ -38,7 +39,7 @@ module Longleaf
     # @return [String] a yaml representation of the provided MetadataRecord
     def self.to_yaml(metadata)
       props = to_hash(metadata)
-      props.to_yaml
+      Psych.dump(props)
     end
 
     # Create a hash representation of the given MetadataRecord file
@@ -122,11 +123,11 @@ module Longleaf
 
             # Produce digest files for the temp file
             digest_paths = write_digests(temp_path, content, digest_algs)
-            
+
             # Move the old file to a temp path in case it needs to be restored
             old_renamed = temp_path + ".old"
             File.rename(file_path, old_renamed)
-            
+
             # Move move the new file into place as the new main file
             File.rename(temp_path, file_path)
           rescue => e

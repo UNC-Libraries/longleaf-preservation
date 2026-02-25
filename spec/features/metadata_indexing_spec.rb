@@ -32,9 +32,11 @@ describe 'metadata indexing', :type => :aruba do
   end
 
   context 'indexing to relational database enabled' do
+    let(:db_adapter) { RUBY_ENGINE == 'jruby' ? 'jdbc' : 'amalgalite' }
+    let(:db_conn_str) { RUBY_ENGINE == 'jruby' ? "jdbc:sqlite:#{db_file}" : "amalgalite://#{db_file}" }
     let(:sys_config) {
       SysConfigBuilder.new
-        .with_index('amalgalite', "amalgalite://#{db_file}")
+        .with_index(db_adapter, db_conn_str)
         .get
     }
     let!(:config_path) {
@@ -147,7 +149,8 @@ describe 'metadata indexing', :type => :aruba do
   end
 
   def db_conn
-    @conn = Sequel.connect("amalgalite://#{db_file}") if @conn.nil?
+    conn_str = RUBY_ENGINE == 'jruby' ? "jdbc:sqlite:#{db_file}" : "amalgalite://#{db_file}"
+    @conn = Sequel.connect(conn_str) if @conn.nil?
     @conn
   end
 

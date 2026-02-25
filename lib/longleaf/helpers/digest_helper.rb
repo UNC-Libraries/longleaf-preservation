@@ -1,5 +1,6 @@
 require 'longleaf/errors'
 require 'digest'
+require 'openssl' if RUBY_ENGINE == 'jruby'
 
 module Longleaf
   # Helper methods for generating digests
@@ -47,7 +48,11 @@ module Longleaf
       when 'sha512'
         return Digest::SHA2.new(512)
       when 'rmd160'
-        return Digest::RMD160.new
+        if RUBY_ENGINE == 'jruby'
+          return OpenSSL::Digest.new('RIPEMD160')
+        else
+          return Digest::RMD160.new
+        end
       else
         raise InvalidDigestAlgorithmError.new("Cannot produce digest for unknown algorithm '#{alg}'.")
       end

@@ -118,7 +118,7 @@ module Longleaf
         file.unlink
       end
       File.open(dest_path, 'w') do |f|
-        f.write(@config.to_yaml)
+        f.write(Psych.dump(@config))
       end
       dest_path
     end

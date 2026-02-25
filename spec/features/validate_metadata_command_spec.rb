@@ -81,10 +81,10 @@ describe 'validate_metadata', :type => :aruba do
         expect(last_command_started).to have_exit_status(0)
       end
     end
-    
+
     context 'file with separate logical and physical paths' do
       let!(:logical_path) { File.join(path_dir, "logical") }
-      
+
       before do
         run_command_and_stop("longleaf register -c #{config_path} -f #{logical_path} -p '#{file_path}'", fail_on_error: false)
         run_command_and_stop("longleaf validate_metadata -c #{config_path} -f '#{logical_path}' --log_level INFO", fail_on_error: false)
@@ -303,7 +303,7 @@ describe 'validate_metadata', :type => :aruba do
     md = YAML.load_file(get_metadata_path(file_path, md_dir))
     yield md
     File.open(md_path, 'w') do |f|
-      f.write(md.to_yaml)
+      f.write(Psych.dump(md))
     end
   end
 

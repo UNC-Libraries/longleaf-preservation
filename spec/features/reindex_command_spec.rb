@@ -27,9 +27,11 @@ describe 'reindex command', :type => :aruba do
 
   let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb') }
 
+  let(:db_adapter) { RUBY_ENGINE == 'jruby' ? 'jdbc' : 'amalgalite' }
+  let(:db_conn_str) { RUBY_ENGINE == 'jruby' ? "jdbc:sqlite:#{db_file}" : "amalgalite://#{db_file}" }
   let(:sys_config) {
     SysConfigBuilder.new
-      .with_index('amalgalite', "amalgalite://#{db_file}")
+      .with_index(db_adapter, db_conn_str)
       .get
   }
 
@@ -294,7 +296,8 @@ describe 'reindex command', :type => :aruba do
   end
 
   def db_conn
-    @conn = Sequel.connect("amalgalite://#{db_file}") if @conn.nil?
+    conn_str = RUBY_ENGINE == 'jruby' ? "jdbc:sqlite:#{db_file}" : "amalgalite://#{db_file}"
+    @conn = Sequel.connect(conn_str) if @conn.nil?
     @conn
   end
 
