@@ -31,9 +31,6 @@ jobs:
         ports:
           - 5432:5432
 
-    env:
-      BUNDLE_WITH: ${{ matrix.db == 'postgres' && 'postgres' || '' }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -43,10 +40,9 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler: 2.2.18
-          bundler-cache: true
 
       - name: Install dependencies
-        run: bin/setup
+        run: bundle install --path '.bundle/' --with ${{ matrix.db }}
 
       - name: Install rsync
         run: sudo apt-get update && sudo apt-get install -y rsync
