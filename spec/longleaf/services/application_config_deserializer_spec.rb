@@ -194,8 +194,8 @@ describe Longleaf::ApplicationConfigDeserializer do
       end
 
       context 'with index config' do
-        let(:db_adapter) { RUBY_ENGINE == 'jruby' ? 'jdbc' : 'amalgalite' }
-        let(:db_conn_str) { RUBY_ENGINE == 'jruby' ? 'jdbc:sqlite:tmp/db' : 'amalgalite://tmp/db' }
+        let(:db_adapter) { test_db_adapter }
+        let(:db_conn_str) { test_db_conn_str('tmp/db') }
         let(:sys_config) {
           SysConfigBuilder.new
             .with_index(db_adapter, db_conn_str)

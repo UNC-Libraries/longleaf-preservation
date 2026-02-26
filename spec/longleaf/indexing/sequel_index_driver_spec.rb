@@ -41,8 +41,8 @@ describe Longleaf::SequelIndexDriver do
   let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
   let(:config_md5) { Digest::MD5.file(config_path).hexdigest }
 
-  let(:db_adapter) { RUBY_ENGINE == 'jruby' ? :jdbc : :amalgalite }
-  let(:conn_details) { RUBY_ENGINE == 'jruby' ? "jdbc:sqlite:#{db_file}" : "amalgalite://#{db_file}" }
+  let(:db_adapter) { test_db_adapter.to_sym }
+  let(:conn_details) { test_db_conn_str(db_file) }
 
   let(:driver) { Longleaf::SequelIndexDriver.new(app_config, db_adapter, conn_details) }
 

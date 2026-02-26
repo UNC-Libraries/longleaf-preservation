@@ -1,6 +1,7 @@
 require 'longleaf'
 require 'factory_bot'
 require 'simplecov'
+require_relative 'support/db_helpers'
 SimpleCov.profiles.define 'no_vendor_coverage' do
   add_filter '.bundle'
 end
@@ -54,6 +55,7 @@ RSpec.configure do |config|
   config.shared_context_metadata_behavior = :apply_to_host_groups
 
   config.include FactoryBot::Syntax::Methods
+  config.include Longleaf::DbHelpers
 
   config.before(:suite) do
     FactoryBot.find_definitions

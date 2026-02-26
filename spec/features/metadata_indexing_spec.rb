@@ -32,8 +32,8 @@ describe 'metadata indexing', :type => :aruba do
   end
 
   context 'indexing to relational database enabled' do
-    let(:db_adapter) { RUBY_ENGINE == 'jruby' ? 'jdbc' : 'amalgalite' }
-    let(:db_conn_str) { RUBY_ENGINE == 'jruby' ? "jdbc:sqlite:#{db_file}" : "amalgalite://#{db_file}" }
+    let(:db_adapter) { test_db_adapter }
+    let(:db_conn_str) { test_db_conn_str(db_file) }
     let(:sys_config) {
       SysConfigBuilder.new
         .with_index(db_adapter, db_conn_str)
@@ -122,7 +122,8 @@ describe 'metadata indexing', :type => :aruba do
         expect(last_command_started).to have_exit_status(2)
         row1 = get_row_from_index(file_path)
         # Next execution time must still be set to roughly the current time
-        expect(row1[:service_time]).to be_within(5).of (Time.now.utc)
+        # (window is wider to accommodate JRuby subprocess startup overhead)
+        expect(row1[:service_time]).to be_within(30).of (Time.now.utc)
         # Delay must be set for failed file
         expect(row1[:delay_until_time]).to be_within(60).of (Time.now.utc)
 
@@ -149,12 +150,7 @@ describe 'metadata indexing', :type => :aruba do
   end
 
   def db_conn
-    if @conn.nil?
-      conn_str = RUBY_ENGINE == 'jruby' ? "jdbc:sqlite:#{db_file}" : "amalgalite://#{db_file}"
-      @conn = Sequel.connect(conn_str)
-      Longleaf::SequelIndexDriver.apply_jdbc_sqlite_timestamp_fix(@conn) if RUBY_ENGINE == 'jruby'
-    end
-    @conn
+    @conn ||= Longleaf::SequelIndexDriver.connect(test_db_conn_str(db_file))
   end
 
   def get_timestamp_from_index(file_path)
