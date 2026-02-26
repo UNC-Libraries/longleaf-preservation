@@ -32,7 +32,19 @@ module Longleaf
       if postgres_db_mode?
         pg_url = ENV.fetch('TEST_PG_URL', 'postgres://postgres:postgres@localhost/longleaf_test')
         if RUBY_ENGINE == 'jruby'
-          pg_url.sub(/\Apostgres:\/\//, 'jdbc:postgresql://')
+          # The JDBC PostgreSQL driver does not accept credentials embedded in the URL path
+          # (e.g. jdbc:postgresql://user:pass@host/db). Credentials must be supplied as
+          # query parameters: jdbc:postgresql://host/db?user=...&password=...
+          require 'uri'
+          uri = URI.parse(pg_url)
+          jdbc = "jdbc:postgresql://#{uri.host}"
+          jdbc += ":#{uri.port}" if uri.port && uri.port != 5432
+          jdbc += uri.path
+          params = {}
+          params['user'] = uri.user if uri.user
+          params['password'] = URI.decode_www_form_component(uri.password) if uri.password
+          jdbc += "?#{URI.encode_www_form(params)}" unless params.empty?
+          jdbc
         else
           pg_url
         end

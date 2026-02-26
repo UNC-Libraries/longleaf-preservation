@@ -31,6 +31,11 @@ jobs:
         ports:
           - 5432:5432
 
+    timeout-minutes: 60
+
+    env:
+      JRUBY_OPTS: "--dev"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
