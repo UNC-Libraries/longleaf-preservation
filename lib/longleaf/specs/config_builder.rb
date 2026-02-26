@@ -1,5 +1,7 @@
 require 'longleaf/models/app_fields'
 require 'longleaf/models/service_fields'
+require 'securerandom'
+require 'tmpdir'
 require 'yaml'
 
 module Longleaf
@@ -111,14 +113,11 @@ module Longleaf
     # @return the file path of the config file
     def write_to_yaml_file(dest_path = nil)
       if dest_path.nil?
-        file = Tempfile.new('config')
-        file.close
-        dest_path = file.path
-        # deleting temp file but reusing file name. This is to avoid premature garbage collection.
-        file.unlink
+        dest_path = File.join(Dir.tmpdir, "config_#{SecureRandom.hex}.yml")
       end
+
       File.open(dest_path, 'w') do |f|
-        f.write(Psych.dump(@config))
+        f.write(@config.to_yaml)
       end
       dest_path
     end

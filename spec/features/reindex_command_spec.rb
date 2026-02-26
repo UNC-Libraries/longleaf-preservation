@@ -296,8 +296,11 @@ describe 'reindex command', :type => :aruba do
   end
 
   def db_conn
-    conn_str = RUBY_ENGINE == 'jruby' ? "jdbc:sqlite:#{db_file}" : "amalgalite://#{db_file}"
-    @conn = Sequel.connect(conn_str) if @conn.nil?
+    if @conn.nil?
+      conn_str = RUBY_ENGINE == 'jruby' ? "jdbc:sqlite:#{db_file}" : "amalgalite://#{db_file}"
+      @conn = Sequel.connect(conn_str)
+      Longleaf::SequelIndexDriver.apply_jdbc_sqlite_timestamp_fix(@conn) if RUBY_ENGINE == 'jruby'
+    end
     @conn
   end
 

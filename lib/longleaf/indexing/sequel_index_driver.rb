@@ -261,9 +261,41 @@ module Longleaf
       end
     end
 
+    # Configures a Sequel JDBC SQLite connection to correctly handle timestamp values.
+    # The jdbc-sqlite3 driver misinterprets fractional seconds in stored timestamp strings,
+    # treating milliseconds as whole seconds (e.g. ".405" seconds becomes 405 extra seconds).
+    # This overrides conversion_procs[93], the standard Sequel JDBC hook for java.sql.Types.TIMESTAMP,
+    # to read the raw stored string and parse it with Ruby directly.
+    # Only called under JRuby + SQLite — MySQL and PostgreSQL JDBC drivers handle timestamps correctly.
+    #
+    # @param conn [Sequel::Database] an open Sequel JDBC SQLite database connection
+    def self.apply_jdbc_sqlite_timestamp_fix(conn)
+      conn.conversion_procs[93] = lambda do |result_set, col_index|
+        str = result_set.getString(col_index)
+        return nil if result_set.wasNull || str.nil?
+        str = str.strip
+        return nil if str.empty?
+        begin
+          if str =~ /\A\d+(\.\d+)?\z/
+            # Stored as Unix epoch seconds (possibly with fractional seconds)
+            Time.at(str.to_f).utc
+          elsif str.include?('.')
+            Time.strptime("#{str} UTC", '%Y-%m-%d %H:%M:%S.%L %Z').utc
+          else
+            Time.strptime("#{str} UTC", '%Y-%m-%d %H:%M:%S %Z').utc
+          end
+        rescue ArgumentError
+          nil
+        end
+      end
+    end
+
     private
     def db_conn
-      @connection = Sequel.connect(@conn_details) if @connection.nil?
+      if @connection.nil?
+        @connection = Sequel.connect(@conn_details)
+        SequelIndexDriver.apply_jdbc_sqlite_timestamp_fix(@connection) if RUBY_ENGINE == 'jruby' && @conn_details.to_s =~ /sqlite/i
+      end
       @connection
     end
 
