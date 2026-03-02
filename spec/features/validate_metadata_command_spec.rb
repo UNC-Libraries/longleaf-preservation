@@ -303,7 +303,7 @@ describe 'validate_metadata', :type => :aruba do
     md = YAML.load_file(get_metadata_path(file_path, md_dir))
     yield md
     File.open(md_path, 'w') do |f|
-      f.write(Psych.dump(md))
+      f.write(md.to_yaml)
     end
   end
 

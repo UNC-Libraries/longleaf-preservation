@@ -1,5 +1,4 @@
 require 'yaml'
-require 'psych'
 require 'longleaf/models/metadata_record'
 require 'longleaf/models/md_fields'
 require 'longleaf/helpers/digest_helper'
@@ -39,7 +38,7 @@ module Longleaf
     # @return [String] a yaml representation of the provided MetadataRecord
     def self.to_yaml(metadata)
       props = to_hash(metadata)
-      Psych.dump(props)
+      props.to_yaml
     end
 
     # Create a hash representation of the given MetadataRecord file

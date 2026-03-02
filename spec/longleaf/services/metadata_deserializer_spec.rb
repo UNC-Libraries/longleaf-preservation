@@ -28,7 +28,7 @@ describe Longleaf::MetadataDeserializer do
         }
       }
       before(:each) do
-        File.write(md_file, Psych.dump(md_no_props))
+        File.write(md_file, md_no_props.to_yaml)
       end
 
       it 'raises metadata error' do
@@ -49,7 +49,7 @@ describe Longleaf::MetadataDeserializer do
       }
 
       before do
-        File.write(md_file, Psych.dump(md_with_props))
+        File.write(md_file, md_with_props.to_yaml)
       end
 
       it 'deserializes from yaml' do
@@ -81,7 +81,7 @@ describe Longleaf::MetadataDeserializer do
       }
 
       before(:each) do
-        File.write(md_file, Psych.dump(md_with_props))
+        File.write(md_file, md_with_props.to_yaml)
       end
 
       it 'deserializes from yaml' do
@@ -137,7 +137,7 @@ describe Longleaf::MetadataDeserializer do
       }
 
       before do
-        File.write(md_file, Psych.dump(md_with_props))
+        File.write(md_file, md_with_props.to_yaml)
       end
 
       it 'raises metadata error' do
