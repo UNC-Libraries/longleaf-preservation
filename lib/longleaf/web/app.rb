@@ -1,6 +1,7 @@
 require 'roda'
 require 'longleaf/services/application_config_deserializer'
 require 'longleaf/web/controllers/register_controller'
+require 'longleaf/web/controllers/deregister_controller'
 
 module Longleaf
   module Web
@@ -44,6 +45,13 @@ module Longleaf
           r.on 'register' do
             r.post do
               Controllers::RegisterController.new(self.class.app_manager).handle(r)
+            end
+          end
+
+          # DELETE /api/deregister
+          r.on 'deregister' do
+            r.delete do
+              Controllers::DeregisterController.new(self.class.app_manager).handle(r)
             end
           end
         end
