@@ -1,5 +1,5 @@
 # Longleaf
-Code: [![CircleCI](https://circleci.com/gh/UNC-Libraries/longleaf-preservation.svg?style=svg)](https://circleci.com/gh/UNC-Libraries/longleaf-preservation)
+Code: [![CI](https://github.com/UNC-Libraries/longleaf-preservation/actions/workflows/build.yml/badge.svg)](https://github.com/UNC-Libraries/longleaf-preservation/actions/workflows/build.yml)
 
 Longleaf is a command-line tool which allows users to configure a set of storage locations and define custom sets of preservation services to run on their contents. These services are executed in response to applicable preservation events issued by clients. Its primary goal is to provide tools to create a simple and customizable preservation environment. Longleaf:
 
@@ -75,9 +75,94 @@ Messages sent to STDOUT are duplicated to STDERR at 'INFO' level, so they are ex
 longleaf <command> --log-level 'INFO' 2> /logs/longleaf.log
 ```
 
+## Web Server
+
+Longleaf can also run as an HTTP API server using [Puma](https://puma.io) and [Roda](https://roda.jeremyevans.net), exposing the same preservation operations that are available on the command line.
+
+#### Configuration
+
+Each server instance is bound to a single application configuration file, specified via the `LONGLEAF_CFG` environment variable — mirroring the `-c` flag used by the CLI. If you have multiple configuration files, run one server instance per config.
+
+#### Starting the server
+
+```
+LONGLEAF_CFG=/path/to/config.yml bundle exec puma -C config/puma.rb
+```
+
+The following environment variables control server behaviour (all optional):
+
+| Variable | Default | Description |
+|---|---|---|
+| `LONGLEAF_CFG` | _(none)_ | Path to the Longleaf application configuration file |
+| `PORT` | `3000` | Port to listen on |
+| `RACK_ENV` | `development` | Rack environment (`development`, `production`) |
+| `PUMA_THREADS` | `5` | Min and max threads per worker |
+| `WEB_CONCURRENCY` | `1` | Number of Puma worker processes |
+
+For production use, set `WEB_CONCURRENCY` to the number of CPU cores available and `RACK_ENV=production`:
+
+```
+LONGLEAF_CFG=/path/to/config.yml \
+  RACK_ENV=production \
+  PORT=3000 \
+  WEB_CONCURRENCY=4 \
+  bundle exec puma -C config/puma.rb
+```
+
+To run a second instance against a different config on a different port:
+
+```
+LONGLEAF_CFG=/path/to/other_config.yml PORT=3001 bundle exec puma -C config/puma.rb
+```
+
+#### API endpoints
+
+All endpoints accept and return JSON. A `202 Accepted` response indicates success. Non-2xx responses include an `error` key in the JSON body.
+
+---
+
+**`POST /api/register`** — Register one or more files.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `file` | string | Comma-separated logical file paths to register. Mutually exclusive with `manifest` and `from_list`. |
+| `manifest` | array of strings | Checksum manifest values (same format as the CLI `-m` option). Mutually exclusive with `file` and `from_list`. |
+| `from_list` | string | Path to a newline-separated file list on the server filesystem. Mutually exclusive with `file` and `manifest`. |
+| `physical_path` | string | Comma-separated physical paths, paired with `file`, for files where the logical and physical paths differ. |
+| `checksums` | string | Comma-separated `algorithm:digest` pairs to associate with the file, e.g. `"md5:abc123,sha1:def456"`. Only applicable with `file`. |
+| `force` | boolean | Re-register already-registered files. |
+| `ocfl` | boolean | Treat targets as OCFL object directories. |
+
+Example:
+```
+curl -X POST http://localhost:3000/api/register \
+  -H 'Content-Type: application/json' \
+  -d '{"file": "/storage/loc1/image.tif"}'
+```
+
+---
+
+**`DELETE /api/deregister`** — Deregister one or more files.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `file` | string | Comma-separated logical file paths to deregister. Mutually exclusive with `location` and `from_list`. |
+| `location` | string | Comma-separated storage location names; deregisters all registered files within those locations. Mutually exclusive with `file` and `from_list`. |
+| `from_list` | string | Path to a newline-separated file list on the server filesystem. Mutually exclusive with `file` and `location`. |
+| `force` | boolean | Deregister files that are already deregistered. |
+
+Example:
+```
+curl -X DELETE http://localhost:3000/api/deregister \
+  -H 'Content-Type: application/json' \
+  -d '{"file": "/storage/loc1/image.tif"}'
+```
+
+---
+
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. 
+After checking out the repo, run `bin/setup` to install dependencies.
 
 To perform the tests, run:
 ```

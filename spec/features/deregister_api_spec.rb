@@ -37,8 +37,6 @@ describe 'DELETE /api/deregister' do
     manager
   end
 
-  # Register files directly via the command layer so tests don't depend on the
-  # register HTTP endpoint.
   def register_files(*file_paths)
     physical_provider = Longleaf::PhysicalPathProvider.new
     selector = Longleaf::FileSelector.new(
