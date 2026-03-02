@@ -41,9 +41,10 @@ describe Longleaf::SequelIndexDriver do
   let(:app_config) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path) }
   let(:config_md5) { Digest::MD5.file(config_path).hexdigest }
 
-  let(:conn_details) { "amalgalite://#{db_file}" }
+  let(:db_adapter) { test_db_adapter.to_sym }
+  let(:conn_details) { test_db_conn_str(db_file) }
 
-  let(:driver) { Longleaf::SequelIndexDriver.new(app_config, :amalgalite, conn_details) }
+  let(:driver) { Longleaf::SequelIndexDriver.new(app_config, db_adapter, conn_details) }
 
   describe '.setup_index' do
     it 'creates database structure' do
@@ -75,7 +76,7 @@ describe Longleaf::SequelIndexDriver do
       }
       let(:app_config2) { Longleaf::ApplicationConfigDeserializer.deserialize(config_path2) }
 
-      let(:driver2) { Longleaf::SequelIndexDriver.new(app_config2, :amalgalite, conn_details) }
+      let(:driver2) { Longleaf::SequelIndexDriver.new(app_config2, db_adapter, conn_details) }
 
       it { expect(driver2.is_stale?).to be true }
     end
@@ -460,7 +461,7 @@ describe Longleaf::SequelIndexDriver do
     end
 
     context 'driver with page size set to 2' do
-      let(:driver) { Longleaf::SequelIndexDriver.new(app_config, :amalgalite, conn_details, page_size: 2) }
+      let(:driver) { Longleaf::SequelIndexDriver.new(app_config, db_adapter, conn_details, page_size: 2) }
 
       context 'three files which need services' do
         let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(-2)) }
@@ -588,7 +589,7 @@ describe Longleaf::SequelIndexDriver do
         end
 
         context 'with page size of 1' do
-          let(:driver) { Longleaf::SequelIndexDriver.new(app_config, :amalgalite, conn_details, page_size: 1) }
+          let(:driver) { Longleaf::SequelIndexDriver.new(app_config, db_adapter, conn_details, page_size: 1) }
 
           it 'returns the matching file path' do
             results = driver.registered_paths(selector)

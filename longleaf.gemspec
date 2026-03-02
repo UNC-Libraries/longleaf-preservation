@@ -15,8 +15,6 @@ Gem::Specification.new do |spec|
   spec.metadata         = { "source_code_uri" => "https://github.com/UNC-Libraries/longleaf-preservation" }
   spec.license       = "Apache-2.0"
 
-  spec.required_ruby_version = '>= 2.3'
-
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files         = Dir.chdir(File.expand_path('..', __FILE__)) do
@@ -39,12 +37,15 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec_junit_formatter", "~> 0.6"
   spec.add_development_dependency "factory_bot", "~> 6.2"
   spec.add_development_dependency "aruba", "~> 1.1.2"
-  # last version supporting ruby 2
-  spec.add_development_dependency "contracts", "~> 0.16.1"
+  spec.add_development_dependency "contracts", "~> 0.17.3"
   spec.add_development_dependency "rubocop", '~> 1.49.0'
   spec.add_development_dependency "rubocop-rspec", '~> 2.19.0'
   spec.add_development_dependency "rubocop-performance", '~> 1.3'
   spec.add_development_dependency "rubocop-sequel", '~> 0.3.4'
-  spec.add_development_dependency "amalgalite", "~> 1.6"
+  if RUBY_ENGINE == 'jruby'
+    spec.add_development_dependency "jdbc-sqlite3"
+  else
+    spec.add_development_dependency "amalgalite", "~> 1.6"
+  end
   spec.add_development_dependency "simplecov", "~> 0.22"
 end

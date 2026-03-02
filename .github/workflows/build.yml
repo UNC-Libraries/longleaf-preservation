@@ -11,10 +11,31 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby-version: ['3.0', '3.1']
-    
-    name: Test with Ruby ${{ matrix.ruby-version }}
-    
+        ruby-version: ['3.0', '3.1', 'jruby-9.4']
+        db: [sqlite, postgres]
+
+    name: Test with Ruby ${{ matrix.ruby-version }} / ${{ matrix.db }}
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: longleaf_test
+        options: >
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    timeout-minutes: 60
+
+    env:
+      JRUBY_OPTS: "--dev"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -24,15 +45,17 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler: 2.2.18
-          bundler-cache: true
 
       - name: Install dependencies
-        run: bin/setup
+        run: bundle install --path '.bundle/' --with ${{ matrix.db }}
 
       - name: Install rsync
         run: sudo apt-get update && sudo apt-get install -y rsync
 
       - name: Run tests
+        env:
+          TEST_DATABASE: ${{ matrix.db }}
+          TEST_PG_URL: postgres://postgres:postgres@localhost/longleaf_test
         run: |
           mkdir -p tmp/test-results
           bundle exec rspec \
@@ -45,7 +68,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: always()
         with:
-          name: RSpec Tests (Ruby ${{ matrix.ruby-version }})
+          name: RSpec Tests (Ruby ${{ matrix.ruby-version }} / ${{ matrix.db }})
           path: tmp/test-results/rspec.xml
           reporter: java-junit
 
@@ -53,5 +76,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: coverage-ruby-${{ matrix.ruby-version }}
+          name: coverage-ruby-${{ matrix.ruby-version }}-${{ matrix.db }}
           path: coverage

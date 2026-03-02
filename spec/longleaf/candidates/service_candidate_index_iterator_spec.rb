@@ -19,6 +19,8 @@ describe Longleaf::ServiceCandidateIndexIterator do
   let(:md_dir1) { make_test_dir(name: 'metadata1') }
   let(:path_dir1) { make_test_dir(name: 'path1') }
   let(:db_file) { create_test_file(name: 'index.db', content: '') }
+  let(:db_adapter) { test_db_adapter }
+  let(:db_conn_str) { test_db_conn_str(db_file) }
 
   after do
     FileUtils.rm_rf([md_dir1, path_dir1])
@@ -27,7 +29,7 @@ describe Longleaf::ServiceCandidateIndexIterator do
 
   let(:sys_config) {
     SysConfigBuilder.new
-      .with_index('amalgalite', "amalgalite://#{db_file}")
+      .with_index(db_adapter, db_conn_str)
       .get
   }
   let(:config) {

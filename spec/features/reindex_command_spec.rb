@@ -27,9 +27,11 @@ describe 'reindex command', :type => :aruba do
 
   let!(:work_script_file) { create_work_class(lib_dir, 'PresService', 'pres_service.rb') }
 
+  let(:db_adapter) { test_db_adapter }
+  let(:db_conn_str) { test_db_conn_str(db_file) }
   let(:sys_config) {
     SysConfigBuilder.new
-      .with_index('amalgalite', "amalgalite://#{db_file}")
+      .with_index(db_adapter, db_conn_str)
       .get
   }
 
@@ -294,8 +296,7 @@ describe 'reindex command', :type => :aruba do
   end
 
   def db_conn
-    @conn = Sequel.connect("amalgalite://#{db_file}") if @conn.nil?
-    @conn
+    @conn ||= Longleaf::SequelIndexDriver.connect(test_db_conn_str(db_file))
   end
 
   def get_timestamp_from_index(file_rec)

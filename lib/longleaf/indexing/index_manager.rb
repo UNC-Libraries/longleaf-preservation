@@ -82,7 +82,7 @@ module Longleaf
       adapter = adapter.to_sym
 
       case adapter
-      when :postgres, :mysql, :mysql2, :sqlite, :amalgalite
+      when :postgres, :mysql, :mysql2, :sqlite, :amalgalite, :jdbc
         page_size = index_conf[SYS_FIELDS::MD_INDEX_PAGE_SIZE]&.to_int
 
         connection = index_conf[SYS_FIELDS::MD_INDEX_CONNECTION]

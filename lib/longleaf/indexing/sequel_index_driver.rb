@@ -35,6 +35,7 @@ module Longleaf
       @app_config = app_config
       @adapter = adapter
       @conn_details = conn_details
+      load_jdbc_driver(conn_details) if RUBY_ENGINE == 'jruby'
       # Digest of the app config file so we can tell if it changes
       @config_md5 = app_config.config_md5
       @page_size = page_size.nil? || page_size <= 0 ? DEFAULT_PAGE_SIZE : page_size
@@ -209,7 +210,7 @@ module Longleaf
       index_state_tbl.delete
       index_state_tbl.insert(
           config_md5: @config_md5,
-          last_reindexed: Time.now.utc,
+          last_reindexed: Time.now.utc.strftime(TIMESTAMP_FORMAT),
           longleaf_version: Longleaf::VERSION)
     end
 
@@ -260,9 +261,20 @@ module Longleaf
       end
     end
 
+    # Opens and returns a Sequel database connection for the given connection details.
+    # Callers should use this method rather than Sequel.connect directly to ensure
+    # any future adapter-specific configuration is applied consistently.
+    #
+    # @param conn_details [String, Hash] Sequel connection URL or parameters hash
+    # @return [Sequel::Database] configured database connection
+    def self.connect(conn_details)
+      Sequel.connect(conn_details)
+    end
+
     private
+
     def db_conn
-      @connection = Sequel.connect(@conn_details) if @connection.nil?
+      @connection = self.class.connect(@conn_details) if @connection.nil?
       @connection
     end
 
@@ -301,6 +313,28 @@ module Longleaf
             .order(Sequel.asc(:service_time))
       end
       @registered_dataset
+    end
+
+    # On JRuby, explicitly require the JDBC driver gem for the database in use,
+    # since the JAR must be loaded into the JVM before Sequel can connect.
+    def load_jdbc_driver(conn_details)
+      conn_str = conn_details.is_a?(Hash) ? (conn_details['adapter'] || '').to_s : conn_details.to_s
+      begin
+        case conn_str
+        when /sqlite/i
+          require 'jdbc/sqlite3'
+          Jdbc::SQLite3.load_driver
+        when /postgres/i
+          require 'jdbc/postgres'
+          Jdbc::Postgres.load_driver
+        when /mysql/i
+          require 'jdbc/mysql'
+          Jdbc::MySQL.load_driver
+        end
+      rescue LoadError => e
+        raise LoadError, "Failed to load JDBC driver for connection '#{conn_str}'. " \
+            "Ensure the appropriate jdbc-* gem is installed. Original error: #{e.message}"
+      end
     end
   end
 end
