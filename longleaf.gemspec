@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "puma", "~> 7.2"
   spec.add_dependency "roda", "~> 3.0"
 
+  spec.add_development_dependency "rack-test", "~> 2.1"
   spec.add_development_dependency "bundler", "~> 2.2"
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "rspec", "~> 3.10"

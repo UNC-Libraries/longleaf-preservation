@@ -28,7 +28,7 @@ module Longleaf
       end
 
       class << self
-        attr_reader :app_manager
+        attr_accessor :app_manager
       end
 
       error do |e|

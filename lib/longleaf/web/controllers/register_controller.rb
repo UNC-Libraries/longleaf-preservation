@@ -44,8 +44,6 @@ module Longleaf
           file_selector, digest_provider, physical_provider =
             parse_selection_options(params, request)
 
-          return if request.halt?  # parse_selection_options may have halted
-
           command = RegisterCommand.new(@app_manager)
           status  = command.execute(
             file_selector:     file_selector,
