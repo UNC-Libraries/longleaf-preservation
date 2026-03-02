@@ -37,7 +37,7 @@ module Longleaf
         # @param request [Roda::RodaRequest]
         # @return [Hash] JSON-serialisable response body (Roda serialises it automatically)
         def handle(request)
-          return error_response(503, 'Application configuration is not loaded') if @app_manager.nil?
+          error_response(request, 503, 'Application configuration is not loaded') if @app_manager.nil?
 
           params = extract_params(request)
 
@@ -56,7 +56,8 @@ module Longleaf
             request.response.status = 202
             { status: 'success' }
           else
-            error_response(500, 'Register command completed with failures')
+            # At present, both user and server errors will return a 500 since the command obscures the reason
+            error_response(request, 500, 'Register command completed with failures')
           end
         end
 
@@ -96,9 +97,9 @@ module Longleaf
                         [%({"error":#{e.message.to_json}})]]
         end
 
-        def error_response(status_code, message)
-          # Reached only when we are NOT using request.halt (caller checks itself)
-          raise Roda::RodaError, "#{status_code}: #{message}"
+        def error_response(request, status_code, message)
+          request.halt [status_code, { 'content-type' => 'application/json' },
+                        [{ error: message }.to_json]]
         end
 
         def presence(value)

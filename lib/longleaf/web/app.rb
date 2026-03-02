@@ -32,6 +32,7 @@ module Longleaf
       end
 
       error do |e|
+        warn "ERROR [#{e.class}]: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
         response.status = 500
         { error: e.message }
       end
@@ -42,7 +43,7 @@ module Longleaf
           # POST /api/register
           r.on 'register' do
             r.post do
-              RegisterController.new(self.class.app_manager).handle(r)
+              Controllers::RegisterController.new(self.class.app_manager).handle(r)
             end
           end
         end
