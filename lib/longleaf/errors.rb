@@ -23,6 +23,9 @@ module Longleaf
   # Error while attempting to perform a deregistration event
   class DeregistrationError < EventError; end
 
+  # Error indicating invalid or missing file selection parameters
+  class SelectionError < LongleafError; end
+
   # Error while performing a preservation service
   class PreservationServiceError < LongleafError; end
 

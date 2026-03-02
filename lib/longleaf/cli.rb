@@ -16,6 +16,11 @@ module Longleaf
   class CLI < Thor
     include Longleaf::Logging
 
+    rescue_from Longleaf::SelectionError do |e|
+      logger.failure(e.message)
+      exit 1
+    end
+
     # Register a shared method option in a shared option group
     def self.add_shared_option(name, group, options = {})
       @shared_groups = {} if @shared_groups.nil?

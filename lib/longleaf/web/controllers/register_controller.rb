@@ -1,5 +1,6 @@
 require 'longleaf/commands/register_command'
 require 'longleaf/helpers/selection_options_parser'
+require 'longleaf/errors'
 require 'longleaf/logging'
 
 module Longleaf
@@ -79,20 +80,11 @@ module Longleaf
           }
         end
 
-        # Delegate to SelectionOptionsParser, translating its `exit` calls into
-        # HTTP 400 responses via Roda's halt mechanism.
-        #
-        # TODO: SelectionOptionsParser currently calls Kernel#exit on validation
-        # failures, which is not safe in a long-running server context. Once the
-        # web layer matures, SelectionOptionsParser (or a web-specific variant)
-        # should raise structured errors instead. For now, SystemExit is caught
-        # and converted to a 400 Bad Request.
+        # Delegate to SelectionOptionsParser, mapping SelectionError validation
+        # failures to HTTP 400 responses via Roda's halt mechanism.
         def parse_selection_options(params, request)
           SelectionOptionsParser.parse_registration_selection_options(params, @app_manager)
-        rescue SystemExit
-          request.halt [400, { 'content-type' => 'application/json' },
-                        ['{"error":"Invalid or missing file selection parameters"}']]
-        rescue StandardError => e
+        rescue Longleaf::SelectionError => e
           request.halt [400, { 'content-type' => 'application/json' },
                         [%({"error":#{e.message.to_json}})]]
         end

@@ -1,5 +1,6 @@
 require 'longleaf/commands/deregister_command'
 require 'longleaf/helpers/selection_options_parser'
+require 'longleaf/errors'
 require 'longleaf/logging'
 
 module Longleaf
@@ -71,14 +72,11 @@ module Longleaf
           }
         end
 
-        # Delegate to SelectionOptionsParser, converting its `exit` calls into
-        # HTTP 400 responses via Roda's halt mechanism.
+        # Delegate to SelectionOptionsParser, mapping SelectionError validation
+        # failures to HTTP 400 responses via Roda's halt mechanism.
         def build_file_selector(params, request)
           SelectionOptionsParser.create_registered_selector(params, @app_manager)
-        rescue SystemExit
-          request.halt [400, { 'content-type' => 'application/json' },
-                        ['{"error":"Invalid or missing file selection parameters"}']]
-        rescue StandardError => e
+        rescue Longleaf::SelectionError => e
           request.halt [400, { 'content-type' => 'application/json' },
                         [%({"error":#{e.message.to_json}})]]
         end
