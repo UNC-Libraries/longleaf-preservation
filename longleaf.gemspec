@@ -24,27 +24,26 @@ Gem::Specification.new do |spec|
   spec.executables   = "longleaf"
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "thor", "~> 1.2.0"
+  spec.add_dependency "thor", "~> 1.5"
   spec.add_dependency "yard", "~> 0.9.16"
   spec.add_dependency "sequel", "~> 5.20"
   spec.add_dependency "aws-sdk-s3", "~> 1.56"
-  spec.add_dependency "rexml"
   spec.add_dependency "puma", "~> 7.2"
   spec.add_dependency "roda", "~> 3.0"
 
   spec.add_development_dependency "rack-test", "~> 2.1"
   spec.add_development_dependency "bundler", "~> 2.2"
-  spec.add_development_dependency "rake", "~> 12.0"
+  spec.add_development_dependency "rake", "~> 13.3"
   spec.add_development_dependency "rspec", "~> 3.10"
   spec.add_development_dependency "rspec-core", "~> 3.10"
   spec.add_development_dependency "rspec_junit_formatter", "~> 0.6"
   spec.add_development_dependency "factory_bot", "~> 6.2"
-  spec.add_development_dependency "aruba", "~> 1.1.2"
+  spec.add_development_dependency "aruba", "~> 2.3.3"
   spec.add_development_dependency "contracts", "~> 0.17.3"
-  spec.add_development_dependency "rubocop", '~> 1.49.0'
-  spec.add_development_dependency "rubocop-rspec", '~> 2.19.0'
+  spec.add_development_dependency "rubocop", '~> 1.85'
+  spec.add_development_dependency "rubocop-rspec", '~> 3.9'
   spec.add_development_dependency "rubocop-performance", '~> 1.3'
-  spec.add_development_dependency "rubocop-sequel", '~> 0.3.4'
+  spec.add_development_dependency "rubocop-sequel", '~> 0.3'
   if RUBY_ENGINE == 'jruby'
     spec.add_development_dependency "jdbc-sqlite3"
   else

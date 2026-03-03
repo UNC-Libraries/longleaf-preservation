@@ -16,8 +16,10 @@ module Longleaf
   class CLI < Thor
     include Longleaf::Logging
 
-    rescue_from Longleaf::SelectionError do |e|
-      logger.failure(e.message)
+    def self.start(given_args = ARGV, config = {})
+      super
+    rescue Longleaf::SelectionError => e
+      Longleaf::Logging.logger.failure(e.message)
       exit 1
     end
 
@@ -121,7 +123,7 @@ module Longleaf
           md5:
           <digest> <path>
           ...
-          
+
           To provide separate logical and physical paths, add a physical path column:
           '-m sha1:@-'
           Where the content in STDIN adheres to the format:
@@ -142,7 +144,7 @@ module Longleaf
     method_option(:ocfl,
         :type => :boolean,
         :default => false,
-        :desc => %q{If set, the target files will be consider OCFL object directories rather than individual files. 
+        :desc => %q{If set, the target files will be consider OCFL object directories rather than individual files.
           Cannot be used with the --manifest option, to submit multiple objects at once use -f or -l})
     method_option(:checksums,
         :desc => %q{Checksums for the submitted file. Only applicable with the -f option.
