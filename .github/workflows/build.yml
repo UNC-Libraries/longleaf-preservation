@@ -13,6 +13,13 @@ jobs:
       matrix:
         ruby-version: ['3.0', '3.1', 'jruby-9.4']
         db: [sqlite, postgres]
+        include:
+          - ruby-version: '3.0'
+            bundler: '2.5.23'
+          - ruby-version: '3.1'
+            bundler: '2.6.3'
+          - ruby-version: 'jruby-9.4'
+            bundler: '2.6.3'
 
     name: Test with Ruby ${{ matrix.ruby-version }} / ${{ matrix.db }}
 
@@ -44,7 +51,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby-version }}
-          bundler: 2.2.18
+          bundler: ${{ matrix.bundler }}
 
       - name: Install dependencies
         run: bundle install --path '.bundle/' --with ${{ matrix.db }}
