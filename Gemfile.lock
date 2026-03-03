@@ -4,6 +4,7 @@ PATH
     longleaf (1.1.1)
       aws-sdk-s3 (~> 1.56)
       puma (~> 7.2)
+      rexml
       roda (~> 3.0)
       sequel (~> 5.20)
       thor (~> 1.5)
@@ -134,6 +135,7 @@ GEM
     rainbow (3.1.1)
     rake (13.3.1)
     regexp_parser (2.11.3)
+    rexml (3.4.4)
     roda (3.101.0)
       rack
     rspec (3.13.2)
