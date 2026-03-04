@@ -97,7 +97,7 @@ The following environment variables control server behaviour (all optional):
 | `PORT` | `3000` | Port to listen on |
 | `RACK_ENV` | `development` | Rack environment (`development`, `production`) |
 | `PUMA_THREADS` | `5` | Min and max threads per worker |
-| `WEB_CONCURRENCY` | `1` | Number of Puma worker processes |
+| `WEB_CONCURRENCY` | `1` | Number of Puma worker processes, only for CRuby |
 
 For production use, set `WEB_CONCURRENCY` to the number of CPU cores available and `RACK_ENV=production`:
 
@@ -105,7 +105,7 @@ For production use, set `WEB_CONCURRENCY` to the number of CPU cores available a
 LONGLEAF_CFG=/path/to/config.yml \
   RACK_ENV=production \
   PORT=3000 \
-  WEB_CONCURRENCY=4 \
+  PUMA_THREADS=16 \
   bundle exec puma -C config/puma.rb
 ```
 
