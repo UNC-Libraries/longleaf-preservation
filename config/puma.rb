@@ -7,11 +7,15 @@ environment ENV.fetch('RACK_ENV', 'development')
 threads_count = ENV.fetch('PUMA_THREADS', 5).to_i
 threads threads_count, threads_count
 
-# Use a single worker in development; set WEB_CONCURRENCY > 1 for production.
-workers ENV.fetch('WEB_CONCURRENCY', 1).to_i
+# JRuby runs on the JVM which does not support fork(), so worker (multi-process)
+# mode is unavailable. Use threaded mode (single worker) instead.
+# On MRI Ruby, WEB_CONCURRENCY controls the number of worker processes.
+unless RUBY_ENGINE == 'jruby'
+  workers ENV.fetch('WEB_CONCURRENCY', 1).to_i
 
-preload_app!
+  preload_app!
 
-on_worker_boot do
-  # Re-establish any resources that are not fork-safe here (e.g. DB connections).
+  before_worker_boot do
+    # Re-establish any resources that are not fork-safe here (e.g. DB connections).
+  end
 end
