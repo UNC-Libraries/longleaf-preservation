@@ -46,6 +46,7 @@ module Longleaf
               digest_provider: digest_provider)
           end
           track_status(register_event.perform)
+          merge_outcome(register_event)
         end
       rescue InvalidStoragePathError, StorageLocationUnavailableError => err
         record_failure(EventNames::REGISTER, nil, err.message)

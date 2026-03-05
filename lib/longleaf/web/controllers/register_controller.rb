@@ -1,4 +1,5 @@
 require 'longleaf/commands/register_command'
+require 'longleaf/events/event_names'
 require 'longleaf/helpers/selection_options_parser'
 require 'longleaf/errors'
 require 'longleaf/logging'
@@ -52,14 +53,10 @@ module Longleaf
             digest_provider:   digest_provider,
             physical_provider: physical_provider
           )
+          outcome = command.outcome_summary(EventNames::REGISTER)
 
-          if status == 0
-            request.response.status = 202
-            { status: 'success' }
-          else
-            # At present, both user and server errors will return a 500 since the command obscures the reason
-            error_response(request, 500, 'Register command completed with failures')
-          end
+          request.response.status = status == 0 ? 202 : 500
+          outcome
         end
 
         private

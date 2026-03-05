@@ -1,4 +1,5 @@
 require 'longleaf/commands/deregister_command'
+require 'longleaf/events/event_names'
 require 'longleaf/helpers/selection_options_parser'
 require 'longleaf/errors'
 require 'longleaf/logging'
@@ -49,14 +50,10 @@ module Longleaf
             file_selector: file_selector,
             force:         params[:force]
           )
+          outcome = command.outcome_summary(EventNames::DEREGISTER)
 
-          if status == 0
-            request.response.status = 202
-            { status: 'success' }
-          else
-            # At present, both user and server errors return 500 since the command obscures the reason
-            error_response(request, 500, 'Deregister command completed with failures')
-          end
+          request.response.status = status == 0 ? 202 : 500
+          outcome
         end
 
         private

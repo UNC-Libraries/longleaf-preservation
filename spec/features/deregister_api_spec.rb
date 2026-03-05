@@ -132,7 +132,9 @@ describe 'DELETE /api/deregister' do
         delete_deregister(file: file_path)
 
         expect(last_response.status).to eq 202
-        expect(response_body['status']).to eq 'success'
+        expect(response_body['event']).to eq 'deregister'
+        expect(response_body['success']).to include(file_path)
+        expect(response_body['failure']).to be_empty
         expect(file_deregistered?(file_path)).to be true
       end
     end
@@ -147,6 +149,9 @@ describe 'DELETE /api/deregister' do
         delete_deregister(file: "#{file_path},#{file_path2}")
 
         expect(last_response.status).to eq 202
+        expect(response_body['event']).to eq 'deregister'
+        expect(response_body['success']).to include(file_path, file_path2)
+        expect(response_body['failure']).to be_empty
         expect(file_deregistered?(file_path)).to be true
         expect(file_deregistered?(file_path2)).to be true
       end
@@ -163,11 +168,14 @@ describe 'DELETE /api/deregister' do
       it 'returns 500 on a second request without force' do
         delete_deregister(file: file_path)
         expect(last_response.status).to eq 500
+        expect(response_body['event']).to eq 'deregister'
+        expect(response_body['failure']).to include(file_path)
       end
 
       it 'returns 202 on a second request with force: true' do
         delete_deregister(file: file_path, force: 'true')
         expect(last_response.status).to eq 202
+        expect(response_body['success']).to include(file_path)
         expect(file_deregistered?(file_path)).to be true
       end
     end
