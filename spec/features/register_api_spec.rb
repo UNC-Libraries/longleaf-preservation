@@ -143,6 +143,28 @@ describe 'POST /api/register' do
       end
     end
 
+    context 'partial success: two files register, one is already registered' do
+      let!(:file_path)  { create_test_file(dir: path_dir) }
+      let!(:file_path2) { create_test_file(dir: path_dir, name: 'second_file', content: 'second') }
+      let!(:file_path3) { create_test_file(dir: path_dir, name: 'third_file',  content: 'third') }
+
+      # Pre-register file_path2 so it will fail the second time
+      before { post_register(file: file_path2) }
+
+      it 'returns 500, includes successes and the failure' do
+        post_register(file: "#{file_path},#{file_path2},#{file_path3}")
+
+        expect(last_response.status).to eq 500
+        expect(response_body['event']).to eq 'register'
+        expect(response_body['success']).to include(file_path, file_path3)
+        expect(response_body['failure']).to include(file_path2)
+        expect(response_body['success'].length).to eq 2
+        expect(response_body['failure'].length).to eq 1
+        expect(metadata_exists?(file_path)).to be true
+        expect(metadata_exists?(file_path3)).to be true
+      end
+    end
+
     context 'register an already-registered file' do
       let!(:file_path) { create_test_file(dir: path_dir) }
 
