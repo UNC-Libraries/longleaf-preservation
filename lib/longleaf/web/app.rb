@@ -1,4 +1,5 @@
 require 'roda'
+require 'longleaf/logging'
 require 'longleaf/services/application_config_deserializer'
 require 'longleaf/web/controllers/register_controller'
 require 'longleaf/web/controllers/deregister_controller'
@@ -20,6 +21,16 @@ module Longleaf
       # Load the application configuration once at startup. The path is taken
       # from the LONGLEAF_CFG environment variable, mirroring the CLI behaviour.
       APP_CONFIG_PATH = ENV['LONGLEAF_CFG']
+
+      # Initialise the application logger for the web context.
+      #   LONGLEAF_LOG_LEVEL   - Ruby Logger level string (default: INFO)
+      #   LONGLEAF_LOG_FORMAT  - optional log format string (see RedirectingLogger)
+      Longleaf::Logging.initialize_logger(
+        false,
+        ENV.fetch('LONGLEAF_LOG_LEVEL', 'INFO'),
+        ENV['LONGLEAF_LOG_FORMAT'],
+        nil
+      )
 
       @app_manager = begin
         ApplicationConfigDeserializer.deserialize(APP_CONFIG_PATH) unless APP_CONFIG_PATH.nil?
