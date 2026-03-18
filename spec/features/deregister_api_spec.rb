@@ -210,5 +210,28 @@ describe 'DELETE /api/deregister' do
         expect(file_deregistered?(file_path)).to be true
       end
     end
+
+    context 'deregister files via from_list with inline body' do
+      let!(:file_path)  { create_test_file(dir: path_dir) }
+      let!(:file_path2) { create_test_file(dir: path_dir, name: 'list_file2', content: 'list content') }
+
+      before { register_files(file_path, file_path2) }
+
+      it 'returns 202 and deregisters all files listed in the body' do
+        delete_deregister(from_list: '@-', body: "#{file_path}\n#{file_path2}")
+
+        expect(last_response.status).to eq 202
+        expect(response_body['success']).to include(file_path, file_path2)
+        expect(file_deregistered?(file_path)).to be true
+        expect(file_deregistered?(file_path2)).to be true
+      end
+
+      it 'returns 400 when from_list is "@-" but body is absent' do
+        delete_deregister(from_list: '@-')
+
+        expect(last_response.status).to eq 400
+        expect(response_body['error']).to include("body")
+      end
+    end
   end
 end

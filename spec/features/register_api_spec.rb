@@ -213,5 +213,64 @@ describe 'POST /api/register' do
         expect(md_rec.physical_path).to eq physical_file
       end
     end
+
+    context 'register files via from_list with inline body' do
+      let!(:file_path)  { create_test_file(dir: path_dir) }
+      let!(:file_path2) { create_test_file(dir: path_dir, name: 'list_file2', content: 'list content') }
+
+      it 'returns 202 and registers all files listed in the body' do
+        post_register(from_list: '@-', body: "#{file_path}\n#{file_path2}")
+
+        expect(last_response.status).to eq 202
+        expect(response_body['success']).to include(file_path, file_path2)
+        expect(metadata_exists?(file_path)).to be true
+        expect(metadata_exists?(file_path2)).to be true
+      end
+
+      it 'returns 400 when from_list is "@-" but body is absent' do
+        post_register(from_list: '@-')
+
+        expect(last_response.status).to eq 400
+        expect(response_body['error']).to include("body")
+      end
+    end
+
+    context 'register files via manifest with inline body' do
+      let(:content)    { 'manifest body content' }
+      let!(:file_path) { create_test_file(dir: path_dir, content: content) }
+      let(:md5_digest) { Digest::MD5.hexdigest(content) }
+
+      it 'returns 202 using a single-algorithm inline manifest (alg:@-)' do
+        post_register(manifest: ['md5:@-'], body: "#{md5_digest} #{file_path}")
+
+        expect(last_response.status).to eq 202
+        expect(response_body['success']).to include(file_path)
+        md_rec = get_metadata_record(file_path)
+        expect(md_rec.checksums['md5']).to eq md5_digest
+      end
+
+      it 'returns 202 using a multi-algorithm inline manifest (@-)' do
+        post_register(manifest: ['@-'], body: "md5:\n#{md5_digest} #{file_path}")
+
+        expect(last_response.status).to eq 202
+        expect(response_body['success']).to include(file_path)
+        md_rec = get_metadata_record(file_path)
+        expect(md_rec.checksums['md5']).to eq md5_digest
+      end
+
+      it 'returns 400 when manifest references "alg:@-" but body is absent' do
+        post_register(manifest: ['md5:@-'])
+
+        expect(last_response.status).to eq 400
+        expect(response_body['error']).to include("body")
+      end
+
+      it 'returns 400 when manifest references "@-" but body is absent' do
+        post_register(manifest: ['@-'])
+
+        expect(last_response.status).to eq 400
+        expect(response_body['error']).to include("body")
+      end
+    end
   end
 end

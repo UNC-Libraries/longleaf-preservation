@@ -3,6 +3,7 @@ require 'longleaf/events/event_names'
 require 'longleaf/helpers/selection_options_parser'
 require 'longleaf/errors'
 require 'longleaf/logging'
+require 'stringio'
 
 module Longleaf
   module Web
@@ -16,7 +17,10 @@ module Longleaf
       #   file          - Comma-separated logical file paths to register (required
       #                   unless `manifest` is provided).
       #   manifest      - Checksum manifest values, same format as CLI -m option.
-      #                   Provided as a JSON array of strings.
+      #                   Provided as a JSON array of strings. Use '@-' as the
+      #                   manifest source to read from the `body` parameter.
+      #   body          - Inline content to be streamed when '@-' is referenced
+      #                   by `manifest` or `from_list`. Replaces CLI piped stdin.
       #   physical_path - Comma-separated physical paths, paired with `file`.
       #   checksums     - Comma-separated algorithm:digest pairs, e.g.
       #                   "md5:abc123,sha1:def456"
@@ -43,8 +47,12 @@ module Longleaf
 
           params = extract_params(request)
 
+          input_stream = params[:body] ? StringIO.new(params[:body]) : nil
+
+          validate_stream_params(params, input_stream, request)
+
           file_selector, digest_provider, physical_provider =
-            parse_selection_options(params, request)
+            parse_selection_options(params, input_stream, request)
 
           command = RegisterCommand.new(@app_manager)
           status  = command.execute(
@@ -72,6 +80,7 @@ module Longleaf
             from_list:     presence(body['from_list']),
             checksums:     presence(body['checksums']),
             physical_path: presence(body['physical_path']),
+            body:          presence(body['body']),
             force:         truthy?(body['force']),
             ocfl:          truthy?(body['ocfl'])
           }
@@ -79,11 +88,21 @@ module Longleaf
 
         # Delegate to SelectionOptionsParser, mapping SelectionError validation
         # failures to HTTP 400 responses via Roda's halt mechanism.
-        def parse_selection_options(params, request)
-          SelectionOptionsParser.parse_registration_selection_options(params, @app_manager)
+        def parse_selection_options(params, input_stream, request)
+          stream_args = input_stream ? { input_stream: input_stream } : {}
+          SelectionOptionsParser.parse_registration_selection_options(params, @app_manager, **stream_args)
         rescue Longleaf::SelectionError => e
           request.halt [400, { 'content-type' => 'application/json' },
                         [%({"error":#{e.message.to_json}})]]
+        end
+
+        def validate_stream_params(params, input_stream, request)
+          return if input_stream
+          needs_body = params[:from_list] == '@-' ||
+                       params[:manifest]&.any? { |v| v == '@-' || v.end_with?(':@-') }
+          if needs_body
+            error_response(request, 400, "A 'body' parameter is required when '@-' is specified")
+          end
         end
 
         def error_response(request, status_code, message)

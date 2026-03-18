@@ -15,13 +15,14 @@ module Longleaf
     # use in registration commands.
     # @param options [Hash] command options
     # @param app_config_manager [ApplicationConfigManager] app config manager
+    # @param input_stream [IO] stream to read from when '@-' is specified (defaults to $stdin)
     # @return The file selector and digest provider.
-    def self.parse_registration_selection_options(options, app_config_manager)
+    def self.parse_registration_selection_options(options, app_config_manager, input_stream: $stdin)
       there_can_be_only_one("Only one of the following selection options may be provided: -m, -f, -l",
           options, :file, :manifest, :from_list)
 
       if !options[:manifest].nil?
-        digests_mapping, logical_phys_mapping = self.parse_manifest(options[:manifest])
+        digests_mapping, logical_phys_mapping = self.parse_manifest(options[:manifest], input_stream: input_stream)
         physical_provider = PhysicalPathProvider.new(logical_phys_mapping)
         selector = initialize_file_selector(digests_mapping.keys, physical_provider, app_config_manager, options)
         digest_provider = ManifestDigestProvider.new(digests_mapping)
@@ -53,7 +54,7 @@ module Longleaf
         selector = initialize_file_selector(file_paths, physical_provider, app_config_manager, options)
       elsif !options[:from_list].nil?
         physical_provider = PhysicalPathProvider.new
-        file_paths = read_from_list(options[:from_list])
+        file_paths = read_from_list(options[:from_list], input_stream: input_stream)
         selector = initialize_file_selector(file_paths, physical_provider, app_config_manager, options)
       else
         raise Longleaf::SelectionError, "Must provide one of the following file selection options: -m, -f, or -l"
@@ -92,9 +93,10 @@ module Longleaf
     # @param manifest_vals [Array] List of manifest option values. They may be in one of the following formats:
     #       <alg_name>:<manifest_path> OR <alg_name>:@-
     #.      <manifest_path> OR @-
+    # @param input_stream [IO] stream to read from when '@-' is specified (defaults to $stdin)
     # @return a hash containing the aggregated contents of the provided manifests. The keys are
     #    paths to manifested files. The values are hashes, mapping digest algorithms to digest values.
-    def self.parse_manifest(manifest_vals)
+    def self.parse_manifest(manifest_vals, input_stream: $stdin)
       alg_manifest_pairs = []
       # interpret option inputs into a list of algorithms to manifest sources
       manifest_vals.each do |manifest_val|
@@ -115,9 +117,9 @@ module Longleaf
       logical_phys_mapping = Hash.new
       alg_manifest_pairs.each do |mpair|
         source_stream = nil
-        # Determine if reading from a manifest file or stdin
+        # Determine if reading from a manifest file or the provided input stream
         if mpair[1] == '@-'
-          source_stream = $stdin
+          source_stream = input_stream
         else
           begin
             source_stream = File.new(mpair[1])
@@ -168,13 +170,14 @@ module Longleaf
     # Parses the provided options to create a selector for registered files
     # @param options [Hash] command options
     # @param app_config_manager [ApplicationConfigManager] app config manager
+    # @param input_stream [IO] stream to read from when '@-' is specified (defaults to $stdin)
     # @return selector
-    def self.create_registered_selector(options, app_config_manager)
+    def self.create_registered_selector(options, app_config_manager, input_stream: $stdin)
       there_can_be_only_one("Only one of the following selection options may be provided: -l, -f, -s",
           options, :file, :location, :from_list)
 
       if !options[:from_list].nil?
-        file_paths = read_from_list(options[:from_list])
+        file_paths = read_from_list(options[:from_list], input_stream: input_stream)
         return RegisteredFileSelector.new(file_paths: file_paths, app_config: app_config_manager)
       elsif !options[:file].nil?
         file_paths = options[:file].split(/\s*,\s*/)
@@ -188,17 +191,18 @@ module Longleaf
     end
 
     # Parses the -l from_list option, reading the list of files specified either from the provided
-    # file path or STDIN
+    # file path or the input stream
     # @param from_list option value, either a file path or "@-"
+    # @param input_stream [IO] stream to read from when '@-' is specified (defaults to $stdin)
     # @return list of files from the from_list
-    def self.read_from_list(from_list)
+    def self.read_from_list(from_list, input_stream: $stdin)
       from_list = from_list.strip
       if from_list.empty?
         raise Longleaf::SelectionError, "List parameter must not be empty"
       end
 
       if from_list == '@-'
-        source_stream = $stdin
+        source_stream = input_stream
       else
         begin
           source_stream = File.new(from_list)

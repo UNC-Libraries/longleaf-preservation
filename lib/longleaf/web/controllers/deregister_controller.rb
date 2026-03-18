@@ -3,6 +3,7 @@ require 'longleaf/events/event_names'
 require 'longleaf/helpers/selection_options_parser'
 require 'longleaf/errors'
 require 'longleaf/logging'
+require 'stringio'
 
 module Longleaf
   module Web
@@ -19,7 +20,10 @@ module Longleaf
       #              registered files from. Mutually exclusive with `file` and
       #              `from_list`.
       #   from_list - Path to a newline-separated file list on the server
-      #               filesystem. Mutually exclusive with `file` and `location`.
+      #               filesystem, or '@-' to read from the `body` parameter.
+      #               Mutually exclusive with `file` and `location`.
+      #   body     - Inline content to be streamed when `from_list` is '@-'.
+      #              Replaces CLI piped stdin.
       #   force    - Boolean; deregister files that are not currently registered.
       #
       # Returns JSON:
@@ -43,7 +47,11 @@ module Longleaf
 
           params = extract_params(request)
 
-          file_selector = build_file_selector(params, request)
+          input_stream = params[:body] ? StringIO.new(params[:body]) : nil
+
+          validate_stream_params(params, input_stream, request)
+
+          file_selector = build_file_selector(params, input_stream, request)
 
           command = DeregisterCommand.new(@app_manager)
           status  = command.execute(
@@ -65,17 +73,26 @@ module Longleaf
             file:      presence(body['file']),
             location:  presence(body['location']),
             from_list: presence(body['from_list']),
+            body:      presence(body['body']),
             force:     truthy?(body['force'])
           }
         end
 
         # Delegate to SelectionOptionsParser, mapping SelectionError validation
         # failures to HTTP 400 responses via Roda's halt mechanism.
-        def build_file_selector(params, request)
-          SelectionOptionsParser.create_registered_selector(params, @app_manager)
+        def build_file_selector(params, input_stream, request)
+          stream_args = input_stream ? { input_stream: input_stream } : {}
+          SelectionOptionsParser.create_registered_selector(params, @app_manager, **stream_args)
         rescue Longleaf::SelectionError => e
           request.halt [400, { 'content-type' => 'application/json' },
                         [%({"error":#{e.message.to_json}})]]
+        end
+
+        def validate_stream_params(params, input_stream, request)
+          return if input_stream
+          if params[:from_list] == '@-'
+            error_response(request, 400, "A 'body' parameter is required when '@-' is specified")
+          end
         end
 
         def error_response(request, status_code, message)
