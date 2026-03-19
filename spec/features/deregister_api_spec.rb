@@ -12,7 +12,7 @@ require 'longleaf/candidates/file_selector'
 require 'longleaf/candidates/physical_path_provider'
 require 'longleaf/web/app'
 
-describe 'DELETE /api/deregister' do
+describe 'POST /api/deregister' do
   include Rack::Test::Methods
   include Longleaf::FileHelpers
 
@@ -48,8 +48,8 @@ describe 'DELETE /api/deregister' do
       .execute(file_selector: selector, physical_provider: physical_provider)
   end
 
-  def delete_deregister(params = {})
-    delete '/api/deregister', params.to_json, 'CONTENT_TYPE' => 'application/json'
+  def call_deregister(params = {})
+    post '/api/deregister', params.to_json, 'CONTENT_TYPE' => 'application/json'
   end
 
   def response_body
@@ -78,7 +78,7 @@ describe 'DELETE /api/deregister' do
     before { Longleaf::Web::App.app_manager = nil }
 
     it 'returns 503' do
-      delete_deregister(file: '/some/path')
+      call_deregister(file: '/some/path')
       expect(last_response.status).to eq 503
     end
   end
@@ -98,7 +98,7 @@ describe 'DELETE /api/deregister' do
 
     context 'when no file selection parameter is provided' do
       it 'returns 400' do
-        delete_deregister
+        call_deregister
         expect(last_response.status).to eq 400
       end
     end
@@ -107,7 +107,7 @@ describe 'DELETE /api/deregister' do
       let!(:file_path) { create_test_file(dir: path_dir) }
 
       it 'returns 500' do
-        delete_deregister(file: file_path)
+        call_deregister(file: file_path)
         expect(last_response.status).to eq 500
       end
     end
@@ -118,7 +118,7 @@ describe 'DELETE /api/deregister' do
       after { File.delete(outside_file) if File.exist?(outside_file) }
 
       it 'returns 500' do
-        delete_deregister(file: outside_file)
+        call_deregister(file: outside_file)
         expect(last_response.status).to eq 500
       end
     end
@@ -129,7 +129,7 @@ describe 'DELETE /api/deregister' do
       before { register_files(file_path) }
 
       it 'returns 202 and marks the file as deregistered' do
-        delete_deregister(file: file_path)
+        call_deregister(file: file_path)
 
         expect(last_response.status).to eq 202
         expect(response_body['event']).to eq 'deregister'
@@ -146,7 +146,7 @@ describe 'DELETE /api/deregister' do
       before { register_files(file_path, file_path2) }
 
       it 'returns 202 and marks both files as deregistered' do
-        delete_deregister(file: "#{file_path},#{file_path2}")
+        call_deregister(file: "#{file_path},#{file_path2}")
 
         expect(last_response.status).to eq 202
         expect(response_body['event']).to eq 'deregister'
@@ -162,18 +162,18 @@ describe 'DELETE /api/deregister' do
 
       before do
         register_files(file_path)
-        delete_deregister(file: file_path)
+        call_deregister(file: file_path)
       end
 
       it 'returns 500 on a second request without force' do
-        delete_deregister(file: file_path)
+        call_deregister(file: file_path)
         expect(last_response.status).to eq 500
         expect(response_body['event']).to eq 'deregister'
         expect(response_body['failure']).to include(file_path)
       end
 
       it 'returns 202 on a second request with force: true' do
-        delete_deregister(file: file_path, force: 'true')
+        call_deregister(file: file_path, force: 'true')
         expect(last_response.status).to eq 202
         expect(response_body['success']).to include(file_path)
         expect(file_deregistered?(file_path)).to be true
@@ -187,7 +187,7 @@ describe 'DELETE /api/deregister' do
       before { register_files(file_path, file_path2) }
 
       it 'returns 202 and deregisters all files in the location' do
-        delete_deregister(location: 'loc1')
+        call_deregister(location: 'loc1')
 
         expect(last_response.status).to eq 202
         expect(file_deregistered?(file_path)).to be true
@@ -204,7 +204,7 @@ describe 'DELETE /api/deregister' do
       end
 
       it 'returns 202 and marks the file as deregistered' do
-        delete_deregister(file: file_path)
+        call_deregister(file: file_path)
 
         expect(last_response.status).to eq 202
         expect(file_deregistered?(file_path)).to be true
@@ -218,7 +218,7 @@ describe 'DELETE /api/deregister' do
       before { register_files(file_path, file_path2) }
 
       it 'returns 202 and deregisters all files listed in the body' do
-        delete_deregister(from_list: '@-', body: "#{file_path}\n#{file_path2}")
+        call_deregister(from_list: '@-', body: "#{file_path}\n#{file_path2}")
 
         expect(last_response.status).to eq 202
         expect(response_body['success']).to include(file_path, file_path2)
@@ -227,7 +227,7 @@ describe 'DELETE /api/deregister' do
       end
 
       it 'returns 400 when from_list is "@-" but body is absent' do
-        delete_deregister(from_list: '@-')
+        call_deregister(from_list: '@-')
 
         expect(last_response.status).to eq 400
         expect(response_body['error']).to include("body")

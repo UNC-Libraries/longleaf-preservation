@@ -59,9 +59,9 @@ module Longleaf
             end
           end
 
-          # DELETE /api/deregister
+          # POST /api/deregister
           r.on 'deregister' do
-            r.delete do
+            r.post do
               Controllers::DeregisterController.new(self.class.app_manager).handle(r)
             end
           end

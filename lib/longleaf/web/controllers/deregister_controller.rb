@@ -10,7 +10,7 @@ module Longleaf
     module Controllers
       # HTTP controller for the deregister event endpoint.
       #
-      # Maps a DELETE /api/deregister request to the same DeregisterCommand that
+      # Maps a POST /api/deregister request to the same DeregisterCommand that
       # the CLI uses. Parameters mirror the CLI flags as closely as possible.
       #
       # Expected request body (JSON or form-encoded):
