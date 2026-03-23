@@ -128,10 +128,10 @@ describe 'POST /api/deregister' do
 
       before { register_files(file_path) }
 
-      it 'returns 202 and marks the file as deregistered' do
+      it 'returns 200 and marks the file as deregistered' do
         call_deregister(file: file_path)
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['event']).to eq 'deregister'
         expect(response_body['success']).to include(file_path)
         expect(response_body['failure']).to be_empty
@@ -145,10 +145,10 @@ describe 'POST /api/deregister' do
 
       before { register_files(file_path, file_path2) }
 
-      it 'returns 202 and marks both files as deregistered' do
+      it 'returns 200 and marks both files as deregistered' do
         call_deregister(file: "#{file_path},#{file_path2}")
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['event']).to eq 'deregister'
         expect(response_body['success']).to include(file_path, file_path2)
         expect(response_body['failure']).to be_empty
@@ -172,9 +172,9 @@ describe 'POST /api/deregister' do
         expect(response_body['failure']).to include(file_path)
       end
 
-      it 'returns 202 on a second request with force: true' do
+      it 'returns 200 on a second request with force: true' do
         call_deregister(file: file_path, force: 'true')
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['success']).to include(file_path)
         expect(file_deregistered?(file_path)).to be true
       end
@@ -186,10 +186,10 @@ describe 'POST /api/deregister' do
 
       before { register_files(file_path, file_path2) }
 
-      it 'returns 202 and deregisters all files in the location' do
+      it 'returns 200 and deregisters all files in the location' do
         call_deregister(location: 'loc1')
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(file_deregistered?(file_path)).to be true
         expect(file_deregistered?(file_path2)).to be true
       end
@@ -203,10 +203,10 @@ describe 'POST /api/deregister' do
         File.delete(file_path)
       end
 
-      it 'returns 202 and marks the file as deregistered' do
+      it 'returns 200 and marks the file as deregistered' do
         call_deregister(file: file_path)
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(file_deregistered?(file_path)).to be true
       end
     end
@@ -217,10 +217,10 @@ describe 'POST /api/deregister' do
 
       before { register_files(file_path, file_path2) }
 
-      it 'returns 202 and deregisters all files listed in the body' do
+      it 'returns 200 and deregisters all files listed in the body' do
         call_deregister(from_list: '@-', body: "#{file_path}\n#{file_path2}")
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['success']).to include(file_path, file_path2)
         expect(file_deregistered?(file_path)).to be true
         expect(file_deregistered?(file_path2)).to be true

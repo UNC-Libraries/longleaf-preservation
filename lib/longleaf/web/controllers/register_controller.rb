@@ -28,7 +28,7 @@ module Longleaf
       #   ocfl          - Boolean; treat targets as OCFL object directories.
       #
       # Returns JSON:
-      #   202 Accepted  on success
+      #   200 Accepted  on success
       #   400 Bad Request  when required parameters are missing or malformed
       #   500 Internal Server Error  on unexpected failures
       class RegisterController
@@ -63,7 +63,7 @@ module Longleaf
           )
           outcome = command.outcome_summary(EventNames::REGISTER)
 
-          request.response.status = status == 0 ? 202 : 500
+          request.response.status = status == 0 ? 200 : 500
           outcome
         end
 

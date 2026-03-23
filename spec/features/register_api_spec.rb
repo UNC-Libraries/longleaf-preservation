@@ -116,10 +116,10 @@ describe 'POST /api/register' do
     context 'register a single file' do
       let!(:file_path) { create_test_file(dir: path_dir) }
 
-      it 'returns 202 and creates metadata' do
+      it 'returns 200 and creates metadata' do
         post_register(file: file_path)
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['event']).to eq 'register'
         expect(response_body['success']).to include(file_path)
         expect(response_body['failure']).to be_empty
@@ -131,10 +131,10 @@ describe 'POST /api/register' do
       let!(:file_path)  { create_test_file(dir: path_dir) }
       let!(:file_path2) { create_test_file(dir: path_dir, name: 'another_file', content: 'more content') }
 
-      it 'returns 202 and creates metadata for each file' do
+      it 'returns 200 and creates metadata for each file' do
         post_register(file: "#{file_path},#{file_path2}")
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['event']).to eq 'register'
         expect(response_body['success']).to include(file_path, file_path2)
         expect(response_body['failure']).to be_empty
@@ -177,9 +177,9 @@ describe 'POST /api/register' do
         expect(response_body['failure']).to include(file_path)
       end
 
-      it 'returns 202 on a second request with force: true' do
+      it 'returns 200 on a second request with force: true' do
         post_register(file: file_path, force: 'true')
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['success']).to include(file_path)
         expect(metadata_exists?(file_path)).to be true
       end
@@ -190,10 +190,10 @@ describe 'POST /api/register' do
       let!(:file_path) { create_test_file(dir: path_dir, content: content) }
       let(:md5_digest) { Digest::MD5.hexdigest(content) }
 
-      it 'returns 202 and persists the checksum in metadata' do
+      it 'returns 200 and persists the checksum in metadata' do
         post_register(file: file_path, checksums: "md5:#{md5_digest}")
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['success']).to include(file_path)
         md_rec = get_metadata_record(file_path)
         expect(md_rec.checksums['md5']).to eq md5_digest
@@ -204,10 +204,10 @@ describe 'POST /api/register' do
       let!(:physical_file) { create_test_file(dir: path_dir) }
       let(:logical_path)   { File.join(path_dir, 'logical_name') }
 
-      it 'returns 202 and stores the physical path in metadata' do
+      it 'returns 200 and stores the physical path in metadata' do
         post_register(file: logical_path, physical_path: physical_file)
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['success']).to include(logical_path)
         md_rec = get_metadata_record(logical_path)
         expect(md_rec.physical_path).to eq physical_file
@@ -218,10 +218,10 @@ describe 'POST /api/register' do
       let!(:file_path)  { create_test_file(dir: path_dir) }
       let!(:file_path2) { create_test_file(dir: path_dir, name: 'list_file2', content: 'list content') }
 
-      it 'returns 202 and registers all files listed in the body' do
+      it 'returns 200 and registers all files listed in the body' do
         post_register(from_list: '@-', body: "#{file_path}\n#{file_path2}")
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['success']).to include(file_path, file_path2)
         expect(metadata_exists?(file_path)).to be true
         expect(metadata_exists?(file_path2)).to be true
@@ -240,28 +240,28 @@ describe 'POST /api/register' do
       let!(:file_path) { create_test_file(dir: path_dir, content: content) }
       let(:md5_digest) { Digest::MD5.hexdigest(content) }
 
-      it 'returns 202 using a single-algorithm inline manifest (alg:@-)' do
+      it 'returns 200 using a single-algorithm inline manifest (alg:@-)' do
         post_register(manifest: ['md5:@-'], body: "#{md5_digest} #{file_path}")
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['success']).to include(file_path)
         md_rec = get_metadata_record(file_path)
         expect(md_rec.checksums['md5']).to eq md5_digest
       end
 
-      it 'returns 202 when manifest is a plain string rather than an array (alg:@-)' do
+      it 'returns 200 when manifest is a plain string rather than an array (alg:@-)' do
         post_register(manifest: 'md5:@-', body: "#{md5_digest} #{file_path}")
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['success']).to include(file_path)
         md_rec = get_metadata_record(file_path)
         expect(md_rec.checksums['md5']).to eq md5_digest
       end
 
-      it 'returns 202 using a multi-algorithm inline manifest (@-)' do
+      it 'returns 200 using a multi-algorithm inline manifest (@-)' do
         post_register(manifest: ['@-'], body: "md5:\n#{md5_digest} #{file_path}")
 
-        expect(last_response.status).to eq 202
+        expect(last_response.status).to eq 200
         expect(response_body['success']).to include(file_path)
         md_rec = get_metadata_record(file_path)
         expect(md_rec.checksums['md5']).to eq md5_digest

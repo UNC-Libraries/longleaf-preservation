@@ -27,7 +27,7 @@ module Longleaf
       #   force    - Boolean; deregister files that are not currently registered.
       #
       # Returns JSON:
-      #   202 Accepted  on success
+      #   200 Accepted  on success
       #   400 Bad Request  when required parameters are missing or malformed
       #   500 Internal Server Error  on unexpected failures
       #   503 Service Unavailable  when app configuration is not loaded
@@ -60,7 +60,7 @@ module Longleaf
           )
           outcome = command.outcome_summary(EventNames::DEREGISTER)
 
-          request.response.status = status == 0 ? 202 : 500
+          request.response.status = status == 0 ? 200 : 500
           outcome
         end
 
