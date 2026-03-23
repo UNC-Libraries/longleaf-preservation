@@ -1,14 +1,20 @@
 require 'longleaf/services/metadata_serializer'
 require 'longleaf/services/metadata_deserializer'
 require 'longleaf/errors'
+require 'longleaf/logging'
 
 module Longleaf
   # Handles the persistence of metadata records
   class MetadataPersistenceManager
+    include Longleaf::Logging
+
     # Initialize the MetadataPersistenceManager
     # @param index_manager [IndexManager] system config manager
     def initialize(index_manager)
       @index_manager = index_manager
+      @serialize_total_ms = 0.0
+      @index_total_ms = 0.0
+      @persist_count = 0
     end
 
     # Persist the metadata for the provided file record to all configured destinations.
@@ -19,11 +25,24 @@ module Longleaf
         raise MetadataError.new("No metadata record provided, cannot persist metadata for #{file_rec.path}")
       end
 
+      t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       MetadataSerializer::write(metadata: file_rec.metadata_record,
           file_path: file_rec.metadata_path,
           digest_algs: file_rec.storage_location.metadata_location.digests)
+      serialize_ms = (Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0) * 1000
 
+      t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       index(file_rec)
+      index_ms = (Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0) * 1000
+
+      @serialize_total_ms += serialize_ms
+      @index_total_ms     += index_ms
+      @persist_count      += 1
+
+      logger.info("persist ##{@persist_count}: serialize=#{serialize_ms.round(2)}ms " \
+                   "(total #{@serialize_total_ms.round(2)}ms), " \
+                   "index=#{index_ms.round(2)}ms " \
+                   "(total #{@index_total_ms.round(2)}ms)")
     end
 
     # Index metadata for the provided file record
