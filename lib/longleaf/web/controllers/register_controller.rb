@@ -76,7 +76,8 @@ module Longleaf
 
           {
             file:          presence(body['file']),
-            manifest:      presence(body['manifest']),
+            # coerce string value into an array
+            manifest:      (v = presence(body['manifest'])) && Array(v),
             from_list:     presence(body['from_list']),
             checksums:     presence(body['checksums']),
             physical_path: presence(body['physical_path']),

@@ -153,7 +153,7 @@ curl -X POST http://localhost:3000/api/register \
 
 Example:
 ```
-curl -X DELETE http://localhost:3000/api/deregister \
+curl -X POST http://localhost:3000/api/deregister \
   -H 'Content-Type: application/json' \
   -d '{"file": "/storage/loc1/image.tif"}'
 ```

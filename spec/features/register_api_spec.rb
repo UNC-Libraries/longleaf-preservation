@@ -249,6 +249,15 @@ describe 'POST /api/register' do
         expect(md_rec.checksums['md5']).to eq md5_digest
       end
 
+      it 'returns 202 when manifest is a plain string rather than an array (alg:@-)' do
+        post_register(manifest: 'md5:@-', body: "#{md5_digest} #{file_path}")
+
+        expect(last_response.status).to eq 202
+        expect(response_body['success']).to include(file_path)
+        md_rec = get_metadata_record(file_path)
+        expect(md_rec.checksums['md5']).to eq md5_digest
+      end
+
       it 'returns 202 using a multi-algorithm inline manifest (@-)' do
         post_register(manifest: ['@-'], body: "md5:\n#{md5_digest} #{file_path}")
 
