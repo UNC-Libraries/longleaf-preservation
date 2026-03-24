@@ -9,6 +9,7 @@ require 'longleaf/services/application_config_deserializer'
 require 'longleaf/services/metadata_serializer'
 require 'longleaf/services/metadata_deserializer'
 require 'longleaf/web/app'
+require_relative '../support/shared_examples/api_key_auth_examples'
 
 describe 'POST /api/register' do
   include Rack::Test::Methods
@@ -60,6 +61,16 @@ describe 'POST /api/register' do
 
   def get_metadata_record(file_path)
     Longleaf::MetadataDeserializer.deserialize(file_path: metadata_record_path(file_path))
+  end
+
+  # =========================================================================
+
+  context 'API key authentication' do
+    def make_request
+      post_register(file: '/some/path')
+    end
+
+    it_behaves_like 'API key authentication'
   end
 
   # =========================================================================

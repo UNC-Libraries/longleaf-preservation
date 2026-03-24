@@ -11,6 +11,7 @@ require 'longleaf/commands/register_command'
 require 'longleaf/candidates/file_selector'
 require 'longleaf/candidates/physical_path_provider'
 require 'longleaf/web/app'
+require_relative '../support/shared_examples/api_key_auth_examples'
 
 describe 'POST /api/deregister' do
   include Rack::Test::Methods
@@ -70,6 +71,16 @@ describe 'POST /api/deregister' do
     path = metadata_record_path(file_path)
     return false unless File.exist?(path)
     get_metadata_record(file_path).deregistered?
+  end
+
+  # =========================================================================
+
+  context 'API key authentication' do
+    def make_request
+      call_deregister(file: '/some/path')
+    end
+
+    it_behaves_like 'API key authentication'
   end
 
   # =========================================================================
