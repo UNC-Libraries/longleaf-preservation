@@ -94,6 +94,7 @@ The following environment variables control server behaviour (all optional):
 | Variable | Default | Description |
 |---|---|---|
 | `LONGLEAF_CFG` | _(none)_ | Path to the Longleaf application configuration file |
+| `LONGLEAF_API_KEYS` | _(none)_ | Comma-separated list of accepted API keys (see [Authentication](#authentication)) |
 | `PORT` | `3000` | Port to listen on |
 | `RACK_ENV` | `development` | Rack environment (`development`, `production`) |
 | `PUMA_THREADS` | `5` | Min and max threads per worker |
@@ -113,6 +114,27 @@ To run a second instance against a different config on a different port:
 
 ```
 LONGLEAF_CFG=/path/to/other_config.yml PORT=3001 bundle exec puma -C config/puma.rb
+```
+
+#### Authentication
+
+API key authentication is optional but recommended for any network-accessible deployment. When `LONGLEAF_API_KEYS` is set, every request to `/api/*` must include a matching key in the `X-Api-Key` header. Requests with a missing or unrecognised key receive a `401 Unauthorized` response. If no keys are configured, all requests are allowed through.
+
+Set one or more accepted keys (comma-separated) at server startup:
+
+```
+LONGLEAF_CFG=/path/to/config.yml \
+  LONGLEAF_API_KEYS=key-one,key-two \
+  bundle exec puma -C config/puma.rb
+```
+
+Clients supply the key as a request header:
+
+```
+curl -X POST http://localhost:3000/api/register \
+  -H 'Content-Type: application/json' \
+  -H 'X-Api-Key: key-one' \
+  -d '{"file": "/storage/loc1/image.tif"}'
 ```
 
 #### API endpoints
@@ -137,6 +159,7 @@ Example:
 ```
 curl -X POST http://localhost:3000/api/register \
   -H 'Content-Type: application/json' \
+  -H 'X-Api-Key: <your-api-key>' \
   -d '{"file": "/storage/loc1/image.tif"}'
 ```
 
@@ -155,6 +178,7 @@ Example:
 ```
 curl -X POST http://localhost:3000/api/deregister \
   -H 'Content-Type: application/json' \
+  -H 'X-Api-Key: <your-api-key>' \
   -d '{"file": "/storage/loc1/image.tif"}'
 ```
 
