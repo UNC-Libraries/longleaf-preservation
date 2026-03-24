@@ -117,7 +117,7 @@ LONGLEAF_CFG=/path/to/other_config.yml PORT=3001 bundle exec puma -C config/puma
 
 #### API endpoints
 
-All endpoints accept and return JSON. A `200 Accepted` response indicates success. Non-2xx responses include an `error` key in the JSON body.
+All endpoints accept and return JSON. A `200 OK` response indicates success. Non-2xx responses include an `error` key in the JSON body.
 
 ---
 

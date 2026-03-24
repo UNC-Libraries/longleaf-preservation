@@ -28,7 +28,7 @@ module Longleaf
       #   ocfl          - Boolean; treat targets as OCFL object directories.
       #
       # Returns JSON:
-      #   200 Accepted  on success
+      #   200 OK  on success
       #   400 Bad Request  when required parameters are missing or malformed
       #   500 Internal Server Error  on unexpected failures
       class RegisterController
@@ -41,7 +41,7 @@ module Longleaf
 
         # Handle an incoming Roda request for the register endpoint.
         # @param request [Roda::RodaRequest]
-        # @return [Hash] JSON-serialisable response body (Roda serialises it automatically)
+        # @return [Hash] JSON-serialisable response body
         def handle(request)
           error_response(request, 503, 'Application configuration is not loaded') if @app_manager.nil?
 

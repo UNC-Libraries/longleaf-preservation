@@ -16,6 +16,7 @@ module Longleaf
   class CLI < Thor
     include Longleaf::Logging
 
+    # Wrapper for handling uncaught exceptions from commands
     def self.start(given_args = ARGV, config = {})
       super
     rescue Longleaf::SelectionError => e

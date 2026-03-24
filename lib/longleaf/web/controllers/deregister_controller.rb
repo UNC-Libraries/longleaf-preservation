@@ -27,7 +27,7 @@ module Longleaf
       #   force    - Boolean; deregister files that are not currently registered.
       #
       # Returns JSON:
-      #   200 Accepted  on success
+      #   200 OK  on success
       #   400 Bad Request  when required parameters are missing or malformed
       #   500 Internal Server Error  on unexpected failures
       #   503 Service Unavailable  when app configuration is not loaded
