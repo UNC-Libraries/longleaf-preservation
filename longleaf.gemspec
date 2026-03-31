@@ -28,6 +28,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "yard", "~> 0.9.16"
   spec.add_dependency "sequel", "~> 5.20"
   spec.add_dependency "aws-sdk-s3", "~> 1.56"
+  spec.add_dependency "mcp", "~> 0.10.0"
+  spec.add_dependency "json", "~> 2.19.3"
   # Needed for s3
   spec.add_dependency "rexml"
   spec.add_dependency "puma", "~> 7.2"
