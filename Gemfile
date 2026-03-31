@@ -31,9 +31,7 @@ group :mysql2, optional: true do
 end
 
 group :mysql, optional: true do
-  if RUBY_ENGINE == 'jruby'
-    gem 'jdbc-mysql'
-  else
+  unless RUBY_ENGINE == 'jruby'
     gem 'mysql'
   end
 end

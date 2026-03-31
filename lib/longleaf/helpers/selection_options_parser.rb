@@ -1,3 +1,4 @@
+require 'longleaf/errors'
 require 'longleaf/candidates/file_selector'
 require 'longleaf/candidates/registered_file_selector'
 require 'longleaf/candidates/ocfl_file_selector'
@@ -14,13 +15,14 @@ module Longleaf
     # use in registration commands.
     # @param options [Hash] command options
     # @param app_config_manager [ApplicationConfigManager] app config manager
+    # @param input_stream [IO] stream to read from when '@-' is specified (defaults to $stdin)
     # @return The file selector and digest provider.
-    def self.parse_registration_selection_options(options, app_config_manager)
+    def self.parse_registration_selection_options(options, app_config_manager, input_stream: $stdin)
       there_can_be_only_one("Only one of the following selection options may be provided: -m, -f, -l",
           options, :file, :manifest, :from_list)
 
       if !options[:manifest].nil?
-        digests_mapping, logical_phys_mapping = self.parse_manifest(options[:manifest])
+        digests_mapping, logical_phys_mapping = self.parse_manifest(options[:manifest], input_stream: input_stream)
         physical_provider = PhysicalPathProvider.new(logical_phys_mapping)
         selector = initialize_file_selector(digests_mapping.keys, physical_provider, app_config_manager, options)
         digest_provider = ManifestDigestProvider.new(digests_mapping)
@@ -33,8 +35,7 @@ module Longleaf
             checksums = Hash[*checksums.split(/\s*[:,]\s*/)]
             digest_provider = SingleDigestProvider.new(checksums)
           else
-            logger.failure("Invalid checksums parameter format, see `longleaf help <command>` for more information")
-            exit 1
+            raise Longleaf::SelectionError, "Invalid checksums parameter format, see `longleaf help <command>` for more information"
           end
         end
 
@@ -42,23 +43,21 @@ module Longleaf
         if !options[:physical_path].nil?
           physical_paths = self.split_quoted(options[:physical_path], "\\s*,\\s*")
           if physical_paths.length != file_paths.length
-            logger.failure("Invalid physical paths parameter, number of paths did not match number of logical paths")
-            exit 1
+            raise Longleaf::SelectionError, "Invalid physical paths parameter, number of paths did not match number of logical paths"
           end
           logical_phys_mapping = Hash[file_paths.zip physical_paths]
           physical_provider = PhysicalPathProvider.new(logical_phys_mapping)
         else
           physical_provider = PhysicalPathProvider.new
         end
-        
+
         selector = initialize_file_selector(file_paths, physical_provider, app_config_manager, options)
       elsif !options[:from_list].nil?
         physical_provider = PhysicalPathProvider.new
-        file_paths = read_from_list(options[:from_list])
+        file_paths = read_from_list(options[:from_list], input_stream: input_stream)
         selector = initialize_file_selector(file_paths, physical_provider, app_config_manager, options)
       else
-        logger.failure("Must provide one of the following file selection options: -m, -f, or -l")
-        exit 1
+        raise Longleaf::SelectionError, "Must provide one of the following file selection options: -m, -f, or -l"
       end
 
       [selector, digest_provider, physical_provider]
@@ -82,8 +81,7 @@ module Longleaf
       names.each do |name|
         if !options[name].nil?
           if got_one
-            logger.failure(failure_msg)
-            exit 1
+            raise Longleaf::SelectionError, failure_msg
           end
           got_one = true
         end
@@ -95,9 +93,10 @@ module Longleaf
     # @param manifest_vals [Array] List of manifest option values. They may be in one of the following formats:
     #       <alg_name>:<manifest_path> OR <alg_name>:@-
     #.      <manifest_path> OR @-
+    # @param input_stream [IO] stream to read from when '@-' is specified (defaults to $stdin)
     # @return a hash containing the aggregated contents of the provided manifests. The keys are
     #    paths to manifested files. The values are hashes, mapping digest algorithms to digest values.
-    def self.parse_manifest(manifest_vals)
+    def self.parse_manifest(manifest_vals, input_stream: $stdin)
       alg_manifest_pairs = []
       # interpret option inputs into a list of algorithms to manifest sources
       manifest_vals.each do |manifest_val|
@@ -110,7 +109,7 @@ module Longleaf
         end
       end
       if alg_manifest_pairs.select { |mpair| mpair[1] == '@-' }.count > 1
-        self.fail("Cannot specify more than one manifest from STDIN")
+        raise Longleaf::SelectionError, "Cannot specify more than one manifest from STDIN"
       end
 
       # read the provided manifests to build a mapping from file uri to all supplied digests
@@ -118,11 +117,15 @@ module Longleaf
       logical_phys_mapping = Hash.new
       alg_manifest_pairs.each do |mpair|
         source_stream = nil
-        # Determine if reading from a manifest file or stdin
+        # Determine if reading from a manifest file or the provided input stream
         if mpair[1] == '@-'
-          source_stream = $stdin
+          source_stream = input_stream
         else
-          source_stream = File.new(mpair[1])
+          begin
+            source_stream = File.new(mpair[1])
+          rescue Errno::ENOENT
+            raise Longleaf::SelectionError, "Manifest file does not exist: #{mpair[1]}"
+          end
         end
 
         current_alg = mpair[0]
@@ -134,15 +137,15 @@ module Longleaf
             current_alg = line.chomp(':')
             # Verify that the digest algorithm is known to longleaf
             if !DigestHelper.is_known_algorithm?(current_alg)
-              self.fail("Manifest specifies unknown digest algorithm: #{current_alg}")
+              raise Longleaf::SelectionError, "Manifest specifies unknown digest algorithm: #{current_alg}"
             end
           else
             if current_alg.nil?
-              self.fail("Manifest with unknown checksums encountered, an algorithm must be specified")
+              raise Longleaf::SelectionError, "Manifest with unknown checksums encountered, an algorithm must be specified"
             end
             entry_parts = self.split_quoted(line)
             if entry_parts.length != 2 && entry_parts.length != 3
-              self.fail("Invalid manifest entry: #{line}")
+              raise Longleaf::SelectionError, "Invalid manifest entry: #{line}"
             end
 
             digests_mapping[entry_parts[1]][current_alg] = entry_parts[0]
@@ -155,7 +158,7 @@ module Longleaf
 
       [digests_mapping, logical_phys_mapping]
     end
-    
+
     # Splits a string of quoted or unquoted tokens separated by spaces
     # @param
     def self.split_quoted(text, delimiter = "\\s+", limit = -1)
@@ -167,13 +170,14 @@ module Longleaf
     # Parses the provided options to create a selector for registered files
     # @param options [Hash] command options
     # @param app_config_manager [ApplicationConfigManager] app config manager
+    # @param input_stream [IO] stream to read from when '@-' is specified (defaults to $stdin)
     # @return selector
-    def self.create_registered_selector(options, app_config_manager)
+    def self.create_registered_selector(options, app_config_manager, input_stream: $stdin)
       there_can_be_only_one("Only one of the following selection options may be provided: -l, -f, -s",
           options, :file, :location, :from_list)
-          
+
       if !options[:from_list].nil?
-        file_paths = read_from_list(options[:from_list])
+        file_paths = read_from_list(options[:from_list], input_stream: input_stream)
         return RegisteredFileSelector.new(file_paths: file_paths, app_config: app_config_manager)
       elsif !options[:file].nil?
         file_paths = options[:file].split(/\s*,\s*/)
@@ -182,48 +186,41 @@ module Longleaf
         storage_locations = options[:location].split(/\s*,\s*/)
         return RegisteredFileSelector.new(storage_locations: storage_locations, app_config: app_config_manager)
       else
-        logger.failure("Must provide one of the following file selection options: -l, -f, or -s")
-        exit 1
+        raise Longleaf::SelectionError, "Must provide one of the following file selection options: -l, -f, or -s"
       end
     end
-    
+
     # Parses the -l from_list option, reading the list of files specified either from the provided
-    # file path or STDIN
+    # file path or the input stream
     # @param from_list option value, either a file path or "@-"
+    # @param input_stream [IO] stream to read from when '@-' is specified (defaults to $stdin)
     # @return list of files from the from_list
-    def self.read_from_list(from_list)
+    def self.read_from_list(from_list, input_stream: $stdin)
       from_list = from_list.strip
       if from_list.empty?
-        logger.failure("List parameter must not be empty")
-        exit 1
+        raise Longleaf::SelectionError, "List parameter must not be empty"
       end
-      
+
       if from_list == '@-'
-        source_stream = $stdin
+        source_stream = input_stream
       else
         begin
           source_stream = File.new(from_list)
         rescue Errno::ENOENT
-          logger.failure("Specified list file does not exist: #{from_list}")
-          exit 1
+          raise Longleaf::SelectionError, "Specified list file does not exist: #{from_list}"
         end
       end
-      
+
       lines = []
       source_stream.each_line do |line|
         lines << line.strip
       end
-      
+
       if lines.empty?
-        logger.failure("File list is empty, must provide one or more files for this operation")
-        exit 1
+        raise Longleaf::SelectionError, "File list is empty, must provide one or more files for this operation"
       end
       lines
     end
 
-    def self.fail(message)
-      logger.failure(message)
-      exit 1
-    end
   end
 end
