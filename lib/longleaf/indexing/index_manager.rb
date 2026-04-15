@@ -89,10 +89,12 @@ module Longleaf
         raise ConfigurationError.new("Must specify connection details for index adapter of type '#{adapter}'") if connection.nil?
 
         require 'longleaf/indexing/sequel_index_driver'
+        failure_retry_delay = index_conf[SYS_FIELDS::FAILURE_RETRY_DELAY]
         @index_driver = SequelIndexDriver.new(@app_config_manager,
             adapter,
             connection,
-            page_size: page_size)
+            page_size: page_size,
+            failure_retry_delay: failure_retry_delay)
       else
         raise ConfigurationError.new("Unknown index adapter '#{adapter}' specified.") if adapter.nil?
       end

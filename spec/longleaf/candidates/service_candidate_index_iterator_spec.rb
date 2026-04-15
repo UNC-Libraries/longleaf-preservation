@@ -182,6 +182,30 @@ describe Longleaf::ServiceCandidateIndexIterator do
       end
     end
 
+    context 'with force flag and multiple files' do
+      let(:iterator) {
+        build(:service_candidate_index_iterator,
+          file_selector: file_selector,
+          app_config: app_config,
+          force: true)
+      }
+
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(-3)) }
+      let!(:file_rec2) { create_index_file_rec(storage_loc, "serv1", days_from_now(3)) }
+
+      it 'iterates over each file exactly once and terminates' do
+        result = Array.new
+        iterator.each { |candidate| result << candidate.path }
+        expect(result).to contain_exactly(file_rec1.path, file_rec2.path)
+      end
+
+      it 'terminates even when services are not updated after processing' do
+        call_count = 0
+        iterator.each { |_candidate| call_count += 1 }
+        expect(call_count).to eq 2
+      end
+    end
+
     context 'multiple files, some requiring services, one not' do
       let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(-3)) }
       let!(:file_rec2) { create_index_file_rec(storage_loc, "serv1", days_from_now(3)) }
