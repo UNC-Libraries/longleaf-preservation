@@ -11,13 +11,22 @@ module Longleaf
       #   200 OK   with job details when the id is found:
       #     { id:, status:, started_at:, completed_at: }
       #   404 Not Found  when the id is unknown or has been pruned
-      #   503 Service Unavailable  when app configuration is not loaded
+      #
+      # GET /api/jobs returns JSON:
+      #   200 OK   with an array of all job entries (may be empty)
       class JobsController
         include Longleaf::Logging
 
         # @param job_registry [JobRegistry] shared job registry
         def initialize(job_registry)
           @job_registry = job_registry
+        end
+
+        # Handle an incoming Roda request for the jobs list endpoint.
+        # @param request [Roda::RodaRequest]
+        # @return [Array] JSON-serialisable array of all job entries
+        def list(request)
+          @job_registry.list.map { |job| serialize(job) }
         end
 
         # Handle an incoming Roda request for the jobs status endpoint.
@@ -32,6 +41,12 @@ module Longleaf
                           [{ error: 'Job not found' }.to_json]]
           end
 
+          serialize(job)
+        end
+
+        private
+
+        def serialize(job)
           {
             id:           job[:id],
             status:       job[:status],

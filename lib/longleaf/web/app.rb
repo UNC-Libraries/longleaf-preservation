@@ -92,10 +92,16 @@ module Longleaf
             end
           end
 
-          # GET /api/jobs/:id
-          r.on 'jobs', String do |job_id|
+          # GET /api/jobs        - list all jobs
+          # GET /api/jobs/:id   - get a single job by id
+          r.on 'jobs' do
+            r.on String do |job_id|
+              r.get do
+                Controllers::JobsController.new(self.class.job_registry).handle(r, job_id)
+              end
+            end
             r.get do
-              Controllers::JobsController.new(self.class.job_registry).handle(r, job_id)
+              Controllers::JobsController.new(self.class.job_registry).list(r)
             end
           end
         end

@@ -53,6 +53,12 @@ module Longleaf
         @mutex.synchronize { @jobs[id]&.dup }
       end
 
+      # Return a snapshot of all jobs in the registry.
+      # @return [Array<Hash>]
+      def list
+        @mutex.synchronize { @jobs.values.map(&:dup) }
+      end
+
       private
 
       def update_status(id, status)
