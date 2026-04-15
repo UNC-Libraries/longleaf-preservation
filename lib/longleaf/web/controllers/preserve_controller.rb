@@ -3,6 +3,7 @@ require 'longleaf/events/event_names'
 require 'longleaf/helpers/selection_options_parser'
 require 'longleaf/errors'
 require 'longleaf/logging'
+require 'concurrent'
 require 'stringio'
 
 module Longleaf
@@ -11,7 +12,11 @@ module Longleaf
       # HTTP controller for the preserve event endpoint.
       #
       # Maps a POST /api/preserve request to the same PreserveCommand that the
-      # CLI uses. Parameters mirror the CLI flags as closely as possible.
+      # CLI uses. The command is executed asynchronously on the IO thread pool;
+      # the request returns immediately with 202 Accepted and a job_id that can
+      # be used to poll GET /api/jobs/:id for completion status.
+      #
+      # Parameters mirror the CLI flags as closely as possible.
       #
       # Expected request body (JSON or form-encoded):
       #   file      - Comma-separated logical file paths to preserve. Mutually
@@ -28,21 +33,24 @@ module Longleaf
       #               disregarding scheduling information.
       #
       # Returns JSON:
-      #   200 OK  on success
+      #   202 Accepted  with { job_id: "..." } on successful dispatch
       #   400 Bad Request  when required parameters are missing or malformed
-      #   500 Internal Server Error  on unexpected failures
       #   503 Service Unavailable  when app configuration is not loaded
       class PreserveController
         include Longleaf::Logging
 
         # @param app_manager [ApplicationConfigManager] loaded application config
-        def initialize(app_manager)
-          @app_manager = app_manager
+        # @param job_registry [JobRegistry] shared job registry for tracking async runs
+        def initialize(app_manager, job_registry)
+          @app_manager  = app_manager
+          @job_registry = job_registry
         end
 
         # Handle an incoming Roda request for the preserve endpoint.
+        # Validates parameters synchronously, then dispatches the PreserveCommand
+        # to a background thread and returns 202 with a job_id immediately.
         # @param request [Roda::RodaRequest]
-        # @return [Hash] JSON-serialisable response body
+        # @return [Hash] JSON-serialisable response body containing :job_id
         def handle(request)
           error_response(request, 503, 'Application configuration is not loaded') if @app_manager.nil?
 
@@ -54,18 +62,39 @@ module Longleaf
 
           file_selector = build_file_selector(params, input_stream, request)
 
-          command = PreserveCommand.new(@app_manager)
-          status  = command.execute(
-            file_selector: file_selector,
-            force:         params[:force]
+          job_id = @job_registry.register(
+            file:      params[:file],
+            location:  params[:location],
+            from_list: params[:from_list],
+            force:     params[:force]
           )
-          outcome = command.outcome_summary(EventNames::PRESERVE)
 
-          request.response.status = status == 0 ? 200 : 500
-          outcome
+          dispatch_job(job_id, file_selector, params[:force])
+
+          request.response.status = 202
+          { job_id: job_id }
         end
 
         private
+
+        # Launch the PreserveCommand on the IO thread pool and update the registry
+        # when it finishes.  Captures all exceptions so the registry is always
+        # transitioned out of :running.
+        def dispatch_job(job_id, file_selector, force)
+          app_manager  = @app_manager
+          job_registry = @job_registry
+
+          Concurrent::Promises.future_on(:io, job_id, file_selector, force) do |jid, selector, f|
+            begin
+              command = PreserveCommand.new(app_manager)
+              command.execute(file_selector: selector, force: f)
+              job_registry.complete(jid)
+            rescue => e
+              Longleaf::Logging.logger.error("Preserve job #{jid} raised an unexpected error: #{e.message}")
+              job_registry.fail(jid)
+            end
+          end
+        end
 
         def extract_params(request)
           body = request.params
