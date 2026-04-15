@@ -93,8 +93,7 @@ module Longleaf
           stream_args = input_stream ? { input_stream: input_stream } : {}
           SelectionOptionsParser.parse_registration_selection_options(params, @app_manager, **stream_args)
         rescue Longleaf::SelectionError => e
-          request.halt [400, { 'content-type' => 'application/json' },
-                        [%({"error":#{e.message.to_json}})]]
+          error_response(request, 400, e.message.to_json)
         end
 
         def validate_stream_params(params, input_stream, request)
@@ -107,6 +106,7 @@ module Longleaf
         end
 
         def error_response(request, status_code, message)
+          logger.warn("Responding with #{status_code}: #{message}")
           request.halt [status_code, { 'content-type' => 'application/json' },
                         [{ error: message }.to_json]]
         end
