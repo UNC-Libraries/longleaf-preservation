@@ -14,7 +14,10 @@ module Longleaf
     # to dedicated controller classes.
     class App < Roda
       plugin :json             # Auto-serialize Hash/Array return values to JSON
-      plugin :json_parser      # Parse incoming application/json request bodies
+      plugin :json_parser, error_handler: proc { |r|
+        r.halt(400, { 'content-type' => 'application/json' },
+               [{ error: 'Invalid JSON in request body' }.to_json])
+      }
       plugin :all_verbs        # Enable DELETE, PATCH, etc. in the routing tree
       plugin :halt             # r.halt for early exit with a status / body
       plugin :error_handler

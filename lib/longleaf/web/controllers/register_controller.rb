@@ -106,7 +106,7 @@ module Longleaf
         end
 
         def error_response(request, status_code, message)
-          logger.warn("Responding with #{status_code}: #{e}")
+          logger.warn("Responding with #{status_code}: #{message}")
           request.halt [status_code, { 'content-type' => 'application/json' },
                         [{ error: message }.to_json]]
         end
