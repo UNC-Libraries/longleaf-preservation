@@ -64,8 +64,8 @@ module Longleaf
     # Retrieves a page of paths for registered files.
     # @param file_selector [FileSelector] selector for what paths to search for files
     # @return [Array] array of file paths that are registered
-    def registered_paths(file_selector)
-      @index_driver.registered_paths(file_selector)
+    def registered_paths(file_selector, offset: 0)
+      @index_driver.registered_paths(file_selector, offset: offset)
     end
 
     def each_registered_path(file_selector, older_than: nil, &block)

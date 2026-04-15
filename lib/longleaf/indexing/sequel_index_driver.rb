@@ -237,9 +237,10 @@ module Longleaf
     # Retrieves a page of paths for registered files.
     # @param file_selector [FileSelector] selector for what paths to search for files
     # @return [Array] array of file paths that are registered
-    def registered_paths(file_selector)
+    def registered_paths(file_selector, offset: 0)
       # retrieve and return a page of results
       add_path_restrictions(registered_dataset, file_selector)
+          .offset(offset)
           .select_map(:file_path)
     end
 
