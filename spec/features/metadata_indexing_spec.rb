@@ -124,8 +124,9 @@ describe 'metadata indexing', :type => :aruba do
         # Next execution time must still be set to roughly the current time
         # (window is wider to accommodate JRuby subprocess startup overhead)
         expect(row1[:service_time]).to be_within(30).of (Time.now.utc)
-        # Delay must be set for failed file
-        expect(row1[:delay_until_time]).to be_within(60).of (Time.now.utc)
+        # Delay must be set to now plus the retry delay (defaults to a day) for failed file
+        expected_delay_until = Time.iso8601(Longleaf::ServiceDateHelper.add_to_timestamp(Time.now.iso8601, '1 day'))
+        expect(row1[:delay_until_time]).to be_within(60).of (expected_delay_until)
 
         row2 = get_row_from_index(file_path2)
         # The timestamp should change to nil since the only service is set to run once

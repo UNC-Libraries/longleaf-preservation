@@ -293,6 +293,43 @@ describe Longleaf::SequelIndexDriver do
         expect(get_timestamp_from_index(file_rec)).to be nil
       end
     end
+
+    context 'service with current failure timestamp (just failed)' do
+      let(:file_path) { create_test_file(dir: path_dir) }
+      let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_loc) }
+      before do
+        MetadataBuilder.new(file_path: file_path)
+            .with_service("serv1",
+                timestamp: days_from_now(-10),
+                failure_timestamp: days_from_now(0))
+            .register_to(file_rec)
+      end
+
+      it 'sets delay_until_time one day in the future using the default retry delay' do
+        driver.index(file_rec)
+
+        expect(get_delay_until_from_index(file_rec)).to be_within(5).of days_from_now(1)
+      end
+    end
+
+    context 'service with current failure timestamp and custom failure_retry_delay' do
+      let(:driver) { Longleaf::SequelIndexDriver.new(app_config, db_adapter, conn_details, failure_retry_delay: '2 days') }
+      let(:file_path) { create_test_file(dir: path_dir) }
+      let(:file_rec) { build(:file_record, file_path: file_path, storage_location: storage_loc) }
+      before do
+        MetadataBuilder.new(file_path: file_path)
+            .with_service("serv1",
+                timestamp: days_from_now(-10),
+                failure_timestamp: days_from_now(0))
+            .register_to(file_rec)
+      end
+
+      it 'sets delay_until_time two days in the future using the configured retry delay' do
+        driver.index(file_rec)
+
+        expect(get_delay_until_from_index(file_rec)).to be_within(5).of days_from_now(2)
+      end
+    end
   end
 
   describe '.remove' do
@@ -536,6 +573,27 @@ describe Longleaf::SequelIndexDriver do
           expect(results).to containing_exactly(file_path)
         end
       end
+
+      context 'file record whose service just failed (failure_timestamp is now)' do
+        before do
+          MetadataBuilder.new(file_path: file_path)
+              .with_service("serv1",
+                  timestamp: days_from_now(-10),
+                  failure_timestamp: days_from_now(0))
+              .register_to(file_rec)
+          driver.index(file_rec)
+        end
+
+        it 'suppresses the file for the default retry delay period' do
+          results = driver.paths_with_stale_services(selector, days_from_now)
+          expect(results).to be_empty
+        end
+
+        it 'includes the file after the retry delay has elapsed' do
+          results = driver.paths_with_stale_services(selector, days_from_now(2))
+          expect(results).to containing_exactly(file_path)
+        end
+      end
     end
   end
 
@@ -707,6 +765,12 @@ describe Longleaf::SequelIndexDriver do
     result = db_conn[Longleaf::SequelIndexDriver::PRESERVE_TBL].where(file_path: file_rec.path).select(:service_time).first
 
     result.nil? ? nil : result[:service_time]
+  end
+
+  def get_delay_until_from_index(file_rec)
+    result = db_conn[Longleaf::SequelIndexDriver::PRESERVE_TBL].where(file_path: file_rec.path).select(:delay_until_time).first
+
+    result.nil? ? nil : result[:delay_until_time]
   end
 
   def days_from_now(offset = 0)

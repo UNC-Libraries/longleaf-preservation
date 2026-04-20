@@ -2,8 +2,11 @@ require 'rack/utils'
 require 'roda'
 require 'longleaf/logging'
 require 'longleaf/services/application_config_deserializer'
+require 'longleaf/web/job_registry'
 require 'longleaf/web/controllers/register_controller'
 require 'longleaf/web/controllers/deregister_controller'
+require 'longleaf/web/controllers/preserve_controller'
+require 'longleaf/web/controllers/jobs_controller'
 
 module Longleaf
   module Web
@@ -43,8 +46,11 @@ module Longleaf
         nil
       end
 
+      @job_registry = JobRegistry.new
+
       class << self
         attr_accessor :app_manager
+        attr_accessor :job_registry
       end
 
       error do |e|
@@ -76,6 +82,26 @@ module Longleaf
           r.on 'deregister' do
             r.post do
               Controllers::DeregisterController.new(self.class.app_manager).handle(r)
+            end
+          end
+
+          # POST /api/preserve
+          r.on 'preserve' do
+            r.post do
+              Controllers::PreserveController.new(self.class.app_manager, self.class.job_registry).handle(r)
+            end
+          end
+
+          # GET /api/jobs        - list all jobs
+          # GET /api/jobs/:id   - get a single job by id
+          r.on 'jobs' do
+            r.on String do |job_id|
+              r.get do
+                Controllers::JobsController.new(self.class.job_registry).handle(r, job_id)
+              end
+            end
+            r.get do
+              Controllers::JobsController.new(self.class.job_registry).list(r)
             end
           end
         end

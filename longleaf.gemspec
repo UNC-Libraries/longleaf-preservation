@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rexml"
   spec.add_dependency "puma", "~> 7.2"
   spec.add_dependency "roda", "~> 3.0"
+  spec.add_dependency "concurrent-ruby", "~> 1.1"
 
   spec.add_development_dependency "rack-test", "~> 2.1"
   spec.add_development_dependency "bundler", "~> 2.2"

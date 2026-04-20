@@ -30,7 +30,7 @@ module Longleaf
     #    If a string is provided, it will be used as the connection URL and must identify the adapter.
     #    If a hash is provided, it used as the parameters for the database connection.
     # @param page_size [Integer] number of results to retrieve per query when getting candidates
-    def initialize(app_config, adapter, conn_details, page_size: nil)
+    def initialize(app_config, adapter, conn_details, page_size: nil, failure_retry_delay: nil)
       Sequel.default_timezone = :utc
       @app_config = app_config
       @adapter = adapter
@@ -39,6 +39,7 @@ module Longleaf
       # Digest of the app config file so we can tell if it changes
       @config_md5 = app_config.config_md5
       @page_size = page_size.nil? || page_size <= 0 ? DEFAULT_PAGE_SIZE : page_size
+      @failure_retry_delay = failure_retry_delay || Longleaf::SystemConfigFields::DEFAULT_FAILURE_RETRY_DELAY
 
       if @conn_details.is_a?(Hash)
         # Add in the adapter name
@@ -123,11 +124,15 @@ module Longleaf
       service_times.min
     end
 
-    # @return The first failure timestamp for any service, or nil if there were none.
+    # @return A future timestamp indicating when a failed file should next be retried,
+    #    based on the earliest failure timestamp plus the configured failure_retry_delay.
+    #    Returns the minimum timestamp if no failures are present.
     def delay_until_timestamp(md_rec)
       md_rec.list_services.each do |service_name|
         service_rec = md_rec.service(service_name)
-        return service_rec.failure_timestamp unless service_rec.failure_timestamp.nil?
+        unless service_rec.failure_timestamp.nil?
+          return ServiceDateHelper.add_to_timestamp(service_rec.failure_timestamp, @failure_retry_delay)
+        end
       end
       # return lowest possible date
       return minimum_timestamp
@@ -237,9 +242,10 @@ module Longleaf
     # Retrieves a page of paths for registered files.
     # @param file_selector [FileSelector] selector for what paths to search for files
     # @return [Array] array of file paths that are registered
-    def registered_paths(file_selector)
+    def registered_paths(file_selector, offset: 0)
       # retrieve and return a page of results
       add_path_restrictions(registered_dataset, file_selector)
+          .offset(offset)
           .select_map(:file_path)
     end
 

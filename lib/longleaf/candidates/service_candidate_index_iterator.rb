@@ -18,6 +18,8 @@ module Longleaf
       @index_manager = @app_config.index_manager
       @stale_datetime = Time.now.utc
       @result_set = nil
+      @force_offset = 0
+      @force_exhausted = false
     end
 
     # Get the file record for the next candidate which needs services run which match the
@@ -69,7 +71,10 @@ module Longleaf
     private
     def fetch_next_page
       if @force
-        @result_set = @index_manager.registered_paths(@file_selector)
+        return if @force_exhausted
+        @result_set = @index_manager.registered_paths(@file_selector, offset: @force_offset)
+        @force_offset += @result_set.length
+        @force_exhausted = @result_set.empty?
       else
         case @event
         when EventNames::PRESERVE
