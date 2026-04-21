@@ -5,6 +5,7 @@ require 'longleaf/errors'
 require_relative 'configuration_validator'
 require 'longleaf/services/filesystem_location_validator'
 require 'longleaf/services/s3_location_validator'
+require 'longleaf/services/ocfl_location_validator'
 
 module Longleaf
   # Validates application configuration of storage locations
@@ -14,7 +15,8 @@ module Longleaf
 
     @@storage_type_mappings = {
         ST::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemLocationValidator,
-        ST::S3_STORAGE_TYPE => Longleaf::S3LocationValidator
+        ST::S3_STORAGE_TYPE => Longleaf::S3LocationValidator,
+        ST::OCFL_STORAGE_TYPE => Longleaf::OcflLocationValidator
       }
 
     # @param config [Hash] hash containing the application configuration
