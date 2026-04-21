@@ -5,6 +5,7 @@ end
 require 'longleaf/events/event_names'
 require 'longleaf/logging'
 require 'longleaf/errors'
+require 'longleaf/models/ocfl_storage_location'
 require 'json'
 
 module Longleaf
@@ -40,7 +41,14 @@ module Longleaf
       path = file_rec.path
       phys_path = file_rec.physical_path
 
-      ocfl_repo = file_rec.storage_location.ocfl_repository
+      storage_loc = file_rec.storage_location
+      unless storage_loc.is_a?(OcflStorageLocation)
+        raise PreservationServiceError.new(
+            "OcflValidationService requires an OcflStorageLocation, but '#{storage_loc.name}' " \
+            "is a #{storage_loc.class.name}")
+      end
+
+      ocfl_repo = storage_loc.ocfl_repository
 
       object_id = read_object_id(phys_path)
 

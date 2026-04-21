@@ -103,6 +103,17 @@ if RUBY_ENGINE == 'jruby'
         end
       end
 
+      context 'when the storage location is not an OcflStorageLocation' do
+        let(:service) { make_service }
+        let(:filesystem_loc) { build(:storage_location) }
+
+        it 'raises a PreservationServiceError' do
+          file_rec = build(:file_record, file_path: '/some/path', storage_location: filesystem_loc)
+          expect { service.perform(file_rec, PRESERVE_EVENT) }
+            .to raise_error(PreservationServiceError, /OcflStorageLocation/)
+        end
+      end
+
       context 'when the object directory has no inventory.json' do
         let(:service) { make_service }
 
