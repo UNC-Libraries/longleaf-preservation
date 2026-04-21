@@ -23,11 +23,15 @@ module Longleaf
   #                          Must be an algorithm name recognised by DigestAlgorithmRegistry,
   #                          e.g. 'md5', 'sha1', 'sha256', 'sha512'.
   #   * 'verify_inventory'  - Whether to verify the inventory digest on read (default: true).
+  #   * 'work_dir'          - Path to a scratch directory used by ocfl-java for assembling
+  #                          object versions. Required by the ocfl-java builder even for
+  #                          read-only use. The directory will be created if it does not exist.
   class OcflStorageLocation < FilesystemStorageLocation
     OCFL_STORAGE_TYPE = 'ocfl'
 
     DIGEST_ALGORITHM_PROPERTY = 'digest_algorithm'
     VERIFY_INVENTORY_PROPERTY = 'verify_inventory'
+    WORK_DIR_PROPERTY = 'work_dir'
 
     DEFAULT_DIGEST_ALGORITHM = 'sha512'
 
@@ -35,6 +39,9 @@ module Longleaf
       super
       @digest_alg_name = (config[DIGEST_ALGORITHM_PROPERTY] || DEFAULT_DIGEST_ALGORITHM).downcase
       @verify_inventory = config.key?(VERIFY_INVENTORY_PROPERTY) ? config[VERIFY_INVENTORY_PROPERTY] : true
+      @work_dir = config[WORK_DIR_PROPERTY]
+      raise ArgumentError.new("Parameter '#{WORK_DIR_PROPERTY}' is required for OCFL storage location #{name}") \
+          if @work_dir.nil? || @work_dir.empty?
     end
 
     # @return the storage type for this location
@@ -76,6 +83,7 @@ module Longleaf
       builder.logical_path_mapper(logical_path_mapper)
       builder.ocfl_config { |cfg| cfg.set_default_digest_algorithm(digest_alg) }
       builder.storage(storage)
+      builder.work_dir(Paths.get(@work_dir))
       builder.build
     end
   end

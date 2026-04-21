@@ -5,7 +5,6 @@ if RUBY_ENGINE == 'jruby'
   require 'longleaf/models/app_fields'
 
   describe Longleaf::OcflStorageLocation do
-    OCFL_FIXTURE_PATH = File.expand_path('../../fixtures/ocfl-root', __dir__) + File::SEPARATOR
 
     describe '.initialize' do
       context 'with no config' do
@@ -26,6 +25,10 @@ if RUBY_ENGINE == 'jruby'
 
       context 'with explicit digest algorithm' do
         it { expect { build(:ocfl_storage_location, digest_algorithm: 'sha256') }.not_to raise_error }
+      end
+
+      context 'with no work_dir' do
+        it { expect { build(:ocfl_storage_location, work_dir: nil) }.to raise_error(ArgumentError, /work_dir/) }
       end
     end
 

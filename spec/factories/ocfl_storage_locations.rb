@@ -8,16 +8,20 @@ if RUBY_ENGINE == 'jruby'
 
     factory(:ocfl_storage_location, class: Longleaf::OcflStorageLocation) do
       transient {
-        path { File.expand_path('../../fixtures/ocfl-root', __dir__) + File::SEPARATOR }
+        path { File.expand_path('../fixtures/ocfl-root', __dir__) + File::SEPARATOR }
         metadata_path { '/metadata/path/' }
         metadata_config { { AF::LOCATION_PATH => metadata_path } }
         digest_algorithm { nil }
         verify_inventory { nil }
+        work_dir { Dir.mktmpdir('ocfl-work') }
       }
 
       name { 'ocfl_loc' }
       config {
-        c = { AF::LOCATION_PATH => path }
+        c = {
+          AF::LOCATION_PATH => path,
+          Longleaf::OcflStorageLocation::WORK_DIR_PROPERTY => work_dir
+        }
         unless digest_algorithm.nil?
           c[Longleaf::OcflStorageLocation::DIGEST_ALGORITHM_PROPERTY] = digest_algorithm
         end
