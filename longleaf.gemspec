@@ -51,6 +51,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rubocop-sequel", '~> 0.3'
   if RUBY_ENGINE == 'jruby'
     spec.add_development_dependency "jdbc-sqlite3"
+    spec.add_dependency 'lock_jar', '>= 0.13.0'
   else
     spec.add_development_dependency "amalgalite", "~> 1.6"
   end
