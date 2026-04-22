@@ -27,6 +27,7 @@ Or it may be built from source:
 $ git clone git@github.com:UNC-Libraries/longleaf-preservation.git
 $ cd longleaf-preservation
 $ bin/setup
+$ bundle exec lock_jars   # JRuby only — downloads ocfl-java JARs; skip on CRuby
 $ bundle exec rake install # builds the gem
 $ gem install --local pkg/longleaf* # installs gem
 ```
@@ -187,6 +188,19 @@ curl -X POST http://localhost:3000/api/deregister \
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies.
+
+#### JRuby and Java dependencies (OCFL support)
+
+OCFL features (`OcflStorageLocation`, `OcflValidationService`, etc.) require JRuby and are backed by [ocfl-java](https://github.com/OCFL/ocfl-java) via the [`lock_jars`](https://github.com/mkristian/lock_jar) gem. If you are running under JRuby you must download the required JARs after `bundle install`:
+
+```
+bundle install
+bundle exec lock_jars
+```
+
+`lock_jars` reads the `Jarfile`, resolves all Maven dependencies (including transitive ones) from Maven Central into `~/.m2/repository`, and writes a pinned `Jarfile.lock`. Commit `Jarfile.lock` so that CI and other developers use the same resolved versions.
+
+#### Running tests
 
 To perform the tests, run:
 ```
