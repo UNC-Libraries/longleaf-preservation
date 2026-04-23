@@ -56,6 +56,10 @@ jobs:
       - name: Install dependencies
         run: bundle install --path '.bundle/' --with ${{ matrix.db }}
 
+      - name: Install JARs (JRuby only)
+        if: startsWith(matrix.ruby-version, 'jruby')
+        run: lock_jars
+
       - name: Install rsync
         run: sudo apt-get update && sudo apt-get install -y rsync
 
