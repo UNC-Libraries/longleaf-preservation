@@ -27,7 +27,7 @@ Or it may be built from source:
 $ git clone git@github.com:UNC-Libraries/longleaf-preservation.git
 $ cd longleaf-preservation
 $ bin/setup
-$ bundle exec lock_jars   # JRuby only — downloads ocfl-java JARs; skip on CRuby
+$ lock_jars               # JRuby only — downloads ocfl-java JARs; skip on CRuby
 $ bundle exec rake install # builds the gem
 $ gem install --local pkg/longleaf* # installs gem
 ```
@@ -191,14 +191,22 @@ After checking out the repo, run `bin/setup` to install dependencies.
 
 #### JRuby and Java dependencies (OCFL support)
 
-OCFL features (`OcflStorageLocation`, `OcflValidationService`, etc.) require JRuby and are backed by [ocfl-java](https://github.com/OCFL/ocfl-java) via the [`lock_jars`](https://github.com/mkristian/lock_jar) gem. If you are running under JRuby you must download the required JARs after `bundle install`:
+OCFL features (`OcflStorageLocation`, `OcflValidationService`, etc.) require JRuby and are backed by [ocfl-java](https://github.com/OCFL/ocfl-java). JAR dependency management is handled by [jar-dependencies](https://github.com/mkristian/jar-dependencies), which is bundled with JRuby.
+
+If you are running under JRuby you must download the required JARs after `bundle install`:
 
 ```
 bundle install
-bundle exec lock_jars
+lock_jars
 ```
 
-`lock_jars` reads the `Jarfile`, resolves all Maven dependencies (including transitive ones) from Maven Central into `~/.m2/repository`, and writes a pinned `Jarfile.lock`. Commit `Jarfile.lock` so that CI and other developers use the same resolved versions.
+`lock_jars` is provided by JRuby's bundled `jar-dependencies` gem (typically at `$(rbenv prefix)/bin/lock_jars` or equivalent). It reads the `Jarfile`, resolves all Maven dependencies (including transitive ones) from Maven Central into `~/.m2/repository`, and writes a pinned `Jars.lock`. Commit `Jars.lock` so that CI and other developers use the same resolved versions.
+
+For deployment scripts, call `lock_jars` by its absolute path to avoid PATH or Bundler issues:
+
+```
+/path/to/jruby/bin/lock_jars
+```
 
 #### Running tests
 

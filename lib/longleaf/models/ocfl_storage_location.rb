@@ -5,7 +5,6 @@ end
 require 'longleaf/models/filesystem_storage_location'
 require 'longleaf/models/storage_types'
 require 'longleaf/errors'
-require 'lock_jar'
 
 java_import 'io.ocfl.api.DigestAlgorithmRegistry'
 java_import 'io.ocfl.core.OcflRepositoryBuilder'

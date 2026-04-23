@@ -5,7 +5,6 @@ gemspec
 # On JRuby, jdbc-sqlite3 must be explicitly listed here (not only in the gemspec)
 # to ensure Bundler places it on the load path for tests and CLI use.
 if RUBY_ENGINE == 'jruby'
-  gem 'lock_jar'
   gem 'jdbc-sqlite3'
 end
 
