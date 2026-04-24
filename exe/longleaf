@@ -1,3 +1,8 @@
 #!/usr/bin/env ruby
+
+if RUBY_ENGINE == 'jruby'
+  require File.expand_path('../../lib/longleaf/jruby_jars', __FILE__)
+end
+
 require 'longleaf/cli'
 Longleaf::CLI.start
