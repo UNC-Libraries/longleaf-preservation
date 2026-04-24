@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
 
 if RUBY_ENGINE == 'jruby'
-  require File.expand_path('../../lib/longleaf/jruby_jars', __FILE__)
+  require 'java'
+  ENV['JARS_LOCK'] = File.expand_path('../../Jars.lock', __FILE__)
+  ENV['JARS_HOME'] = File.join(ENV_JAVA['user.home'], '.m2', 'repository')
+  require 'jars/setup'
 end
 
 require 'longleaf/cli'
