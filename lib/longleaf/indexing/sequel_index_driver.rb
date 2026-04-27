@@ -128,6 +128,9 @@ module Longleaf
     #    based on the earliest failure timestamp plus the configured failure_retry_delay.
     #    Returns the minimum timestamp if no failures are present.
     def delay_until_timestamp(md_rec)
+      unless md_rec.failure_timestamp.nil?
+        return ServiceDateHelper.add_to_timestamp(md_rec.failure_timestamp, @failure_retry_delay)
+      end
       md_rec.list_services.each do |service_name|
         service_rec = md_rec.service(service_name)
         unless service_rec.failure_timestamp.nil?

@@ -12,6 +12,8 @@ module Longleaf
     attr_accessor :file_size, :last_modified, :file_count
     attr_accessor :physical_path
     attr_accessor :object_type
+    # Non-serialized transient field set when a file is missing during preservation.
+    attr_accessor :failure_timestamp
 
     # @param properties [Hash] initial data properties for this record
     # @param services [Hash] initial service property tree

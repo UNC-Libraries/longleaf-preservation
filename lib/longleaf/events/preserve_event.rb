@@ -36,9 +36,12 @@ module Longleaf
         if !File.exist?(phys_path)
           # Need to persist metadata to avoid repeating processing of this file too soon.
           needs_persist = true
+          md_rec.failure_timestamp = ServiceDateHelper.formatted_timestamp
           record_failure(EventNames::PRESERVE, f_path, "File is registered but missing.")
           return return_status
         end
+        # Clear any prior missing-file failure state now that the file exists.
+        md_rec.failure_timestamp = nil
 
         # get the list of services applicable to this location and event
         service_manager.list_services(location: storage_loc.name, event: EventNames::PRESERVE).each do |service_name|

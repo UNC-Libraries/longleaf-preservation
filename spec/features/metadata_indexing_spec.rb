@@ -137,6 +137,23 @@ describe 'metadata indexing', :type => :aruba do
       end
     end
 
+    context 'performing preserve event on a registered file whose physical file is missing' do
+      before do
+        run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
+        FileUtils.rm(file_path)
+        run_command_and_stop("longleaf preserve -c #{config_path} -f #{file_path} -I #{lib_dir}", fail_on_error: false)
+      end
+
+      it 'records failure and sets delay_until_time on the missing file' do
+        expect(last_command_started).to have_output(/FAILURE preserve #{Regexp.escape(file_path)}: File is registered but missing\./)
+        expect(last_command_started).to have_exit_status(1)
+        row = get_row_from_index(file_path)
+        # Delay must be set to now plus the retry delay (defaults to a day)
+        expected_delay_until = Time.iso8601(Longleaf::ServiceDateHelper.add_to_timestamp(Time.now.iso8601, '1 day'))
+        expect(row[:delay_until_time]).to be_within(60).of(expected_delay_until)
+      end
+    end
+
     context 'deregistering a file' do
       before do
         run_command_and_stop("longleaf register -c #{config_path} -f #{file_path}", fail_on_error: false)
