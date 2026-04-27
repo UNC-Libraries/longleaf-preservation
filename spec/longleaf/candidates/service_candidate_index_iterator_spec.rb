@@ -206,6 +206,20 @@ describe Longleaf::ServiceCandidateIndexIterator do
       end
     end
 
+    context 'with multiple files that keep failing without index update' do
+      let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(-3)) }
+      let!(:file_rec2) { create_index_file_rec(storage_loc, "serv1", days_from_now(-2)) }
+
+      it 'visits each file exactly once and terminates without infinite loop' do
+        result = Array.new
+        # Intentionally do NOT update the index after processing, so both files
+        # remain stale and would be returned by paths_with_stale_services again.
+        # Without the visited_paths + stale_offset guard this would loop forever.
+        iterator.each { |candidate| result << candidate.path }
+        expect(result).to contain_exactly(file_rec1.path, file_rec2.path)
+      end
+    end
+
     context 'multiple files, some requiring services, one not' do
       let!(:file_rec1) { create_index_file_rec(storage_loc, "serv1", days_from_now(-3)) }
       let!(:file_rec2) { create_index_file_rec(storage_loc, "serv1", days_from_now(3)) }

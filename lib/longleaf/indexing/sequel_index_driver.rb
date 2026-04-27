@@ -225,8 +225,9 @@ module Longleaf
     # Retrieves page of file paths which have one or more services which need to run.
     # @param file_selector [FileSelector] selector for what paths to search for files
     # @param stale_datetime [DateTime] find file_paths with services needing to be run before this value
+    # @param offset [Integer] number of results to skip, for paging
     # @return [Array] array of file paths that need one or more services run.
-    def paths_with_stale_services(file_selector, stale_datetime)
+    def paths_with_stale_services(file_selector, stale_datetime, offset: 0)
       if @preserve_dataset.nil?
         @preserve_dataset = db_conn
             .from(PRESERVE_TBL)
@@ -236,9 +237,10 @@ module Longleaf
       end
 
       # retrieve and return a page of results
-      ds = add_path_restrictions(@preserve_dataset, file_selector)
+      add_path_restrictions(@preserve_dataset, file_selector)
           .where { service_time <= stale_datetime }
           .where { delay_until_time < stale_datetime }
+          .offset(offset)
           .select_map(:file_path)
     end
 
