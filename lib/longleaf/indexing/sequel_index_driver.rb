@@ -282,6 +282,14 @@ module Longleaf
       Sequel.connect(conn_details)
     end
 
+    # Disconnects the active database connection, if one has been opened.
+    # Safe to call when no connection is open.
+    def disconnect
+      @connection&.disconnect
+      @connection = nil
+      @preserve_tbl = nil
+    end
+
     private
 
     def db_conn
