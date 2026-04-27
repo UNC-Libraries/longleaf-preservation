@@ -1,0 +1,17 @@
+io.ocfl:ocfl-java-core:2.2.3:compile:
+io.ocfl:ocfl-java-api:2.2.3:compile:
+com.fasterxml.jackson.core:jackson-annotations:2.18.5:compile:
+com.fasterxml.jackson.core:jackson-core:2.18.5:compile:
+com.fasterxml.jackson.core:jackson-databind:2.18.5:compile:
+com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.5:compile:
+org.slf4j:slf4j-api:2.0.17:compile:
+com.github.ben-manes.caffeine:caffeine:3.2.3:compile:
+org.jspecify:jspecify:1.0.0:compile:
+com.google.errorprone:error_prone_annotations:2.43.0:compile:
+at.favre.lib:bytes:1.6.1:compile:
+com.google.guava:guava:33.5.0-jre:compile:
+com.google.guava:failureaccess:1.0.3:compile:
+com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava:compile:
+com.google.j2objc:j2objc-annotations:3.1:compile:
+dev.failsafe:failsafe:3.3.2:compile:
+org.slf4j:slf4j-simple:2.0.17:compile:

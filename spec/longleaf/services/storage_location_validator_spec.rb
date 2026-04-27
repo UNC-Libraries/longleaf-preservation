@@ -244,5 +244,24 @@ describe Longleaf::StorageLocationValidator do
 
       it { fails_validation_with_error(validator, /location 'path' property: Path must specify a bucket/) }
     end
+
+    context 'with valid ocfl location' do
+      let(:ocfl_root) { File.expand_path('../../fixtures/ocfl-root', __dir__) }
+      let(:config) {
+        ConfigBuilder.new
+          .with_location(name: 'loc1', path: ocfl_root, s_type: 'ocfl', md_path: md_dir1).get
+      }
+
+      it { passes_validation(validator) }
+    end
+
+    context 'with ocfl location pointing to a directory without a namaste file' do
+      let(:config) {
+        ConfigBuilder.new
+          .with_location(name: 'loc1', path: path_dir1, s_type: 'ocfl', md_path: md_dir1).get
+      }
+
+      it { fails_validation_with_error(validator, /does not contain an OCFL namaste file/) }
+    end
   end
 end

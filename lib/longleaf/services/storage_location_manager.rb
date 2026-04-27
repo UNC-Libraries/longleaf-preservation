@@ -5,6 +5,10 @@ require 'longleaf/models/s3_storage_location'
 require 'longleaf/models/filesystem_metadata_location'
 require 'longleaf/errors'
 
+if RUBY_ENGINE == 'jruby'
+  require 'longleaf/models/ocfl_storage_location'
+end
+
 module Longleaf
   # Manager which loads and provides access to {StorageLocation} objects
   class StorageLocationManager
@@ -18,6 +22,9 @@ module Longleaf
         ST::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemStorageLocation,
         ST::S3_STORAGE_TYPE => Longleaf::S3StorageLocation
       }
+    if RUBY_ENGINE == 'jruby'
+      @@storage_type_mappings[ST::OCFL_STORAGE_TYPE] = Longleaf::OcflStorageLocation
+    end
     @@metadata_type_mappings = { ST::FILESYSTEM_STORAGE_TYPE => Longleaf::FilesystemMetadataLocation }
 
     # @param config [Hash] has representation of the application configuration

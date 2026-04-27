@@ -3,6 +3,11 @@ require 'factory_bot'
 require 'simplecov'
 require 'aruba/rspec'
 require_relative 'support/db_helpers'
+
+# Must be set before any SLF4J-backed library (e.g. ocfl-java) is loaded.
+if RUBY_ENGINE == 'jruby'
+  java.lang.System.set_property('org.slf4j.simpleLogger.defaultLogLevel', 'warn')
+end
 SimpleCov.profiles.define 'no_vendor_coverage' do
   add_filter '.bundle'
 end
