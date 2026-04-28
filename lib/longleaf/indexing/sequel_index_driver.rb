@@ -128,6 +128,9 @@ module Longleaf
     #    based on the earliest failure timestamp plus the configured failure_retry_delay.
     #    Returns the minimum timestamp if no failures are present.
     def delay_until_timestamp(md_rec)
+      unless md_rec.failure_timestamp.nil?
+        return ServiceDateHelper.add_to_timestamp(md_rec.failure_timestamp, @failure_retry_delay)
+      end
       md_rec.list_services.each do |service_name|
         service_rec = md_rec.service(service_name)
         unless service_rec.failure_timestamp.nil?
@@ -222,8 +225,9 @@ module Longleaf
     # Retrieves page of file paths which have one or more services which need to run.
     # @param file_selector [FileSelector] selector for what paths to search for files
     # @param stale_datetime [DateTime] find file_paths with services needing to be run before this value
+    # @param offset [Integer] number of results to skip, for paging
     # @return [Array] array of file paths that need one or more services run.
-    def paths_with_stale_services(file_selector, stale_datetime)
+    def paths_with_stale_services(file_selector, stale_datetime, offset: 0)
       if @preserve_dataset.nil?
         @preserve_dataset = db_conn
             .from(PRESERVE_TBL)
@@ -233,9 +237,10 @@ module Longleaf
       end
 
       # retrieve and return a page of results
-      ds = add_path_restrictions(@preserve_dataset, file_selector)
+      add_path_restrictions(@preserve_dataset, file_selector)
           .where { service_time <= stale_datetime }
           .where { delay_until_time < stale_datetime }
+          .offset(offset)
           .select_map(:file_path)
     end
 
@@ -275,6 +280,14 @@ module Longleaf
     # @return [Sequel::Database] configured database connection
     def self.connect(conn_details)
       Sequel.connect(conn_details)
+    end
+
+    # Disconnects the active database connection, if one has been opened.
+    # Safe to call when no connection is open.
+    def disconnect
+      @connection&.disconnect
+      @connection = nil
+      @preserve_tbl = nil
     end
 
     private

@@ -25,6 +25,8 @@ describe Longleaf::SequelIndexDriver do
   let(:db_file) { create_test_file(name: 'index.db', content: '') }
 
   after do
+    # Disconnect Sequel connections to avoid exhausting PostgreSQL's max_connections
+    driver.disconnect
     FileUtils.remove_dir(md_dir)
     FileUtils.remove_dir(path_dir)
     FileUtils.rm(db_file)

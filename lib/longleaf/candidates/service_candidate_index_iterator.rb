@@ -1,6 +1,7 @@
 require 'longleaf/events/event_names'
 require 'longleaf/errors'
 require 'longleaf/logging'
+require 'set'
 require 'time'
 
 module Longleaf
@@ -18,8 +19,11 @@ module Longleaf
       @index_manager = @app_config.index_manager
       @stale_datetime = Time.now.utc
       @result_set = nil
+      @visited_paths = Set.new
       @force_offset = 0
       @force_exhausted = false
+      @stale_offset = 0
+      @stale_exhausted = false
     end
 
     # Get the file record for the next candidate which needs services run which match the
@@ -38,6 +42,15 @@ module Longleaf
         # given that the page was just retrieved, getting a nil path indicates that the retrieved page of
         # candidates is empty and there are no more candidates to iterate at this time.
         return nil if next_path.nil?
+
+        # Skip paths already encountered in this iteration to prevent infinite loops.
+        # Increment the stale offset so the next page fetch skips past this stuck path.
+        if @visited_paths.include?(next_path)
+          @stale_offset += 1
+          logger.warn("Encountered previously processed path, skipping: #{next_path}")
+          next
+        end
+        @visited_paths.add(next_path)
 
         logger.debug("Retrieved candidate #{next_path}")
         storage_loc = @app_config.location_manager.get_location_by_path(next_path)
@@ -78,7 +91,9 @@ module Longleaf
       else
         case @event
         when EventNames::PRESERVE
-          @result_set = @index_manager.paths_with_stale_services(@file_selector, @stale_datetime)
+          return if @stale_exhausted
+          @result_set = @index_manager.paths_with_stale_services(@file_selector, @stale_datetime, offset: @stale_offset)
+          @stale_exhausted = @result_set.empty?
         when EventNames::CLEANUP
           # TODO
         end

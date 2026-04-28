@@ -55,10 +55,11 @@ module Longleaf
     #
     # @param file_selector [FileSelector] selector for paths to search for files
     # @param stale_datetime [DateTime] find file_paths with services needing to be run before this value
+    # @param offset [Integer] number of results to skip, for paging
     # @return [Array] array of file paths that need one or more services run, in ascending order by
     #    timestamp.
-    def paths_with_stale_services(file_selector, stale_datetime)
-      @index_driver.paths_with_stale_services(file_selector, stale_datetime)
+    def paths_with_stale_services(file_selector, stale_datetime, offset: 0)
+      @index_driver.paths_with_stale_services(file_selector, stale_datetime, offset: offset)
     end
 
     # Retrieves a page of paths for registered files.
