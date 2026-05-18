@@ -139,6 +139,7 @@ module Longleaf
     def upload_files(local_file_map, rel_path, destination, file_rec)
       bucket_name = destination.s3_bucket.name
       s3_client = destination.s3_client
+      transfer_manager = Aws::S3::TransferManager.new(client: s3_client)
 
       local_file_map.each do |rel_within_object, local_path|
         s3_key = destination.relative_to_bucket_path(File.join(rel_path, rel_within_object))
@@ -149,7 +150,7 @@ module Longleaf
         end
 
         begin
-          destination.s3_bucket.object(s3_key).upload_file(local_path)
+          transfer_manager.upload_file(local_path, bucket: bucket_name, key: s3_key)
           logger.debug("Uploaded #{local_path} to s3://#{bucket_name}/#{s3_key}")
         rescue Aws::Errors::ServiceError => e
           raise PreservationServiceError.new("Failed to transfer #{file_rec.path} (file: #{local_path}) " \

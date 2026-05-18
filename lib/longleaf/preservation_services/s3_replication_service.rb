@@ -88,9 +88,9 @@ module Longleaf
         verify_destination_available(destination, file_rec)
 
         rel_to_bucket = destination.relative_to_bucket_path(rel_path)
-        file_obj = destination.s3_bucket.object(rel_to_bucket)
+        transfer_manager = Aws::S3::TransferManager.new(client: destination.s3_client)
         begin
-          file_obj.upload_file(file_rec.physical_path)
+          transfer_manager.upload_file(file_rec.physical_path, bucket: destination.s3_bucket.name, key: rel_to_bucket)
         rescue Aws::S3::Errors::BadDigest => e
           raise ChecksumMismatchError.new("Transfer to bucket '#{destination.s3_bucket.name}' failed, " \
               + "MD5 provided did not match the received content for #{file_rec.path}")
@@ -99,7 +99,7 @@ module Longleaf
               + "'#{destination.s3_bucket.name}': #{e.message}")
         end
 
-        logger.info("Replicated #{file_rec.path} to destination #{file_obj.public_url}")
+        logger.info("Replicated #{file_rec.path} to s3://#{destination.s3_bucket.name}/#{rel_to_bucket}")
 
         # TODO register file in destination
       end
