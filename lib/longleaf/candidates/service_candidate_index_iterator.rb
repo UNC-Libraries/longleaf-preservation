@@ -1,6 +1,8 @@
 require 'longleaf/events/event_names'
 require 'longleaf/errors'
 require 'longleaf/logging'
+require 'longleaf/models/md_fields'
+require 'longleaf/models/storage_types'
 require 'set'
 require 'time'
 
@@ -54,7 +56,8 @@ module Longleaf
 
         logger.debug("Retrieved candidate #{next_path}")
         storage_loc = @app_config.location_manager.get_location_by_path(next_path)
-        file_rec = FileRecord.new(next_path, storage_loc)
+        object_type = storage_loc.type == StorageTypes::OCFL_STORAGE_TYPE ? MDFields::OCFL_TYPE : nil
+        file_rec = FileRecord.new(next_path, storage_loc, object_type: object_type)
 
         # Keep seeking until a registered candidate is found, according to the file system.
         if file_rec.metadata_present?
