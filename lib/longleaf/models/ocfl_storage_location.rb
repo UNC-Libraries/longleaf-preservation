@@ -25,12 +25,15 @@ module Longleaf
   #   * 'work_dir'          - Path to a scratch directory used by ocfl-java for assembling
   #                          object versions. Required by the ocfl-java builder even for
   #                          read-only use. The directory will be created if it does not exist.
+  #   * 'mutable_head'      - Whether objects in this repository use the OCFL mutable head
+  #                          extension (0005-mutable-head). Default: false.
   class OcflStorageLocation < FilesystemStorageLocation
     OCFL_STORAGE_TYPE = 'ocfl'
 
     DIGEST_ALGORITHM_PROPERTY = 'digest_algorithm'
     VERIFY_INVENTORY_PROPERTY = 'verify_inventory'
     WORK_DIR_PROPERTY = 'work_dir'
+    MUTABLE_HEAD_PROPERTY = 'mutable_head'
 
     DEFAULT_DIGEST_ALGORITHM = 'sha512'
 
@@ -41,11 +44,17 @@ module Longleaf
       @work_dir = config[WORK_DIR_PROPERTY]
       raise ArgumentError.new("Parameter '#{WORK_DIR_PROPERTY}' is required for OCFL storage location #{name}") \
           if @work_dir.nil? || @work_dir.empty?
+      @mutable_head = config.key?(MUTABLE_HEAD_PROPERTY) ? config[MUTABLE_HEAD_PROPERTY] : false
     end
 
     # @return the storage type for this location
     def type
       OCFL_STORAGE_TYPE
+    end
+
+    # @return [Boolean] true if objects in this repository use the OCFL mutable head extension
+    def mutable_head?
+      @mutable_head
     end
 
     # Returns a lazily initialized read-only OcflRepository for this storage location.

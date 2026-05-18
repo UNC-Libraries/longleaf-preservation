@@ -47,13 +47,14 @@ describe Longleaf::OcflS3ReplicationService do
   end
 
   # Build a stub OCFL storage location that reports type 'ocfl' and can relativize paths.
-  def build_ocfl_location(path: path_src_dir, md_path: md_src_dir)
+  def build_ocfl_location(path: path_src_dir, md_path: md_src_dir, mutable_head: false)
     loc = instance_double('Longleaf::OcflStorageLocation',
       name: 'ocfl_src',
       type: ST::OCFL_STORAGE_TYPE,
       path: path
     )
-    allow(loc).to receive(:relativize) { |fp| fp.sub(/\A#{Regexp.escape(path.chomp('/'))}\//, '') }
+    allow(loc).to receive(:relativize) { |fp| fp.sub(/\A#{Regexp.escape(path.chomp('/'))}\// , '') }
+    allow(loc).to receive(:mutable_head?).and_return(mutable_head)
     loc
   end
 
@@ -380,6 +381,7 @@ describe Longleaf::OcflS3ReplicationService do
     end
 
     context 'mutable head cleanup' do
+      let(:source_loc)   { build_ocfl_location(mutable_head: true) }
       let(:mutable_head_dir) do
         dir = File.join(ocfl_object_path, 'extensions', '0005-mutable-head')
         FileUtils.mkdir_p(File.join(dir, 'head', 'content', 'r1'))
@@ -493,6 +495,38 @@ describe Longleaf::OcflS3ReplicationService do
             .select { |r| r[:operation_name] == :delete_objects }
           expect(delete_requests).to be_empty
         end
+      end
+    end
+
+    context 'when the source location does not have mutable head enabled' do
+      let(:stale_key) { "#{s3_object_prefix}/extensions/0005-mutable-head/head/content/r1/old_file.bin" }
+      let(:mutable_head_prefix) { "#{s3_object_prefix}/extensions/0005-mutable-head/" }
+
+      before do
+        dest.s3_client.stub_responses(:list_objects_v2,
+          ->(context) {
+            if context.params[:prefix] == mutable_head_prefix
+              {
+                contents: [{ key: stale_key, size: 100, etag: '"abc"' }],
+                is_truncated: false
+              }
+            else
+              { contents: [], is_truncated: false }
+            end
+          }
+        )
+      end
+
+      it 'does not perform mutable head cleanup' do
+        service.perform(file_rec, PRESERVE_EVENT)
+
+        list_requests = dest.s3_client.api_requests
+          .select { |r| r[:operation_name] == :list_objects_v2 }
+        delete_requests = dest.s3_client.api_requests
+          .select { |r| r[:operation_name] == :delete_objects }
+
+        expect(list_requests).to be_empty
+        expect(delete_requests).to be_empty
       end
     end
 

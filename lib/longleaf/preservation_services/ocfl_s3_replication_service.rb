@@ -15,10 +15,11 @@ module Longleaf
   # directories (vN/) are skipped if they already exist in S3 since they are immutable. All other
   # files are compared by ETag to detect changes without re-uploading unchanged content.
   #
-  # S3 objects under the mutable head extension directory (extensions/0005-mutable-head/) that
-  # no longer exist locally due to having been committed to a real version are deleted from the
-  # destination; this is the only case where OCFL legitimately removes files from
-  # an object directory during normal operation.
+  # When the source storage location has mutable head enabled (OcflStorageLocation#mutable_head?
+  # returns true), S3 objects under the mutable head extension directory
+  # (extensions/0005-mutable-head/) that no longer exist locally are deleted from the destination.
+  # This handles the case where a mutable head has been committed into a real version, which is
+  # the only case in normal OCFL operation where object files are legitimately removed.
   #
   # The service definition must contain one or more destinations specified with the "to" property.
   # These destinations must be known S3 storage locations.
@@ -95,10 +96,11 @@ module Longleaf
       # Collect all local files keyed by their path relative to the object directory
       local_file_map = build_local_file_map(phys_path)
 
+      source_loc = file_rec.storage_location
       @destinations.each do |destination|
         verify_destination_available(destination, file_rec)
         upload_files(local_file_map, rel_path, destination, file_rec)
-        remove_deleted_objects(local_file_map, rel_path, destination, file_rec)
+        remove_deleted_objects(local_file_map, rel_path, destination, file_rec) if source_loc.mutable_head?
         logger.info("Replicated OCFL object #{file_rec.path} to destination #{destination.name}")
       end
     end
@@ -206,15 +208,13 @@ module Longleaf
     MUTABLE_HEAD_EXTENSION_PREFIX = 'extensions/0005-mutable-head/'
 
     # Delete S3 objects under the mutable head extension prefix that no longer exist locally.
-    #
-    # Deletion is intentionally restricted to the mutable head subtree.  Full object deletion
-    # and non-spec history compression are both out of scope for this service.
     def remove_deleted_objects(local_file_map, rel_path, destination, file_rec)
       mutable_head_s3_prefix = destination.relative_to_bucket_path(
           File.join(rel_path, MUTABLE_HEAD_EXTENSION_PREFIX))
       bucket_name = destination.s3_bucket.name
 
       keys_to_delete = []
+      # Gather all remote mutable head files as relative paths when they are not present locally
       destination.s3_bucket.objects(prefix: mutable_head_s3_prefix).each do |s3_obj|
         rel_within_object = s3_obj.key[destination.relative_to_bucket_path("#{rel_path}/").length..-1]
         keys_to_delete << s3_obj.key unless local_file_map.key?(rel_within_object)
