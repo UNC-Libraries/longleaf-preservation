@@ -3,7 +3,6 @@ require 'longleaf/logging'
 require 'longleaf/errors'
 require 'longleaf/models/file_record'
 require 'longleaf/models/service_fields'
-require 'longleaf/events/register_event'
 require 'longleaf/models/storage_types'
 require 'aws-sdk-s3'
 
@@ -56,7 +55,7 @@ module Longleaf
             raise ArgumentError.new(
                 "Service #{service_def.name} specifies destination #{dest} which is not of type 's3'")
           end
-          @destinations << loc_manager.locations[dest]
+          @destinations << location
         else
           raise ArgumentError.new("Service #{service_def.name} specifies unknown storage location '#{dest}'" \
               + " as a replication destination")
@@ -76,6 +75,29 @@ module Longleaf
       else
         raise PreservationServiceError.new("Replication from storage location of type " \
             + "#{file_rec.storage_location.type} to s3 is not supported")
+      end
+    end
+
+    # Determine if this service is applicable for the provided event, given the configured service definition
+    #
+    # @param event [String] name of the event
+    # @return [Boolean] returns true if this service is applicable for the provided event
+    def is_applicable?(event)
+      case event
+      when EventNames::PRESERVE
+        true
+      else
+        false
+      end
+    end
+
+    private
+    def verify_destination_available(destination, file_rec)
+      begin
+        destination.available?
+      rescue StorageLocationUnavailableError => e
+        raise StorageLocationUnavailableError.new("Cannot replicate #{file_rec.path} to destination #{destination.name}: " \
+            + e.message)
       end
     end
 
@@ -102,29 +124,6 @@ module Longleaf
         logger.info("Replicated #{file_rec.path} to s3://#{destination.s3_bucket.name}/#{rel_to_bucket}")
 
         # TODO register file in destination
-      end
-    end
-
-    # Determine if this service is applicable for the provided event, given the configured service definition
-    #
-    # @param event [String] name of the event
-    # @return [Boolean] returns true if this service is applicable for the provided event
-    def is_applicable?(event)
-      case event
-      when EventNames::PRESERVE
-        true
-      else
-        false
-      end
-    end
-
-    private
-    def verify_destination_available(destination, file_rec)
-      begin
-        destination.available?
-      rescue StorageLocationUnavailableError => e
-        raise StorageLocationUnavailableError.new("Cannot replicate #{file_rec.path} to destination #{destination.name}: " \
-            + e.message)
       end
     end
   end
