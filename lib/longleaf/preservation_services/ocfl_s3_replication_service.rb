@@ -167,9 +167,7 @@ module Longleaf
     #
     # Two strategies are used depending on the file's location within the OCFL object:
     #
-    # * Files under a committed version directory (`vN/`) — both content files and version
-    #   inventories are immutable once the version is committed. Existence alone is sufficient
-    #   and avoids potentially expensive MD5 computation on large version inventory files.
+    # * Files under a committed version directory (`vN/`) — Immutable so existence checks are sufficient.
     #
     # * All other files (root inventory/sidecar, namaste, mutable head inventory/sidecar,
     #   mutable head content, revision markers) — these can change over the life of an object.
