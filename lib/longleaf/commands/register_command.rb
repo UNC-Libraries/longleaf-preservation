@@ -2,9 +2,9 @@ require 'longleaf/services/application_config_deserializer'
 require 'longleaf/events/register_event'
 require 'longleaf/events/register_ocfl_event'
 require 'longleaf/models/file_record'
+require 'longleaf/models/md_fields'
 require 'longleaf/events/event_names'
 require 'longleaf/events/event_status_tracking'
-require 'longleaf/models/md_fields'
 require 'longleaf/candidates/ocfl_file_selector'
 
 module Longleaf

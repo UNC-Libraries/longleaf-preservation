@@ -58,6 +58,11 @@ module Longleaf
       @mutable_head
     end
 
+    # @return [String] the default object type for objects in this OCFL storage location
+    def default_object_type
+      MDFields::OCFL_TYPE
+    end
+
     # Override to supply OCFL object type so that the metadata location produces
     # the correct sidecar path for OCFL object directories (which end with '/').
     # For the storage root path itself (empty relative path), returns the metadata

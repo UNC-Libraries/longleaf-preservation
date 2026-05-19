@@ -258,8 +258,7 @@ describe Longleaf::RegisteredFileSelector do
       object_path = File.join(ocfl_root, obj_name) + '/'
       FileUtils.mkdir_p(object_path)
       storage_loc = ocfl_app_config.location_manager.get_location_by_path(object_path)
-      file_rec = Longleaf::FileRecord.new(object_path, storage_loc, nil, nil,
-                                          object_type: Longleaf::MDFields::OCFL_TYPE)
+      file_rec = Longleaf::FileRecord.new(object_path, storage_loc)
       MetadataBuilder.new.write_to_yaml_file(file_rec: file_rec)
       object_path
     end
