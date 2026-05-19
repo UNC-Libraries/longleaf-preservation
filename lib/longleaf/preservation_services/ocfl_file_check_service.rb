@@ -34,6 +34,7 @@ module Longleaf
       end
 
       total_size, file_count, last_modified = OcflHelper.summarized_file_info(phys_path)
+      actual_last_modified = last_modified&.utc&.iso8601(3)
 
       if file_count != md_rec.file_count
         raise PreservationServiceError.new("File count for OCFL object #{phys_path} does not match the expected value: registered = #{md_rec.file_count} files, actual = #{file_count} files")
@@ -43,8 +44,8 @@ module Longleaf
         raise PreservationServiceError.new("File size for OCFL object #{phys_path} does not match the expected value: registered = #{md_rec.file_size} bytes, actual = #{total_size} bytes")
       end
 
-      if last_modified != md_rec.last_modified
-        raise PreservationServiceError.new("Last modified timestamp for OCFL object #{phys_path} does not match the expected value: registered = #{md_rec.last_modified}, actual = #{last_modified}")
+      if actual_last_modified != md_rec.last_modified
+        raise PreservationServiceError.new("Last modified timestamp for OCFL object #{phys_path} does not match the expected value: registered = #{md_rec.last_modified}, actual = #{actual_last_modified}")
       end
     end
 
