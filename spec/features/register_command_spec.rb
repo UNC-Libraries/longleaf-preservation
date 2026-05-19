@@ -660,6 +660,7 @@ describe 'register', :type => :aruba do
     end
   end
 
+  if RUBY_ENGINE == 'jruby'
   context 'with OCFL objects' do
     let(:ocfl_work_dir) { Dir.mktmpdir('ocfl-work') }
     let(:ocfl_root_dir) { File.join(path_dir, 'ocfl-root') + '/' }
@@ -756,6 +757,7 @@ describe 'register', :type => :aruba do
     end
 
   end
+  end # jruby only
 
   def get_metadata_record_path(file_path, md_dir)
     File.join(md_dir, File.basename(file_path) + Longleaf::MetadataSerializer::metadata_suffix)
