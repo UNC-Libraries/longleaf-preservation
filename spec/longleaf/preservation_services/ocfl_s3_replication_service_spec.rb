@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'longleaf/errors'
 require 'longleaf/preservation_services/ocfl_s3_replication_service'
+require 'longleaf/models/md_fields'
 require 'longleaf/models/service_fields'
 require 'longleaf/models/storage_types'
 require 'longleaf/specs/file_helpers'
@@ -55,6 +56,7 @@ describe Longleaf::OcflS3ReplicationService do
     )
     allow(loc).to receive(:relativize) { |fp| fp.sub(/\A#{Regexp.escape(path.chomp('/'))}\// , '') }
     allow(loc).to receive(:mutable_head?).and_return(mutable_head)
+    allow(loc).to receive(:default_object_type).and_return(Longleaf::MDFields::OCFL_TYPE)
     loc
   end
 

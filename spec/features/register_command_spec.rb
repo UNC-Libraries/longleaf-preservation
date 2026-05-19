@@ -661,13 +661,20 @@ describe 'register', :type => :aruba do
   end
 
   context 'with OCFL objects' do
+    let(:ocfl_work_dir) { Dir.mktmpdir('ocfl-work') }
+    let(:ocfl_root_dir) { File.join(path_dir, 'ocfl-root') + '/' }
     let!(:config_path) {
-      ConfigBuilder.new
-        .with_location(name: 'loc1', path: path_dir, md_path: md_dir)
+      b = ConfigBuilder.new
+        .with_location(name: 'loc1', path: ocfl_root_dir, s_type: 'ocfl', md_path: md_dir)
         .with_service(name: 'serv1')
         .map_services('loc1', 'serv1')
-        .write_to_yaml_file
+      b.get['locations']['loc1']['work_dir'] = ocfl_work_dir
+      b.write_to_yaml_file
     }
+
+    after do
+      FileUtils.rm_rf(ocfl_work_dir)
+    end
 
     let(:ocfl_object_path1) { '141/964/af8/141964af842132b7a706ed010474c410514b472acc0d7d8f805c23e748578b8b' }
     let(:ocfl_object_path2) { '51c/fdc/952/51cfdc9524d4088a1259c0c099ec2c6e9c82f69beda7920911c105e56810eeeb' }
@@ -682,7 +689,7 @@ describe 'register', :type => :aruba do
 
     context 'register OCFL object with -f parameter' do
       before do
-        run_command_and_stop("longleaf register -c #{config_path} -f '#{ocfl_path1}' --ocfl", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{ocfl_path1}'", fail_on_error: false)
       end
 
       it 'registers the OCFL object' do
@@ -700,8 +707,8 @@ describe 'register', :type => :aruba do
 
     context 'register OCFL object more than once with force flag' do
       before do
-        run_command_and_stop("longleaf register -c #{config_path} -f '#{ocfl_path1}' --ocfl", fail_on_error: false)
-        run_command_and_stop("longleaf register -c #{config_path} -f '#{ocfl_path1}' --ocfl --force", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{ocfl_path1}'", fail_on_error: false)
+        run_command_and_stop("longleaf register -c #{config_path} -f '#{ocfl_path1}' --force", fail_on_error: false)
       end
 
       it 'registers the OCFL object' do
@@ -723,7 +730,7 @@ describe 'register', :type => :aruba do
                        "#{ocfl_path2}") }
 
       before do
-        run_command_and_stop("longleaf register -c #{config_path} -l '#{list_file}' --ocfl")
+        run_command_and_stop("longleaf register -c #{config_path} -l '#{list_file}'")
       end
 
       it 'registers both OCFL objects' do
@@ -748,19 +755,6 @@ describe 'register', :type => :aruba do
       end
     end
 
-    context 'register OCFL object with -s parameter' do
-      before do
-        run_command_and_stop("longleaf register -c #{config_path} -s 'loc1'", fail_on_error: false)
-      end
-
-      it 'does not register directories as files' do
-        expect(last_command_started).to_not have_output(/SUCCESS register #{ocfl_path1}/)
-        expect(last_command_started).to_not have_output(/SUCCESS register #{ocfl_path2}/)
-        expect(metadata_created(ocfl_path1, md_dir)).to be false
-        expect(metadata_created(ocfl_path2, md_dir)).to be false
-        expect(last_command_started).to have_exit_status(0)
-      end
-    end
   end
 
   def get_metadata_record_path(file_path, md_dir)
@@ -776,7 +770,7 @@ describe 'register', :type => :aruba do
   end
 
   def get_ocfl_metadata_record_path(file_path, md_dir)
-    File.join(md_dir, 'ocfl-root', file_path + Longleaf::MetadataSerializer::metadata_suffix)
+    File.join(md_dir, file_path + Longleaf::MetadataSerializer::metadata_suffix)
   end
 
   def get_ocfl_metadata_record(file_path, md_dir)

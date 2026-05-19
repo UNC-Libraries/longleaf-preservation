@@ -2,7 +2,6 @@ require 'longleaf/services/application_config_deserializer'
 require 'longleaf/events/register_event'
 require 'longleaf/events/register_ocfl_event'
 require 'longleaf/models/file_record'
-require 'longleaf/models/md_fields'
 require 'longleaf/events/event_names'
 require 'longleaf/events/event_status_tracking'
 require 'longleaf/candidates/ocfl_file_selector'
@@ -35,8 +34,7 @@ module Longleaf
           storage_location = @app_manager.location_manager.get_location_by_path(f_path)
 
           phys_path = physical_provider.get_physical_path(f_path)
-          object_type = ocfl_mode ? MDFields::OCFL_TYPE : nil
-          file_rec = FileRecord.new(f_path, storage_location, nil, phys_path, object_type: object_type)
+          file_rec = FileRecord.new(f_path, storage_location, nil, phys_path)
 
           if ocfl_mode
             register_event = RegisterOcflEvent.new(file_rec: file_rec, force: force, app_manager: @app_manager,
