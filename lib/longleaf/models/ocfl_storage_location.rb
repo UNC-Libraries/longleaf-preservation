@@ -4,6 +4,7 @@ end
 
 require 'longleaf/models/filesystem_storage_location'
 require 'longleaf/models/storage_types'
+require 'longleaf/models/md_fields'
 require 'longleaf/errors'
 
 java_import 'io.ocfl.api.DigestAlgorithmRegistry'
@@ -55,6 +56,21 @@ module Longleaf
     # @return [Boolean] true if objects in this repository use the OCFL mutable head extension
     def mutable_head?
       @mutable_head
+    end
+
+    # Override to supply OCFL object type so that the metadata location produces
+    # the correct sidecar path for OCFL object directories (which end with '/').
+    # For the storage root path itself (empty relative path), returns the metadata
+    # root directory so that location-based directory traversal works correctly.
+    def get_metadata_path_for(file_path, object_type: MDFields::OCFL_TYPE)
+      super(file_path, object_type: relativize(file_path).empty? ? nil : object_type)
+    end
+
+    # Override to restore the trailing slash on OCFL object directory paths when
+    # reconstructing them from their metadata sidecar path.
+    def get_path_from_metadata_path(md_path)
+      file_path = super(md_path)
+      file_path.end_with?(File::SEPARATOR) ? file_path : file_path + File::SEPARATOR
     end
 
     # Returns a lazily initialized read-only OcflRepository for this storage location.

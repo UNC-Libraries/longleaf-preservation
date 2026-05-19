@@ -3,8 +3,13 @@ require 'spec_helper'
 if RUBY_ENGINE == 'jruby'
   require 'longleaf/models/ocfl_storage_location'
   require 'longleaf/models/app_fields'
+  require 'longleaf/services/metadata_serializer'
+  require 'fileutils'
+  require 'tmpdir'
 
   describe Longleaf::OcflStorageLocation do
+
+    OCFL_OBJECT_REL_PATH ||= '141/964/af8/141964af842132b7a706ed010474c410514b472acc0d7d8f805c23e748578b8b'
 
     describe '.initialize' do
       context 'with no config' do
@@ -84,6 +89,42 @@ if RUBY_ENGINE == 'jruby'
 
         it 'raises an ArgumentError when the repository is first accessed' do
           expect { location.ocfl_repository }.to raise_error(ArgumentError, /sha3-256/)
+        end
+      end
+    end
+
+    describe '.get_metadata_path_for' do
+      let(:md_dir) { Dir.mktmpdir('metadata') }
+      let(:location) { build(:ocfl_storage_location, metadata_path: md_dir) }
+
+      after { FileUtils.rm_rf(md_dir) }
+
+      context 'with an OCFL object directory path' do
+        it 'returns the sidecar metadata path without requiring explicit object_type' do
+          object_path = File.join(location.path, OCFL_OBJECT_REL_PATH) + '/'
+          expected = File.join(md_dir, OCFL_OBJECT_REL_PATH) + Longleaf::MetadataSerializer.metadata_suffix
+          expect(location.get_metadata_path_for(object_path)).to eq expected
+        end
+      end
+
+      context 'with the storage root path' do
+        it 'returns the metadata root directory to allow directory traversal' do
+          expect(location.get_metadata_path_for(location.path)).to eq location.metadata_location.path
+        end
+      end
+    end
+
+    describe '.get_path_from_metadata_path' do
+      let(:md_dir) { Dir.mktmpdir('metadata') }
+      let(:location) { build(:ocfl_storage_location, metadata_path: md_dir) }
+
+      after { FileUtils.rm_rf(md_dir) }
+
+      context 'with an OCFL sidecar metadata path' do
+        it 'returns the OCFL object directory path with a trailing slash' do
+          sidecar_path = File.join(md_dir, OCFL_OBJECT_REL_PATH) + Longleaf::MetadataSerializer.metadata_suffix
+          expected = File.join(location.path, OCFL_OBJECT_REL_PATH) + '/'
+          expect(location.get_path_from_metadata_path(sidecar_path)).to eq expected
         end
       end
     end
