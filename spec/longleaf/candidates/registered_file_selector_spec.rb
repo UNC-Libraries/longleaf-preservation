@@ -201,7 +201,9 @@ describe Longleaf::RegisteredFileSelector do
           }
 
           it 'returns the OCFL object path with trailing slash' do
-            expect(selector.next_path).to eq object_path
+            path = selector.next_path
+            expect(path).to eq object_path
+            expect(path).to end_with('/')
             expect(selector.next_path).to be_nil
           end
         end

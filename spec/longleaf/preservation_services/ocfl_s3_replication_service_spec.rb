@@ -13,8 +13,8 @@ require 'tmpdir'
 describe Longleaf::OcflS3ReplicationService do
   include Longleaf::FileHelpers
 
-  SF   ||= Longleaf::ServiceFields
-  ST   ||= Longleaf::StorageTypes
+  SF ||= Longleaf::ServiceFields
+  ST ||= Longleaf::StorageTypes
   OcflS3Service ||= Longleaf::OcflS3ReplicationService
   PRESERVE_EVENT ||= Longleaf::EventNames::PRESERVE
   PreservationServiceError ||= Longleaf::PreservationServiceError

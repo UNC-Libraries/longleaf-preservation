@@ -375,9 +375,7 @@ describe Longleaf::SelectionOptionsParser do
           list_file.write(ocfl_path1 + "\n")
           list_file.write(ocfl_path2 + "\n")
           list_file.rewind
-        end
 
-        before do
           fixtures_path = File.join(__dir__, '../../fixtures/ocfl-root')
           FileUtils.cp_r(fixtures_path, path_dir1, preserve: true)
         end
