@@ -64,7 +64,27 @@ module Longleaf
     end
 
     def self.initialize_file_selector(file_paths, physical_provider, app_config_manager, options)
-      if options[:ocfl]
+      found_ocfl = false
+      found_non_ocfl = false
+
+      file_paths.each do |path|
+        location = app_config_manager.location_manager.get_location_by_path(path)
+        next if location.nil?
+
+        if !location.default_object_type.nil?
+          found_ocfl = true
+        else
+          found_non_ocfl = true
+        end
+
+        break if found_ocfl && found_non_ocfl
+      end
+
+      if found_ocfl && found_non_ocfl
+        raise Longleaf::SelectionError, "Cannot mix OCFL and non-OCFL storage locations in a single operation"
+      end
+
+      if found_ocfl
         return OcflFileSelector.new(file_paths: file_paths,
              physical_provider: physical_provider,
              app_config: app_config_manager)

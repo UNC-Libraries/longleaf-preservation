@@ -34,6 +34,11 @@ module Longleaf
       @metadata_location.metadata_path_for(rel_file_path, object_type: object_type)
     end
 
+    # @return [String, nil] the default object type for files in this storage location, or nil if not applicable
+    def default_object_type
+      nil
+    end
+
     # @param [String] path to check
     # @return true if the file path is contained by the path for this location
     def contains?(file_path)

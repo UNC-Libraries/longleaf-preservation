@@ -17,7 +17,7 @@ module Longleaf
       @storage_location = storage_location
       @metadata_record = metadata_record
       @physical_path = physical_path
-      @object_type = object_type
+      @object_type = object_type || storage_location.default_object_type
     end
 
     # @return [String] path for the metadata file for this file

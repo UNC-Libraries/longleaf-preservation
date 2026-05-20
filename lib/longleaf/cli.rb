@@ -142,11 +142,6 @@ module Longleaf
         :type => :boolean,
         :default => false,
         :desc => 'Force the registration of already registered files.')
-    method_option(:ocfl,
-        :type => :boolean,
-        :default => false,
-        :desc => %q{If set, the target files will be consider OCFL object directories rather than individual files.
-          Cannot be used with the --manifest option, to submit multiple objects at once use -f or -l})
     method_option(:checksums,
         :desc => %q{Checksums for the submitted file. Only applicable with the -f option.
           Each checksum must be prefaced with an algorithm prefix. Multiple checksums must be comma separated. If multiple files were submitted, they will be provided with the same checksums. For example:

@@ -4,6 +4,7 @@ end
 
 require 'longleaf/models/filesystem_storage_location'
 require 'longleaf/models/storage_types'
+require 'longleaf/models/md_fields'
 require 'longleaf/errors'
 
 java_import 'io.ocfl.api.DigestAlgorithmRegistry'
@@ -25,12 +26,15 @@ module Longleaf
   #   * 'work_dir'          - Path to a scratch directory used by ocfl-java for assembling
   #                          object versions. Required by the ocfl-java builder even for
   #                          read-only use. The directory will be created if it does not exist.
+  #   * 'mutable_head'      - Whether objects in this repository use the OCFL mutable head
+  #                          extension (0005-mutable-head). Default: false.
   class OcflStorageLocation < FilesystemStorageLocation
     OCFL_STORAGE_TYPE = 'ocfl'
 
     DIGEST_ALGORITHM_PROPERTY = 'digest_algorithm'
     VERIFY_INVENTORY_PROPERTY = 'verify_inventory'
     WORK_DIR_PROPERTY = 'work_dir'
+    MUTABLE_HEAD_PROPERTY = 'mutable_head'
 
     DEFAULT_DIGEST_ALGORITHM = 'sha512'
 
@@ -41,11 +45,37 @@ module Longleaf
       @work_dir = config[WORK_DIR_PROPERTY]
       raise ArgumentError.new("Parameter '#{WORK_DIR_PROPERTY}' is required for OCFL storage location #{name}") \
           if @work_dir.nil? || @work_dir.empty?
+      @mutable_head = config.key?(MUTABLE_HEAD_PROPERTY) ? config[MUTABLE_HEAD_PROPERTY] : false
     end
 
     # @return the storage type for this location
     def type
       OCFL_STORAGE_TYPE
+    end
+
+    # @return [Boolean] true if objects in this repository use the OCFL mutable head extension
+    def mutable_head?
+      @mutable_head
+    end
+
+    # @return [String] the default object type for objects in this OCFL storage location
+    def default_object_type
+      MDFields::OCFL_TYPE
+    end
+
+    # Override to supply OCFL object type so that the metadata location produces
+    # the correct sidecar path for OCFL object directories (which end with '/').
+    # For the storage root path itself (empty relative path), returns the metadata
+    # root directory so that location-based directory traversal works correctly.
+    def get_metadata_path_for(file_path, object_type: MDFields::OCFL_TYPE)
+      super(file_path, object_type: relativize(file_path).empty? ? nil : object_type)
+    end
+
+    # Override to restore the trailing slash on OCFL object directory paths when
+    # reconstructing them from their metadata sidecar path.
+    def get_path_from_metadata_path(md_path)
+      file_path = super(md_path)
+      file_path.end_with?(File::SEPARATOR) ? file_path : file_path + File::SEPARATOR
     end
 
     # Returns a lazily initialized read-only OcflRepository for this storage location.

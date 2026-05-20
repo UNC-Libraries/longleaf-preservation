@@ -3,7 +3,6 @@ require 'longleaf/logging'
 require 'longleaf/errors'
 require 'longleaf/models/file_record'
 require 'longleaf/models/service_fields'
-require 'longleaf/events/register_event'
 require 'longleaf/models/storage_types'
 require 'aws-sdk-s3'
 
@@ -56,7 +55,7 @@ module Longleaf
             raise ArgumentError.new(
                 "Service #{service_def.name} specifies destination #{dest} which is not of type 's3'")
           end
-          @destinations << loc_manager.locations[dest]
+          @destinations << location
         else
           raise ArgumentError.new("Service #{service_def.name} specifies unknown storage location '#{dest}'" \
               + " as a replication destination")
@@ -76,32 +75,6 @@ module Longleaf
       else
         raise PreservationServiceError.new("Replication from storage location of type " \
             + "#{file_rec.storage_location.type} to s3 is not supported")
-      end
-    end
-
-    def replicate_from_fs(file_rec)
-      # Determine the path to the file being replicated relative to its storage location
-      rel_path = file_rec.storage_location.relativize(file_rec.path)
-
-      @destinations.each do |destination|
-        # Check that the destination is available before attempting to write
-        verify_destination_available(destination, file_rec)
-
-        rel_to_bucket = destination.relative_to_bucket_path(rel_path)
-        file_obj = destination.s3_bucket.object(rel_to_bucket)
-        begin
-          file_obj.upload_file(file_rec.physical_path)
-        rescue Aws::S3::Errors::BadDigest => e
-          raise ChecksumMismatchError.new("Transfer to bucket '#{destination.s3_bucket.name}' failed, " \
-              + "MD5 provided did not match the received content for #{file_rec.path}")
-        rescue Aws::Errors::ServiceError => e
-          raise PreservationServiceError.new("Failed to transfer #{file_rec.path} to bucket " \
-              + "'#{destination.s3_bucket.name}': #{e.message}")
-        end
-
-        logger.info("Replicated #{file_rec.path} to destination #{file_obj.public_url}")
-
-        # TODO register file in destination
       end
     end
 
@@ -125,6 +98,32 @@ module Longleaf
       rescue StorageLocationUnavailableError => e
         raise StorageLocationUnavailableError.new("Cannot replicate #{file_rec.path} to destination #{destination.name}: " \
             + e.message)
+      end
+    end
+
+    def replicate_from_fs(file_rec)
+      # Determine the path to the file being replicated relative to its storage location
+      rel_path = file_rec.storage_location.relativize(file_rec.path)
+
+      @destinations.each do |destination|
+        # Check that the destination is available before attempting to write
+        verify_destination_available(destination, file_rec)
+
+        rel_to_bucket = destination.relative_to_bucket_path(rel_path)
+        transfer_manager = Aws::S3::TransferManager.new(client: destination.s3_client)
+        begin
+          transfer_manager.upload_file(file_rec.physical_path, bucket: destination.s3_bucket.name, key: rel_to_bucket)
+        rescue Aws::S3::Errors::BadDigest => e
+          raise ChecksumMismatchError.new("Transfer to bucket '#{destination.s3_bucket.name}' failed, " \
+              + "MD5 provided did not match the received content for #{file_rec.path}")
+        rescue Aws::Errors::ServiceError => e
+          raise PreservationServiceError.new("Failed to transfer #{file_rec.path} to bucket " \
+              + "'#{destination.s3_bucket.name}': #{e.message}")
+        end
+
+        logger.info("Replicated #{file_rec.path} to s3://#{destination.s3_bucket.name}/#{rel_to_bucket}")
+
+        # TODO register file in destination
       end
     end
   end

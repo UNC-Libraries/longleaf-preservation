@@ -30,7 +30,8 @@ module Longleaf
         rel_path = file_rec.storage_location.relativize(file_rec.path)
 
         options = @options
-        options = options + " -R"
+        # Force recursive copying, and relative paths
+        options = options + " -rR"
         # source path with . so that rsync will only create destination directories starting from that point
         source_path = File.join(file_rec.storage_location.path, "./#{rel_path}")
 

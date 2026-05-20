@@ -177,21 +177,71 @@ describe Longleaf::SelectionOptionsParser do
         expect(collect_paths(selector)).to eq [file_path1, file_path2]
       end
 
-      context 'with ocfl objects' do
-        before do
-          fixtures_path = File.join(__dir__, '../../fixtures/ocfl-root')
-          FileUtils.cp_r(fixtures_path, path_dir1, preserve: true)
+      if RUBY_ENGINE == 'jruby'
+        OcflStorageLocation ||= Longleaf::OcflStorageLocation
+        AF ||= Longleaf::AppFields
+
+        context 'with ocfl objects' do
+          let(:ocfl_work_dir) { Dir.mktmpdir('ocfl-work') }
+          let(:ocfl_config) {
+            c = ConfigBuilder.new
+              .with_services
+              .with_location(name: 'loc1', path: path_dir1, s_type: 'ocfl', md_path: md_dir1)
+              .with_mappings
+              .get
+            c[AF::LOCATIONS]['loc1'][OcflStorageLocation::WORK_DIR_PROPERTY] = ocfl_work_dir
+            c
+          }
+          let(:ocfl_app_config_manager) { build(:application_config_manager, config: ocfl_config) }
+
+          before do
+            fixtures_path = File.join(__dir__, '../../fixtures/ocfl-root')
+            FileUtils.cp_r(fixtures_path, path_dir1, preserve: true)
+          end
+
+          after do
+            FileUtils.rm_rf(ocfl_work_dir)
+          end
+
+          it 'returns selector for single file' do
+            options = { file: ocfl_path1 }
+
+            selector, digest_provider, physical_provider = SelectionOptionsParser.parse_registration_selection_options(options, ocfl_app_config_manager)
+
+            expect(selector).to be_a(OcflFileSelector)
+            expect(collect_paths(selector)).to eq [expected_ocfl_path1]
+            expect(digest_provider).to be_nil
+            expect(physical_provider).to be_a(PhysicalPathProvider)
+          end
         end
 
-        it 'returns selector for single file with OCFL flag' do
-          options = { file: ocfl_path1, ocfl: true }
+        context 'with mixed ocfl and non-ocfl locations' do
+          let(:path_dir2) { make_test_dir(name: 'path2') }
+          let(:md_dir2) { make_test_dir(name: 'metadata2') }
+          let(:ocfl_work_dir) { Dir.mktmpdir('ocfl-work') }
+          let(:mixed_ocfl_path) { File.join(path_dir2, ocfl_object_path1) }
+          let(:mixed_config) {
+            c = ConfigBuilder.new
+              .with_services
+              .with_location(name: 'loc1', path: path_dir1, md_path: md_dir1)
+              .with_location(name: 'loc2', path: path_dir2, s_type: 'ocfl', md_path: md_dir2)
+              .with_mappings
+              .get
+            c[AF::LOCATIONS]['loc2'][OcflStorageLocation::WORK_DIR_PROPERTY] = ocfl_work_dir
+            c
+          }
+          let(:mixed_app_config_manager) { build(:application_config_manager, config: mixed_config) }
 
-          selector, digest_provider, physical_provider = SelectionOptionsParser.parse_registration_selection_options(options, app_config_manager)
+          after do
+            FileUtils.rm_rf([path_dir2, md_dir2, ocfl_work_dir])
+          end
 
-          expect(selector).to be_a(OcflFileSelector)
-          expect(collect_paths(selector)).to eq [expected_ocfl_path1]
-          expect(digest_provider).to be_nil
-          expect(physical_provider).to be_a(PhysicalPathProvider)
+          it 'raises SelectionError when mixing OCFL and non-OCFL paths' do
+            options = { file: "#{file_path1}, #{mixed_ocfl_path}" }
+
+            expect { SelectionOptionsParser.parse_registration_selection_options(options, mixed_app_config_manager) }
+              .to raise_error(Longleaf::SelectionError, /Cannot mix OCFL and non-OCFL/)
+          end
         end
       end
 
@@ -297,34 +347,49 @@ describe Longleaf::SelectionOptionsParser do
       end
     end
 
-    context 'with from_list option and ocfl objects' do
-      let(:list_file) { Tempfile.new(['filelist', '.txt']) }
+    if RUBY_ENGINE == 'jruby'
+      OcflStorageLocation ||= Longleaf::OcflStorageLocation
+      AF ||= Longleaf::AppFields
 
-      after do
-        list_file.close
-        list_file.unlink
-      end
+      context 'with from_list option and ocfl objects' do
+        let(:list_file) { Tempfile.new(['filelist', '.txt']) }
+        let(:ocfl_work_dir) { Dir.mktmpdir('ocfl-work') }
+        let(:ocfl_config) {
+          c = ConfigBuilder.new
+            .with_services
+            .with_location(name: 'loc1', path: path_dir1, s_type: 'ocfl', md_path: md_dir1)
+            .with_mappings
+            .get
+          c[AF::LOCATIONS]['loc1'][OcflStorageLocation::WORK_DIR_PROPERTY] = ocfl_work_dir
+          c
+        }
+        let(:ocfl_app_config_manager) { build(:application_config_manager, config: ocfl_config) }
 
-      before do
-        list_file.write(ocfl_path1 + "\n")
-        list_file.write(ocfl_path2 + "\n")
-        list_file.rewind
-      end
+        after do
+          list_file.close
+          list_file.unlink
+          FileUtils.rm_rf(ocfl_work_dir)
+        end
 
-      before do
-        fixtures_path = File.join(__dir__, '../../fixtures/ocfl-root')
-        FileUtils.cp_r(fixtures_path, path_dir1, preserve: true)
-      end
+        before do
+          list_file.write(ocfl_path1 + "\n")
+          list_file.write(ocfl_path2 + "\n")
+          list_file.rewind
 
-      it 'returns selector from file list with correct file paths with OCFL flag' do
-        options = { from_list: list_file.path, ocfl: true }
+          fixtures_path = File.join(__dir__, '../../fixtures/ocfl-root')
+          FileUtils.cp_r(fixtures_path, path_dir1, preserve: true)
+        end
 
-        selector, digest_provider, physical_provider = SelectionOptionsParser.parse_registration_selection_options(options, app_config_manager)
+        it 'returns selector from file list with correct file paths' do
+          options = { from_list: list_file.path }
 
-        expect(selector).to be_a(OcflFileSelector)
-        expect(collect_paths(selector)).to eq [expected_ocfl_path1, expected_ocfl_path2]
-        expect(digest_provider).to be_nil
-        expect(physical_provider).to be_a(PhysicalPathProvider)
+          selector, digest_provider, physical_provider = SelectionOptionsParser.parse_registration_selection_options(options, ocfl_app_config_manager)
+
+          expect(selector).to be_a(OcflFileSelector)
+          expect(collect_paths(selector)).to eq [expected_ocfl_path1, expected_ocfl_path2]
+          expect(digest_provider).to be_nil
+          expect(physical_provider).to be_a(PhysicalPathProvider)
+        end
       end
     end
 

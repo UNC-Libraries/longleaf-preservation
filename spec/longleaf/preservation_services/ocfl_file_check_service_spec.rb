@@ -110,7 +110,7 @@ describe Longleaf::OcflFileCheckService do
 
       it 'raises PreservationServiceError' do
         expect { service.perform(file_rec, PRESERVE_EVENT) }.to raise_error(PreservationServiceError,
-            /Last modified timestamp for OCFL object #{file_rec.physical_path} does not match the expected value/)
+            /Last modified timestamp for OCFL object #{file_rec.physical_path} does not match the expected value: registered = .+, actual = \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/)
       end
     end
 
@@ -173,7 +173,7 @@ describe Longleaf::OcflFileCheckService do
 
     MetadataBuilder.new(file_path: file_path)
         .with_file_count(file_count)
-        .with_last_modified(last_modified)
+        .with_last_modified(last_modified&.utc&.iso8601(3))
         .with_file_size(total_size)
         .with_object_type(MDFields::OCFL_TYPE)
         .register_to(file_rec)

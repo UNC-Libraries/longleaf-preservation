@@ -170,8 +170,9 @@ describe Longleaf::OcflRsyncReplicationService do
 
         replica_path = File.join(path_dest_dir, 'ocfl-root', ocfl_object_path)
 
-        # Verify all files exist in replica
+        # Verify all files exist in replica, including files in nested subdirectories
         expect(Dir.exist?(replica_path)).to be true
+        expect(File.exist?(File.join(replica_path, 'v1', 'content', '.fcrepo', 'fcr-root.json'))).to be true
         verify_all_files_replicated(original_object_path, replica_path)
 
         # Verify metadata was created
