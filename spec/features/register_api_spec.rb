@@ -209,6 +209,14 @@ describe 'POST /api/register' do
         md_rec = get_metadata_record(file_path)
         expect(md_rec.checksums['md5']).to eq md5_digest
       end
+
+      it 'returns 400 when an unsupported checksum parameter is provided' do
+        post_register(file: file_path, checksum: "md5:#{md5_digest}")
+
+        expect(last_response.status).to eq 400
+        expect(response_body['error']).to include('checksum')
+        expect(metadata_exists?(file_path)).to be false
+      end
     end
 
     context 'register a file with a separate physical path' do
