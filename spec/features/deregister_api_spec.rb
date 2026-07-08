@@ -114,6 +114,18 @@ describe 'POST /api/deregister' do
       end
     end
 
+    context 'when an unsupported parameter is provided' do
+      let!(:file_path) { create_test_file(dir: path_dir) }
+
+      before { register_files(file_path) }
+
+      it 'returns 400' do
+        call_deregister(file: file_path, checksum: 'sha1:abc123')
+        expect(last_response.status).to eq 400
+        expect(response_body['error']).to include('checksum')
+      end
+    end
+
     context 'when the file is not registered' do
       let!(:file_path) { create_test_file(dir: path_dir) }
 
