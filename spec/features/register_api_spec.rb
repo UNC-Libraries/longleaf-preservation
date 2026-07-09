@@ -196,6 +196,25 @@ describe 'POST /api/register' do
       end
     end
 
+    context 'register an already-registered file and add checksum' do
+      let(:content)    { 'deterministic content for sha1' }
+      let!(:file_path) { create_test_file(dir: path_dir, content: content) }
+      let(:sha1_digest) { Digest::SHA1.hexdigest(content) }
+
+      # First register without checksums
+      before { post_register(file: file_path) }
+
+      it 'adds a sha1 checksum on re-registration with force: true' do
+        # Re-register with checksum
+        post_register(file: file_path, checksums: "sha1:#{sha1_digest}", force: 'true')
+
+        expect(last_response.status).to eq 200
+        expect(response_body['success']).to include(file_path)
+        md_rec = get_metadata_record(file_path)
+        expect(md_rec.checksums['sha1']).to eq sha1_digest
+      end
+    end
+
     context 'register a file with explicit checksums' do
       let(:content)    { 'deterministic content' }
       let!(:file_path) { create_test_file(dir: path_dir, content: content) }
