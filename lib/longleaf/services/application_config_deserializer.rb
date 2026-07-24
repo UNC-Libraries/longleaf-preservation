@@ -67,6 +67,7 @@ module Longleaf
         end
         if md_config.is_a?(String)
           md_config = { AF::LOCATION => m_config }
+          properties[AF::METADATA_CONFIG] = md_config
         end
         md_config[AF::LOCATION_PATH] = make_file_paths_absolute(base_pathname, md_config)
       end
