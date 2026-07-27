@@ -11,8 +11,12 @@ module Longleaf
       # @param log_format [String] format string for log entries to STDERR. There are 4 variables available
       #    for inclusion in the output: severity, datetime, progname, msg. Variables must be wrapped in %{}.
       # @param datetime_format [String] datetime formatting string used for logger dates appearing in STDERR.
-      def initialize(failure_only: false, log_level: 'WARN', log_format: nil, datetime_format: nil)
-        @stderr_log = Logger.new($stderr)
+      # @param stdout_path [String, nil] optional file path for outcome logging.
+      # @param stderr_path [String, nil] optional file path for status/error logging.
+      # @param shift_age [Integer, String, nil] logger rotation age, such as 'daily'.
+      def initialize(failure_only: false, log_level: 'WARN', log_format: nil, datetime_format: nil,
+                     stdout_path: nil, stderr_path: nil, shift_age: nil)
+        @stderr_log = build_logger(stderr_path, $stderr, shift_age)
         @stderr_log.level = log_level
         @stderr_log.datetime_format = datetime_format
         @log_format = log_format
@@ -31,7 +35,7 @@ module Longleaf
           end
         end
 
-        @stdout_log = Logger.new($stdout)
+        @stdout_log = build_logger(stdout_path, $stdout, shift_age)
         @stdout_log.formatter = proc do |severity, datetime, progname, msg|
           "#{msg}\n"
         end
@@ -115,6 +119,13 @@ module Longleaf
       end
 
       private
+
+      def build_logger(path, stream, shift_age)
+        return Logger.new(stream) if path.nil?
+
+        shift_age.nil? ? Logger.new(path) : Logger.new(path, shift_age)
+      end
+
       def outcome_text(outcome, eventOrMessage, file_name = nil, message = nil, service = nil, error = nil)
         message_only = file_name.nil? && message.nil? && error.nil?
 

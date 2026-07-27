@@ -184,4 +184,43 @@ describe Longleaf::Logging::RedirectingLogger do
       end
     end
   end
+
+  describe 'file-backed logging' do
+    let(:log_dir) { Dir.mktmpdir('longleaf-logs') }
+    let(:stdout_log_path) { File.join(log_dir, 'longleaf.log') }
+    let(:stderr_log_path) { File.join(log_dir, 'longleaf-error.log') }
+    let(:logger) do
+      described_class.new(
+        log_level: 'DEBUG',
+        stdout_path: stdout_log_path,
+        stderr_path: stderr_log_path,
+        shift_age: 'daily'
+      )
+    end
+
+    after do
+      FileUtils.remove_entry(log_dir)
+    end
+
+    it 'writes outcome messages to the stdout log file' do
+      logger.success('good')
+
+      expect(File.read(stdout_log_path)).to include('SUCCESS: good')
+    end
+
+    it 'writes status messages to the stderr log file' do
+      logger.error('bad')
+
+      expect(File.read(stderr_log_path)).to include('ERROR')
+      expect(File.read(stderr_log_path)).to include('bad')
+    end
+
+    it 'configures daily rotation for file-backed loggers' do
+      stderr_device = logger.instance_variable_get(:@stderr_log).instance_variable_get(:@logdev)
+      stdout_device = logger.instance_variable_get(:@stdout_log).instance_variable_get(:@logdev)
+
+      expect(stderr_device.instance_variable_get(:@shift_age)).to eq 'daily'
+      expect(stdout_device.instance_variable_get(:@shift_age)).to eq 'daily'
+    end
+  end
 end

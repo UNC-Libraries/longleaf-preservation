@@ -25,36 +25,67 @@ module Longleaf
       plugin :halt             # r.halt for early exit with a status / body
       plugin :error_handler
 
-      # Load the application configuration once at startup. The path is taken
-      # from the LONGLEAF_CFG environment variable, mirroring the CLI behaviour.
-      APP_CONFIG_PATH = ENV['LONGLEAF_CFG']
-
-      # Initialise the application logger for the web context.
-      #   LONGLEAF_LOG_LEVEL   - Ruby Logger level string (default: INFO)
-      #   LONGLEAF_LOG_FORMAT  - optional log format string (see RedirectingLogger)
-      Longleaf::Logging.initialize_logger(
-        false,
-        ENV.fetch('LONGLEAF_LOG_LEVEL', 'INFO'),
-        ENV['LONGLEAF_LOG_FORMAT'],
-        nil
-      )
-
-      @app_manager = begin
-        ApplicationConfigDeserializer.deserialize(APP_CONFIG_PATH) unless APP_CONFIG_PATH.nil?
-      rescue Longleaf::ConfigurationError => e
-        warn "WARN: Failed to load Longleaf application configuration: #{e.message}"
-        nil
-      end
-
-      @job_registry = JobRegistry.new
-
       class << self
         attr_accessor :app_manager
         attr_accessor :job_registry
+
+        def log_dir
+          ENV.fetch('LONGLEAF_LOG_DIR', '/var/log/longleaf')
+        end
+
+        def app_config_path
+          ENV['LONGLEAF_CFG']
+        end
+
+        def log_rotation_mode
+          rotation_mode = ENV.fetch('LONGLEAF_LOG_ROTATION', '').strip.downcase
+          return nil if rotation_mode.empty? || rotation_mode == 'off'
+
+          rotation_mode
+        end
+
+        def configure_logging!
+          failure_only = false
+          log_level = ENV.fetch('LONGLEAF_LOG_LEVEL', 'INFO')
+          log_format = ENV['LONGLEAF_LOG_FORMAT']
+          datetime_format = nil
+
+          if log_rotation_mode
+            Longleaf::Logging.initialize_logger(
+              failure_only,
+              log_level,
+              log_format,
+              datetime_format,
+              stdout_path: File.join(log_dir, 'longleaf.log'),
+              stderr_path: File.join(log_dir, 'longleaf-error.log'),
+              shift_age: log_rotation_mode
+            )
+          else
+            Longleaf::Logging.initialize_logger(failure_only, log_level, log_format, datetime_format)
+          end
+        end
+
+        def load_app_manager
+          ApplicationConfigDeserializer.deserialize(app_config_path) unless app_config_path.nil?
+        rescue Longleaf::ConfigurationError => e
+          Longleaf::Logging.logger.warn("Failed to load Longleaf application configuration: #{e.message}")
+          nil
+        end
       end
 
+      # Initialise the application logger for the web context.
+      #   LONGLEAF_LOG_LEVEL     - Ruby Logger level string (default: INFO)
+      #   LONGLEAF_LOG_FORMAT    - optional log format string (see RedirectingLogger)
+      #   LONGLEAF_LOG_ROTATION  - set to 'daily' to enable file-backed rotation
+      #   LONGLEAF_LOG_DIR       - directory used for rotated web log files
+      configure_logging!
+
+      @app_manager = load_app_manager
+
+      @job_registry = JobRegistry.new
+
       error do |e|
-        warn "ERROR [#{e.class}]: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
+        Longleaf::Logging.logger.error("[#{e.class}]: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
         response.status = 500
         { error: e.message }
       end
