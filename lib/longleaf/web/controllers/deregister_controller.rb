@@ -45,6 +45,8 @@ module Longleaf
         def handle(request)
           error_response(request, 503, 'Application configuration is not loaded') if @app_manager.nil?
 
+          validate_supported_params(request)
+
           params = extract_params(request)
 
           input_stream = params[:body] ? StringIO.new(params[:body]) : nil
@@ -65,6 +67,14 @@ module Longleaf
         end
 
         private
+
+        def validate_supported_params(request)
+          supported_params = %w[file location from_list body force]
+          unsupported_params = request.params.keys - supported_params
+          return if unsupported_params.empty?
+
+          error_response(request, 400, "Unsupported parameter(s): #{unsupported_params.join(', ')}")
+        end
 
         def extract_params(request)
           body = request.params
