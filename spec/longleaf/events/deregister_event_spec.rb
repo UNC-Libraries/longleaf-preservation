@@ -107,14 +107,22 @@ describe Longleaf::DeregisterEvent do
             .get_metadata_record
       }
 
+      before do
+        app_config.md_manager.persist(file_rec)
+      end
+
       context 'without force flag' do
         let(:event) { Longleaf::DeregisterEvent.new(file_rec: file_rec, app_manager: app_config) }
 
-        it "fails and does not change metadata" do
+        it 'succeeds and does not change metadata' do
           status = event.perform
-          expect(status).to eq 1
+          expect(status).to eq 0
+
+          result_md = load_metadata_record(file_path)
 
           expect(md_rec.deregistered).to eq deregistered_timestamp
+          expect(result_md.deregistered).to eq deregistered_timestamp
+          expect(result_md.properties['custom']).to eq 'value'
         end
       end
 
