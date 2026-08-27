@@ -24,7 +24,8 @@ module Longleaf
       #               Mutually exclusive with `file` and `location`.
       #   body     - Inline content to be streamed when `from_list` is '@-'.
       #              Replaces CLI piped stdin.
-      #   force    - Boolean; deregister files that are not currently registered.
+      #   force    - Boolean; refresh the deregistered timestamp for files that
+      #              are already deregistered.
       #
       # Returns JSON:
       #   200 OK  on success

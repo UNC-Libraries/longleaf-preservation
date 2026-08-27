@@ -186,20 +186,25 @@ describe 'POST /api/deregister' do
       before do
         register_files(file_path)
         call_deregister(file: file_path)
+        @initial_deregistered_at = get_metadata_record(file_path).deregistered
       end
 
-      it 'returns 500 on a second request without force' do
+      it 'returns 200 on a second request without force and preserves the existing timestamp' do
         call_deregister(file: file_path)
-        expect(last_response.status).to eq 500
+
+        expect(last_response.status).to eq 200
         expect(response_body['event']).to eq 'deregister'
-        expect(response_body['failure']).to include(file_path)
+        expect(response_body['success']).to include(file_path)
+        expect(response_body['failure']).to be_empty
+        expect(get_metadata_record(file_path).deregistered).to eq @initial_deregistered_at
       end
 
-      it 'returns 200 on a second request with force: true' do
+      it 'returns 200 on a second request with force: true and refreshes the timestamp' do
         call_deregister(file: file_path, force: 'true')
         expect(last_response.status).to eq 200
         expect(response_body['success']).to include(file_path)
         expect(file_deregistered?(file_path)).to be true
+        expect(get_metadata_record(file_path).deregistered).not_to eq @initial_deregistered_at
       end
     end
 

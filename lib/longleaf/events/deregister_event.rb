@@ -10,7 +10,7 @@ module Longleaf
 
     # @param file_rec [FileRecord] file record
     # @param app_manager [ApplicationConfigManager] the application configuration
-    # @param force [boolean] if true, then already deregistered files will be deregistered again
+    # @param force [boolean] if true, refresh the deregistered timestamp on an already deregistered file
     def initialize(file_rec:, app_manager:, force: false)
       raise ArgumentError.new('Must provide a file_rec parameter') if file_rec.nil?
       raise ArgumentError.new('Parameter file_rec must be a FileRecord') \
@@ -30,9 +30,11 @@ module Longleaf
       begin
         md_rec = @file_rec.metadata_record
 
-        # Only need to deregister a deregistered file if the force flag is provided
+        # Repeated deregistration is treated as a successful no-op unless the caller
+        # explicitly asks to refresh the deregistered timestamp.
         if md_rec.deregistered? && !@force
-          raise DeregistrationError.new("Unable to deregister '#{@file_rec.path}', it is already deregistered.")
+          record_success(EventNames::DEREGISTER, @file_rec.path)
+          return return_status
         end
 
         md_rec.deregistered = Time.now.utc.iso8601(3)
