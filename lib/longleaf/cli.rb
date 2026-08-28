@@ -168,7 +168,7 @@ module Longleaf
     method_option(:force,
         :type => :boolean,
         :default => false,
-        :desc => 'Force the deregistration of already deregistered files.')
+        :desc => 'Refresh the deregistered timestamp for already deregistered files.')
     shared_options_group(:common)
     # Deregister event command
     def deregister

@@ -155,29 +155,29 @@ describe 'deregister', :type => :aruba do
       context 'deregister file more than once' do
         before do
           run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+          @initial_deregistered_at = get_metadata_record(file_path, md_dir).deregistered
           run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
         end
 
-        it 'rejects registering file' do
-          # File should be registered by first call
+        it 'succeeds without changing the deregistered timestamp' do
           expect(file_deregistered?(file_path, md_dir)).to be true
-          # Only testing output from second command, so no registered message visible
-          expect(last_command_started).to_not have_output(/SUCCESS.*/)
-          expect(last_command_started).to have_output(
-              /Unable to deregister '#{file_path}', it is already deregistered/)
-          expect(last_command_started).to have_exit_status(1)
+          expect(last_command_started).to have_output(/SUCCESS deregister #{file_path}/)
+          expect(get_metadata_record(file_path, md_dir).deregistered).to eq @initial_deregistered_at
+          expect(last_command_started).to have_exit_status(0)
         end
       end
 
       context 'deregister file more than once with force flag' do
         before do
           run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path}'", fail_on_error: false)
+          @initial_deregistered_at = get_metadata_record(file_path, md_dir).deregistered
           run_command_and_stop("longleaf deregister -c #{config_path} -f '#{file_path}' --force", fail_on_error: false)
         end
 
         it 'deregisters the file' do
           expect(last_command_started).to have_output(/SUCCESS deregister #{file_path}/)
           expect(file_deregistered?(file_path, md_dir)).to be true
+          expect(get_metadata_record(file_path, md_dir).deregistered).not_to eq @initial_deregistered_at
           expect(last_command_started).to have_exit_status(0)
         end
       end
