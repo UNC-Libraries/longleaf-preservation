@@ -1,7 +1,7 @@
 module Longleaf
   module Web
     module Controllers
-      # HTTP controller for the application liveness endpoint.
+      # HTTP controller for the application health endpoint.
       class HealthcheckController
         # @param app_manager [ApplicationConfigManager, nil] loaded application config
         def initialize(app_manager)
