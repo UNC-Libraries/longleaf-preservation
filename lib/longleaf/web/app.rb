@@ -5,6 +5,7 @@ require 'longleaf/services/application_config_deserializer'
 require 'longleaf/web/job_registry'
 require 'longleaf/web/controllers/register_controller'
 require 'longleaf/web/controllers/deregister_controller'
+require 'longleaf/web/controllers/healthcheck_controller'
 require 'longleaf/web/controllers/preserve_controller'
 require 'longleaf/web/controllers/jobs_controller'
 
@@ -69,6 +70,13 @@ module Longleaf
           api_keys = ENV.fetch('LONGLEAF_API_KEYS', '').split(',').map(&:strip).reject(&:empty?)
           unless api_keys.empty? || api_keys.any? { |key| Rack::Utils.secure_compare(key, r.env['HTTP_X_API_KEY'].to_s) }
             r.halt(401, { error: 'Unauthorized' })
+          end
+
+          # GET /api/healthcheck
+          r.on 'healthcheck' do
+            r.get do
+              Controllers::HealthcheckController.new(self.class.app_manager).handle(r)
+            end
           end
 
           # POST /api/register
