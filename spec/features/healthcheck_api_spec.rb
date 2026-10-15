@@ -2,7 +2,6 @@ require 'spec_helper'
 require 'rack/test'
 require 'json'
 require 'longleaf/web/app'
-require_relative '../support/shared_examples/api_key_auth_examples'
 
 describe 'GET /api/healthcheck' do
   include Rack::Test::Methods
@@ -19,12 +18,20 @@ describe 'GET /api/healthcheck' do
     JSON.parse(last_response.body)
   end
 
-  context 'API key authentication' do
-    def make_request
-      get '/api/healthcheck'
+  context 'when API keys are configured' do
+    before do
+      ENV['LONGLEAF_API_KEYS'] = 'test-key'
+      Longleaf::Web::App.app_manager = Object.new
     end
 
-    it_behaves_like 'API key authentication'
+    after { ENV.delete('LONGLEAF_API_KEYS') }
+
+    it 'allows requests without an API key' do
+      get '/api/healthcheck'
+
+      expect(last_response.status).to eq 200
+      expect(response_body).to eq('status' => 'ok')
+    end
   end
 
   context 'when application configuration is not loaded' do
