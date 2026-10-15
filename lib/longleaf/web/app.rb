@@ -63,6 +63,13 @@ module Longleaf
       route do |r|
         # All endpoints are nested under /api
         r.on 'api' do
+          # GET /api/healthcheck is public for monitoring services.
+          r.on 'healthcheck' do
+            r.get do
+              Controllers::HealthcheckController.new(self.class.app_manager).handle(r)
+            end
+          end
+
           # Enforce API key authentication when LONGLEAF_API_KEYS is configured.
           # Clients must supply a valid key in the X-Api-Key request header.
           # When the variable is absent or empty all requests are allowed through.
@@ -70,13 +77,6 @@ module Longleaf
           api_keys = ENV.fetch('LONGLEAF_API_KEYS', '').split(',').map(&:strip).reject(&:empty?)
           unless api_keys.empty? || api_keys.any? { |key| Rack::Utils.secure_compare(key, r.env['HTTP_X_API_KEY'].to_s) }
             r.halt(401, { error: 'Unauthorized' })
-          end
-
-          # GET /api/healthcheck
-          r.on 'healthcheck' do
-            r.get do
-              Controllers::HealthcheckController.new(self.class.app_manager).handle(r)
-            end
           end
 
           # POST /api/register
