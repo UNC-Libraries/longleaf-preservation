@@ -48,6 +48,31 @@ describe Longleaf::SequelIndexDriver do
 
   let(:driver) { Longleaf::SequelIndexDriver.new(app_config, db_adapter, conn_details) }
 
+  describe 'connection options' do
+    it 'accepts pool settings alongside a JDBC URI' do
+      hash_conn_details = if RUBY_ENGINE == 'jruby'
+                            {
+                              'adapter' => 'jdbc',
+                              'uri' => conn_details,
+                              'max_connections' => 7,
+                              'pool_timeout' => 30
+                            }
+                          else
+                            {
+                              'adapter' => db_adapter.to_s,
+                              'database' => db_file,
+                              'max_connections' => 7,
+                              'pool_timeout' => 30
+                            }
+                          end
+      pool_driver = Longleaf::SequelIndexDriver.new(app_config, db_adapter, hash_conn_details)
+
+      expect(pool_driver.send(:db_conn).pool.max_size).to eq 7
+
+      pool_driver.disconnect
+    end
+  end
+
   describe '.setup_index' do
     it 'creates database structure' do
       driver.setup_index

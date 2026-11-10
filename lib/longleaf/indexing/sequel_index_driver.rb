@@ -337,7 +337,14 @@ module Longleaf
     # On JRuby, explicitly require the JDBC driver gem for the database in use,
     # since the JAR must be loaded into the JVM before Sequel can connect.
     def load_jdbc_driver(conn_details)
-      conn_str = conn_details.is_a?(Hash) ? (conn_details['adapter'] || '').to_s : conn_details.to_s
+      conn_str = if conn_details.is_a?(Hash)
+                   (conn_details['uri'] || conn_details[:uri] ||
+                     conn_details['url'] || conn_details[:url] ||
+                     conn_details['database'] || conn_details[:database] ||
+                     conn_details['adapter'] || conn_details[:adapter] || '').to_s
+                 else
+                   conn_details.to_s
+                 end
       begin
         case conn_str
         when /sqlite/i
