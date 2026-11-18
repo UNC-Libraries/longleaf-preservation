@@ -2,6 +2,7 @@ require 'longleaf/errors'
 require 'longleaf/events/event_names'
 require 'longleaf/events/event_status_tracking'
 require 'longleaf/services/metadata_serializer'
+require 'time'
 
 module Longleaf
   # Event to deregister a file from longleaf
@@ -37,7 +38,13 @@ module Longleaf
           return return_status
         end
 
-        md_rec.deregistered = Time.now.utc.iso8601(3)
+        deregistered_at = Time.now.utc.iso8601(3)
+        # Metadata timestamps are stored with millisecond precision. A forced
+        # refresh in the same millisecond must still produce a new value.
+        if md_rec.deregistered? && deregistered_at <= md_rec.deregistered
+          deregistered_at = (Time.iso8601(md_rec.deregistered) + 0.001).utc.iso8601(3)
+        end
+        md_rec.deregistered = deregistered_at
 
         # persist the metadata
         @app_manager.md_manager.persist(@file_rec)

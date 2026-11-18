@@ -144,6 +144,16 @@ describe Longleaf::DeregisterEvent do
           # custom property from original record retained
           expect(result_md.properties['custom']).to eq 'value'
         end
+
+        it 'advances the timestamp when forced within the same millisecond' do
+          timestamp = Time.utc(2026, 1, 1, 12, 0, 0, 123_000)
+          md_rec.deregistered = timestamp.iso8601(3)
+          allow(Time).to receive(:now).and_return(timestamp)
+
+          event.perform
+
+          expect(load_metadata_record(file_path).deregistered).to eq((timestamp + 0.001).iso8601(3))
+        end
       end
     end
 
