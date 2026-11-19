@@ -11,6 +11,7 @@ require 'tmpdir'
 require 'tempfile'
 require 'sequel'
 require 'date'
+require 'uri'
 
 describe Longleaf::SequelIndexDriver do
   include Longleaf::FileHelpers
@@ -47,6 +48,32 @@ describe Longleaf::SequelIndexDriver do
   let(:conn_details) { test_db_conn_str(db_file) }
 
   let(:driver) { Longleaf::SequelIndexDriver.new(app_config, db_adapter, conn_details) }
+
+  describe 'connection options' do
+    it 'accepts pool settings alongside a JDBC URI' do
+      hash_conn_details = if RUBY_ENGINE == 'jruby'
+                            { 'adapter' => 'jdbc', 'uri' => conn_details }
+                          elsif postgres_db_mode?
+                            uri = URI.parse(conn_details)
+                            {
+                              'adapter' => db_adapter.to_s,
+                              'host' => uri.host,
+                              'port' => uri.port,
+                              'database' => uri.path.delete_prefix('/'),
+                              'user' => uri.user,
+                              'password' => uri.password
+                            }
+                          else
+                            { 'adapter' => db_adapter.to_s, 'database' => db_file }
+                          end
+      hash_conn_details.merge!('max_connections' => 7, 'pool_timeout' => 30)
+      pool_driver = Longleaf::SequelIndexDriver.new(app_config, db_adapter, hash_conn_details)
+
+      expect(pool_driver.send(:db_conn).pool.max_size).to eq 7
+
+      pool_driver.disconnect
+    end
+  end
 
   describe '.setup_index' do
     it 'creates database structure' do
